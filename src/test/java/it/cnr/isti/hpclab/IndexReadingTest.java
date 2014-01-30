@@ -14,8 +14,11 @@ import org.terrier.utility.ApplicationSetup;
 public class IndexReadingTest 
 {
 	protected static final String indexPath = "/Users/khast/index-java/";
-	protected static final String indexPrefix = "wt10g";
-	protected static final String term = "000"; // for wt10g
+	protected static final String indexPrefix = "cw09b";
+	protected static final String term = "new"; // for wt10g
+	protected static final String term2 = "000"; // for wt10g
+	protected static final String term3 = "attorno"; // for wt10g
+	protected static final String term4 = "attori"; // for wt10g
 	protected static Index index = null;
 	
 	protected static void setIndex(String path, String prefix) throws IOException
@@ -54,7 +57,7 @@ public class IndexReadingTest
 		
 		System.out.println("Found " + correctDocids.length + " docids in original index");
 		
-		setIndex(indexPath, "cacca");
+		setIndex(indexPath, indexPrefix + ".succinct");
 		le = index.getLexicon().getLexiconEntry(term);
 		
 		assertEquals(le.getDocumentFrequency(), correctDocids.length);
@@ -107,7 +110,7 @@ public class IndexReadingTest
 			
 		System.out.println("Found " + correctDocids.length + " docids in original index");
 		
-		setIndex(indexPath, "cacca");
+		setIndex(indexPath, indexPrefix + ".succinct");
 		le = index.getLexicon().getLexiconEntry(term);
 		
 		System.out.println("Found " + correctDocids.length + " docids in quasi succinct index");
@@ -156,7 +159,7 @@ public class IndexReadingTest
 			
 		System.out.println("Found " + correctDocids.length + " docids in original index");
 		
-		setIndex(indexPath, "cacca");
+		setIndex(indexPath, indexPrefix + ".succinct");
 		le = index.getLexicon().getLexiconEntry(term);
 		
 		System.out.println("Found " + correctDocids.length + " docids in quasi succinct index");
@@ -205,7 +208,7 @@ public class IndexReadingTest
 			
 		System.out.println("Found " + correctDocids.length + " docids in original index");
 		
-		setIndex(indexPath, "cacca");
+		setIndex(indexPath,indexPrefix + ".succinct");
 		le = index.getLexicon().getLexiconEntry(term);
 		
 		System.out.println("Found " + correctDocids.length + " docids in quasi succinct index");

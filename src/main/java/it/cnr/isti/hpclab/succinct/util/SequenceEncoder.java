@@ -138,7 +138,8 @@ public class SequenceEncoder implements Closeable
 
 		l = Utils.lowerBits(correctedLength, upperBound, strict);
 
-		ranked = correctedLength + (upperBound >>> l) + correctedLength * l > upperBound && !strict && indexZeroes;
+		//ranked = correctedLength + (upperBound >>> l) + correctedLength * l > upperBound && !strict && indexZeroes;
+		ranked = false;
 		if (ranked)
 			l = 0;
 

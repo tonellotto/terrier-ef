@@ -5,10 +5,16 @@ import it.cnr.isti.hpclab.succinct.util.FreqReader;
 import it.cnr.isti.hpclab.succinct.util.LongWordBitReader;
 import it.cnr.isti.hpclab.succinct.util.Utils;
 import it.unimi.dsi.fastutil.longs.LongBigList;
+import it.unimi.dsi.util.ByteBufferLongBigList;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel.MapMode;
 
 import org.terrier.structures.DocumentIndex;
+import org.terrier.structures.Index;
 import org.terrier.structures.postings.IterablePosting;
 import org.terrier.structures.postings.WritablePosting;
 
@@ -25,10 +31,21 @@ public class SuccinctBasicIterablePosting implements IterablePosting
 	private long currentFrequency;
 	private long N;
 	
+	//private FileInputStream dis, fis;
+	
 	public SuccinctBasicIterablePosting()
 	{	
 	}
-	
+	/*
+	public SuccinctBasicIterablePosting(Index index, ByteOrder byteOrder, DocumentIndex doi, int numEntries, int upperBoundDocid, int upperBoundFreq, int log2Quantum, long docidsPosition, long freqsPosition) throws IOException
+	{
+		dis = new FileInputStream( index.getPath() + File.separator + index.getPrefix() + ".docids" );
+		fis = new FileInputStream( index.getPath() + File.separator + index.getPrefix() + ".freqs" );
+		
+		this.docidList = ByteBufferLongBigList.map( dis.getChannel(), byteOrder, MapMode.READ_ONLY );
+		this.freqList  = ByteBufferLongBigList.map( fis.getChannel(), byteOrder, MapMode.READ_ONLY );
+	}
+	*/
 	public SuccinctBasicIterablePosting(LongBigList _docidList, LongBigList _freqList, DocumentIndex doi, int numEntries, int upperBoundDocid, int upperBoundFreq, int log2Quantum, long docidsPosition, long freqsPosition)
 	{
 		this.docidList = _docidList;
@@ -102,6 +119,8 @@ public class SuccinctBasicIterablePosting implements IterablePosting
 	@Override
 	public void close() throws IOException 
 	{
+		//dis.close();
+		//fis.close();
 	}
 
 	@Override

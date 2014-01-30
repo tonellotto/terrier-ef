@@ -11,7 +11,7 @@ public class QuasiSuccintIndexTest
 {
 	public static void main(String[] args) throws IOException
 	{
-		Index index = Index.createIndex("/Users/khast/index-java", "cacca");
+		Index index = Index.createIndex("/Users/khast/index-java", "wt10g.succinct");
 		
 		// final int numDocs = index.getCollectionStatistics().getNumberOfDocuments();
 		/*
@@ -22,7 +22,7 @@ public class QuasiSuccintIndexTest
 		*/
 		Lexicon<String> lex = index.getLexicon();
 		
-		LexiconEntry le = lex.getLexiconEntry("attori");
+		LexiconEntry le = lex.getLexiconEntry("new");
 		System.err.println(le);
 		
 		IterablePosting p = index.getInvertedIndex().getPostings(le);

@@ -135,7 +135,7 @@ public class QuasiSuccinctIndexGenerator
 			// We write the new lexicon entry to the new lexicon
 			los.writeNextEntry(leIn.getKey(), leOut);
 					 
-			//if (leIn.getKey().equals("attori"))
+			//if (leIn.getKey().equals("new"))
 			//	System.err.println(freqsOffset);
 			IterablePosting p = srcIndex.getInvertedIndex().getPostings((BitIndexPointer)le);
 					 			

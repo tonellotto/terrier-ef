@@ -1,4 +1,4 @@
-package it.cnr.isti.hpclab;
+package it.cnr.isti.hpclab.deprecated;
 
 import it.cnr.isti.hpclab.succinct.util.DocidReader;
 import it.cnr.isti.hpclab.succinct.util.LongWordBitReader;
@@ -18,6 +18,7 @@ import org.terrier.structures.Index;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.postings.IterablePosting;
 
+@Deprecated
 public class QuasiSuccinctGeneratorSinglePostingListTest 
 {
 	@SuppressWarnings("resource")

@@ -33,6 +33,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
  * @since 2.2
  */
 
+@Deprecated
 public class RunQuery
 {
 	private static void runQuery( String[] arg) throws Exception

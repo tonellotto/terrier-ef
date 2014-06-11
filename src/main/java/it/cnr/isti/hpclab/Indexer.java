@@ -22,6 +22,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class Indexer 
 {
 	static final Logger logger = LoggerFactory.getLogger(Indexer.class);

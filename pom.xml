@@ -4,7 +4,7 @@
 
   <groupId>it.cnr.isti.hpclab</groupId>
   <artifactId>terrier-succinct</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
   <packaging>jar</packaging>
 
   <name>Terrier Quasi Succinct Indexes</name>
@@ -12,7 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <skipTests>true</skipTests>
+<!--    <skipTests>true</skipTests> -->
   </properties>
 
   <dependencies>
@@ -68,6 +68,18 @@
           </execution>
         </executions>
       </plugin>   
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.17</version>
+        <configuration>
+          <excludes>
+          	<exclude>**/deprecated/*.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      
 <!-- 
       		<plugin>
         		<groupId>org.apache.maven.plugins</groupId>

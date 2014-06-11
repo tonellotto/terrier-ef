@@ -14,7 +14,7 @@ import java.util.Properties;
 import java.util.Map.Entry;
 
 import org.terrier.structures.BitIndexPointer;
-import org.terrier.structures.FSADocumentIndex;
+//import org.terrier.structures.FSADocumentIndex;
 import org.terrier.structures.FSOMapFileLexiconOutputStream;
 import org.terrier.structures.Index;
 import org.terrier.structures.LexiconEntry;
@@ -28,7 +28,7 @@ import org.terrier.utility.TerrierTimer;
 
 public class QuasiSuccinctIndexGenerator 
 {
-	private static int LOG2QUANTUM = 8;
+	public static int LOG2QUANTUM = 8;
 	private static ByteOrder BYTEORDER = ByteOrder.nativeOrder();
 	private static int DEFAULT_CACHE_SIZE = 64 * 1024;
 	
@@ -86,13 +86,16 @@ public class QuasiSuccinctIndexGenerator
 		 properties.setProperty("log2Quantum", Integer.toString(LOG2QUANTUM));
 		 properties.setProperty("ByteOrder", BYTEORDER.toString());
 		 
+		 // This property disables the lookup for the meta-0.fsohashmap file that we never bring with new indexes
+		 properties.setProperty("index.meta.reverse-key-names", "");
+		 
 		 properties.store(Files.writeFileStream(propertiesFilename),"");
   	}
 
 	private static void createDocumentIndex(final String path, final String dstPrefix, final Index srcIndex) throws IOException 
 	{
 		//Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".document.fsarrayfile", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".document.fsarrayfile");
-		SuccinctDocumentIndex.write((FSADocumentIndex) srcIndex.getDocumentIndex(), path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".sizes");
+		SuccinctDocumentIndex.write((org.terrier.structures.DocumentIndex) srcIndex.getDocumentIndex(), path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".sizes");
 	}
 
 	private static void createMetaIndex(final String path, final String dstPrefix, final Index srcIndex) throws IOException 

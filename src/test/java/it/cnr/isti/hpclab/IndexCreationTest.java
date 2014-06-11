@@ -2,24 +2,32 @@ package it.cnr.isti.hpclab;
 
 import java.io.IOException;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.terrier.structures.Index;
 import org.terrier.structures.Lexicon;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.postings.IterablePosting;
 
-public class QuasiSuccintIndexTest 
+public class IndexCreationTest extends ApplicationSetupTest
 {
-	public static void main(String[] args) throws IOException
+	private Index index = null;
+	
+	@Before public void createIndex() throws Exception
 	{
-		Index index = Index.createIndex("/Users/khast/index-java", "wt10g.succinct");
+		super.doShakespeareIndexing();
+		index = Index.createIndex();
 		
-		// final int numDocs = index.getCollectionStatistics().getNumberOfDocuments();
-		/*
-		DocumentIndex docIndex = index.getDocumentIndex();
-		
-		for (int i = 0; i < numDocs; i++)
-			System.err.println(docIndex.getDocumentLength(i));
-		*/
+	}
+	
+	@After public void deleteIndex() throws IOException
+	{
+		index.close();
+	} 
+	
+	@Test public void printPostingList() throws IOException
+	{
 		Lexicon<String> lex = index.getLexicon();
 		
 		LexiconEntry le = lex.getLexiconEntry("new");
@@ -28,7 +36,9 @@ public class QuasiSuccintIndexTest
 		IterablePosting p = index.getInvertedIndex().getPostings(le);
 		while (p.next() != IterablePosting.END_OF_LIST)
 		{
-			System.err.println(p);
+			System.err.print(p + ", ");
 		}
+		System.err.println();
 	}
+	
 }

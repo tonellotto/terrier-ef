@@ -1,4 +1,4 @@
-package it.cnr.isti.hpclab;
+package it.cnr.isti.hpclab.deprecated;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

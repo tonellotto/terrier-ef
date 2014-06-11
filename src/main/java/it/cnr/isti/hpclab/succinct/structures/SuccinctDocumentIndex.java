@@ -10,7 +10,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.terrier.structures.DocumentIndex;
 import org.terrier.structures.DocumentIndexEntry;
-import org.terrier.structures.FSADocumentIndex;
+//import org.terrier.structures.FSADocumentIndex;
 import org.terrier.structures.Index;
 
 public class SuccinctDocumentIndex implements DocumentIndex
@@ -52,7 +52,7 @@ public class SuccinctDocumentIndex implements DocumentIndex
 		return docLengths.length;
 	}
 
-	public static void write(final FSADocumentIndex index, final String path) throws IOException
+	public static void write(final DocumentIndex index, final String path) throws IOException
 	{
 		final OutputBitStream out = new OutputBitStream( new FileOutputStream(path));
 		for (int i = 0; i < index.getNumberOfDocuments(); i++)

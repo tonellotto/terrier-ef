@@ -1,6 +1,7 @@
 package it.cnr.isti.hpclab.succinct;
 
 import it.cnr.isti.hpclab.succinct.structures.SuccinctDocumentIndex;
+import it.cnr.isti.hpclab.succinct.structures.SuccinctInvertedIndex;
 import it.cnr.isti.hpclab.succinct.structures.SuccinctLexiconEntry;
 import it.cnr.isti.hpclab.succinct.util.LongWordBitWriter;
 import it.cnr.isti.hpclab.succinct.util.SequenceEncoder;
@@ -39,14 +40,14 @@ public class QuasiSuccinctIndexGenerator
 	
 	public static void main(final String args[]) throws IOException 
 	{
-		if (args.length != 3) {
-			System.err.println("Usage: java it.cnr.isti.hpclab.succinct.QuasiSuccinctIndexGenerator <index.path> <src.index.prefix> <dst.index.prefix>");
+		if (args.length != 2) {
+			System.err.println("Usage: java it.cnr.isti.hpclab.succinct.QuasiSuccinctIndexGenerator <index.path> <src.index.prefix>");
 			System.exit(-1);
 		}
 
 		String path = args[0];
 		String srcPrefix = args[1];
-		String dstPrefix = args[2];
+		String dstPrefix = srcPrefix + SuccinctInvertedIndex.USUAL_PREFIX;
 
 		Index srcIndex;
 

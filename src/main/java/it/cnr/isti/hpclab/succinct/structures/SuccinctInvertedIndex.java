@@ -18,6 +18,8 @@ import org.terrier.structures.postings.IterablePosting;
 
 public class SuccinctInvertedIndex implements PostingIndex<BitIndexPointer>
 {
+	public final static String USUAL_PREFIX = ".sux";
+	
 	private Index index = null;
 	private DocumentIndex doi = null;
 	
@@ -57,6 +59,7 @@ public class SuccinctInvertedIndex implements PostingIndex<BitIndexPointer>
 		long freqOffset = ((SuccinctLexiconEntry)pointer).getFreqOffset();
 		int F = ((SuccinctLexiconEntry)pointer).getFrequency();
 		
+		/*
 		String byteOrderString = index.getIndexProperty("ByteOrder", "");
 		ByteOrder byteOrder;
 		if (byteOrderString.equals("LITTLE_ENDIAN"))
@@ -65,7 +68,7 @@ public class SuccinctInvertedIndex implements PostingIndex<BitIndexPointer>
 			byteOrder = ByteOrder.BIG_ENDIAN;
 		else
 			throw new RuntimeException();
-		
+		*/
 		
 		int log2Quantum = index.getIntIndexProperty("log2Quantum", 0);
 		if (log2Quantum == 0)

@@ -3,6 +3,7 @@ package it.cnr.isti.hpclab;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import it.cnr.isti.hpclab.succinct.QuasiSuccinctIndexGenerator;
+import it.cnr.isti.hpclab.succinct.structures.SuccinctInvertedIndex;
 import it.cnr.isti.hpclab.succinct.structures.SuccinctLexiconEntry;
 
 import java.io.IOException;
@@ -45,14 +46,13 @@ public class IndexReadingTest extends ApplicationSetupTest
 		super.doShakespeareIndexing();
 		originalIndex = Index.createIndex();
 		
-		String args[] = new String[3];
+		String args[] = new String[2];
 		args[0] = originalIndex.getPath();
 		args[1] = originalIndex.getPrefix();
-		args[2] = originalIndex.getPrefix() + ".sux";
 		QuasiSuccinctIndexGenerator.LOG2QUANTUM = 3;
 		it.cnr.isti.hpclab.succinct.QuasiSuccinctIndexGenerator.main(args);
 		
-		succinctIndex = Index.createIndex(args[0], args[2]);
+		succinctIndex = Index.createIndex(args[0], args[1] + SuccinctInvertedIndex.USUAL_PREFIX);
 		// System.out.println(succinctIndex.getIndexProperty("log2Quantum", ""));
 	}
 	

@@ -6,20 +6,39 @@ import it.cnr.isti.hpclab.succinct.QuasiSuccinctIndexGenerator;
 import it.cnr.isti.hpclab.succinct.structures.SuccinctLexiconEntry;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.terrier.structures.BasicLexiconEntry;
 import org.terrier.structures.Index;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.postings.IterablePosting;
 
+@RunWith(value = Parameterized.class)
 public class IndexReadingTest extends ApplicationSetupTest
 {
 	protected Index originalIndex = null;
 	protected Index succinctIndex = null;
+	
+	private int skipSize;
+	
+	public IndexReadingTest(int skipSize)
+	{
+		this.skipSize = skipSize;
+	}
+	
+	@Parameters
+	public static Collection<Object[]> skipSizeValues()
+	{
+		return Arrays.asList(new Object[][] { {2}, {3}, {4} });
+	}
 	
 	@Before public void createIndex() throws Exception
 	{
@@ -71,9 +90,9 @@ public class IndexReadingTest extends ApplicationSetupTest
 	}
 	
 	@Test
-	public void nextIntoEvery2() throws IOException
+	public void nextIntoEverySkip() throws IOException
 	{
-		System.err.println("Skipping every 2 postings");
+		System.err.println("Skipping every " + skipSize + " postings");
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> succinctEntry;
@@ -101,7 +120,7 @@ public class IndexReadingTest extends ApplicationSetupTest
 			int cnt = 0;
 			while (op.next() != IterablePosting.END_OF_LIST) {
 				
-				if (++cnt == 2) {
+				if (++cnt == skipSize) {
 					cnt = 0;
 					numSkips++;
 					sp.next(op.getId());
@@ -117,103 +136,11 @@ public class IndexReadingTest extends ApplicationSetupTest
 		}
 	}
 	
-	@Test
-	public void nextIntoEvery3() throws IOException
-	{
-		System.err.println("Skipping every 3 postings");
-		Map.Entry<String, LexiconEntry> originalEntry;
-		Map.Entry<String, LexiconEntry> succinctEntry;
-		
-		BasicLexiconEntry ble;
-		SuccinctLexiconEntry sle;
-		
-		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
-			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
-			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
-			
-			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
-			//System.err.println(succinctEntry.getKey());
-			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (SuccinctLexiconEntry) succinctEntry.getValue();
-			
-			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
-			
-			IterablePosting op = originalIndex.getInvertedIndex().getPostings(ble);
-			IterablePosting sp = succinctIndex.getInvertedIndex().getPostings(sle);
-			
-			int numSkips = 0;
-			
-			int cnt = 0;
-			while (op.next() != IterablePosting.END_OF_LIST) {
-				
-				if (++cnt == 3) {
-					cnt = 0;
-					numSkips++;
-					sp.next(op.getId());
-					assertTrue(sp.getId() != IterablePosting.END_OF_LIST);
-					assertEquals(op.getId(), sp.getId());
-					assertEquals(op.getFrequency(), sp.getFrequency());
-					assertEquals(op.getDocumentLength(), sp.getDocumentLength());
-				}			
-			}
 
-			if (numSkips > 0)
-				System.err.println("SKIP: " + numSkips);
-		}
-	}
-	
 	@Test
-	public void nextIntoEvery4() throws IOException
+	public void nextAfterEverySkip() throws IOException
 	{
-		System.err.println("Skipping every 4 postings");
-		
-		Map.Entry<String, LexiconEntry> originalEntry;
-		Map.Entry<String, LexiconEntry> succinctEntry;
-		
-		BasicLexiconEntry ble;
-		SuccinctLexiconEntry sle;
-		
-		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
-			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
-			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
-			
-			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
-			//System.err.println(succinctEntry.getKey());
-			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (SuccinctLexiconEntry) succinctEntry.getValue();
-			
-			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
-			
-			IterablePosting op = originalIndex.getInvertedIndex().getPostings(ble);
-			IterablePosting sp = succinctIndex.getInvertedIndex().getPostings(sle);
-			
-			int numSkips = 0;
-			
-			int cnt = 0;
-			while (op.next() != IterablePosting.END_OF_LIST) {
-				
-				if (++cnt == 4) {
-					cnt = 0;
-					numSkips++;
-					sp.next(op.getId());
-					assertTrue(sp.getId() != IterablePosting.END_OF_LIST);
-					assertEquals(op.getId(), sp.getId());
-					assertEquals(op.getFrequency(), sp.getFrequency());
-					assertEquals(op.getDocumentLength(), sp.getDocumentLength());
-				}			
-			}
-
-			if (numSkips > 0)
-				System.err.println("SKIP: " + numSkips);
-		}
-	}
-	
-	@Test
-	public void nextAfterEvery2() throws IOException
-	{
-		System.err.println("Skipping after every 2 postings");
+		System.err.println("Skipping after every " + skipSize + " postings");
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> succinctEntry;
@@ -241,105 +168,7 @@ public class IndexReadingTest extends ApplicationSetupTest
 			int cnt = 0;
 			while (op.next() != IterablePosting.END_OF_LIST) {
 				
-				if (++cnt == 2) {
-					cnt = 0;
-					numSkips++;
-					sp.next(op.getId() + 1);
-					op.next();
-					assertEquals(op.getId(), sp.getId());
-					if (op.getId() != IterablePosting.END_OF_LIST) {
-						assertEquals(op.getFrequency(), sp.getFrequency());
-						assertEquals(op.getDocumentLength(), sp.getDocumentLength());
-					}
-				}			
-			}
-
-			if (numSkips > 0)
-				System.err.println("SKIP: " + numSkips);
-		}
-	}
-	
-	@Test
-	public void nextAfterEvery3() throws IOException
-	{
-		System.err.println("Skipping after every 3 postings");
-		
-		Map.Entry<String, LexiconEntry> originalEntry;
-		Map.Entry<String, LexiconEntry> succinctEntry;
-		
-		BasicLexiconEntry ble;
-		SuccinctLexiconEntry sle;
-		
-		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
-			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
-			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
-			
-			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
-			// System.err.println(succinctEntry.getKey());
-			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (SuccinctLexiconEntry) succinctEntry.getValue();
-			
-			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
-			
-			IterablePosting op = originalIndex.getInvertedIndex().getPostings(ble);
-			IterablePosting sp = succinctIndex.getInvertedIndex().getPostings(sle);
-			
-			int numSkips = 0;
-			
-			int cnt = 0;
-			while (op.next() != IterablePosting.END_OF_LIST) {
-				
-				if (++cnt == 3) {
-					cnt = 0;
-					numSkips++;
-					sp.next(op.getId() + 1);
-					op.next();
-					assertEquals(op.getId(), sp.getId());
-					if (op.getId() != IterablePosting.END_OF_LIST) {
-						assertEquals(op.getFrequency(), sp.getFrequency());
-						assertEquals(op.getDocumentLength(), sp.getDocumentLength());
-					}
-				}			
-			}
-
-			if (numSkips > 0)
-				System.err.println("SKIP: " + numSkips);
-		}
-	}
-	
-	@Test
-	public void nextAfterEvery4() throws IOException
-	{
-		System.err.println("Skipping after every 4 postings");
-		
-		Map.Entry<String, LexiconEntry> originalEntry;
-		Map.Entry<String, LexiconEntry> succinctEntry;
-		
-		BasicLexiconEntry ble;
-		SuccinctLexiconEntry sle;
-		
-		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
-			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
-			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
-			
-			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
-			// System.err.println(succinctEntry.getKey());
-			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (SuccinctLexiconEntry) succinctEntry.getValue();
-			
-			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
-			
-			IterablePosting op = originalIndex.getInvertedIndex().getPostings(ble);
-			IterablePosting sp = succinctIndex.getInvertedIndex().getPostings(sle);
-			
-			int numSkips = 0;
-			
-			int cnt = 0;
-			while (op.next() != IterablePosting.END_OF_LIST) {
-				
-				if (++cnt == 4) {
+				if (++cnt == skipSize) {
 					cnt = 0;
 					numSkips++;
 					sp.next(op.getId() + 1);

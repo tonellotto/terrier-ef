@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import org.terrier.structures.DocumentIndex;
 import org.terrier.structures.DocumentIndexEntry;
 //import org.terrier.structures.FSADocumentIndex;
-import org.terrier.structures.Index;
+import org.terrier.structures.IndexOnDisk;
 
 public class SuccinctDocumentIndex implements DocumentIndex
 {
@@ -19,7 +19,7 @@ public class SuccinctDocumentIndex implements DocumentIndex
 	
 	private int[] docLengths = null;
 	
-	public SuccinctDocumentIndex(final Index index) throws IOException
+	public SuccinctDocumentIndex(final IndexOnDisk index) throws IOException
 	{
 		this(index.getPath() + "/" + index.getPrefix() + ".sizes", index.getCollectionStatistics().getNumberOfDocuments());
 	}

@@ -18,6 +18,7 @@ import org.terrier.structures.BitIndexPointer;
 //import org.terrier.structures.FSADocumentIndex;
 import org.terrier.structures.FSOMapFileLexiconOutputStream;
 import org.terrier.structures.Index;
+import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.LexiconOutputStream;
 import org.terrier.structures.collections.FSOrderedMapFile;
@@ -49,7 +50,7 @@ public class QuasiSuccinctIndexGenerator
 		String srcPrefix = args[1];
 		String dstPrefix = srcPrefix + SuccinctInvertedIndex.USUAL_PREFIX;
 
-		Index srcIndex;
+		IndexOnDisk srcIndex;
 
 		srcIndex = Index.createIndex(path, srcPrefix);
 		if (Index.getLastIndexLoadError() != null) {
@@ -63,7 +64,7 @@ public class QuasiSuccinctIndexGenerator
 		createProperties(path, dstPrefix, srcIndex);
 	}
 
-	private static void createProperties(final String path, final String dstPrefix, final Index srcIndex) throws IOException 
+	private static void createProperties(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
 	{
 		 Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".properties",
 			 		    path               + ApplicationSetup.FILE_SEPARATOR + dstPrefix            + ".properties");
@@ -73,14 +74,14 @@ public class QuasiSuccinctIndexGenerator
 		 Properties properties = new Properties();
 		 properties.load(Files.openFileStream(propertiesFilename));
 		 properties.setProperty("index.inverted.class", "it.cnr.isti.hpclab.succinct.structures.SuccinctInvertedIndex");
-		 properties.setProperty("index.inverted.parameter_types", "org.terrier.structures.Index,java.lang.String,org.terrier.structures.DocumentIndex");
+		 properties.setProperty("index.inverted.parameter_types", "org.terrier.structures.IndexOnDisk,java.lang.String,org.terrier.structures.DocumentIndex");
 		 properties.setProperty("index.inverted.parameter_values", "index,structureName,document");
 		 
 		 properties.setProperty("index.lexicon-valuefactory.class", "it.cnr.isti.hpclab.succinct.structures.SuccinctLexiconEntry$Factory");
 		 properties.setProperty("index.lexicon.bsearchshortcut", "default");
 		 
 		 properties.setProperty("index.document.class", "it.cnr.isti.hpclab.succinct.structures.SuccinctDocumentIndex");
-		 properties.setProperty("index.document.parameter_types", "org.terrier.structures.Index");
+		 properties.setProperty("index.document.parameter_types", "org.terrier.structures.IndexOnDisk");
 		 properties.setProperty("index.document.parameter_values", "index");
 
 		 
@@ -93,20 +94,20 @@ public class QuasiSuccinctIndexGenerator
 		 properties.store(Files.writeFileStream(propertiesFilename),"");
   	}
 
-	private static void createDocumentIndex(final String path, final String dstPrefix, final Index srcIndex) throws IOException 
+	private static void createDocumentIndex(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
 	{
 		//Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".document.fsarrayfile", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".document.fsarrayfile");
 		SuccinctDocumentIndex.write((org.terrier.structures.DocumentIndex) srcIndex.getDocumentIndex(), path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".sizes");
 	}
 
-	private static void createMetaIndex(final String path, final String dstPrefix, final Index srcIndex) throws IOException 
+	private static void createMetaIndex(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
 	{
 		Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".meta.zdata", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".meta.zdata");
 		Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".meta.idx", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".meta.idx");
 	}
 
 	@SuppressWarnings("resource")
-	private static void createLexiconDocidsFreqs(final String path, final String dstPrefix, final Index srcIndex) throws IOException 
+	private static void createLexiconDocidsFreqs(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
 	{
 		// The new lexicon writer (please note it is an output stream)
 		LexiconOutputStream<String> los = new FSOMapFileLexiconOutputStream(path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(ApplicationSetup.MAX_TERM_LENGTH));

@@ -12,7 +12,8 @@ import java.io.FileInputStream;
 
 import org.terrier.structures.BitIndexPointer;
 import org.terrier.structures.DocumentIndex;
-import org.terrier.structures.Index;
+import org.terrier.structures.IndexOnDisk;
+import org.terrier.structures.Pointer;
 import org.terrier.structures.PostingIndex;
 import org.terrier.structures.postings.IterablePosting;
 
@@ -20,19 +21,19 @@ public class SuccinctInvertedIndex implements PostingIndex<BitIndexPointer>
 {
 	public final static String USUAL_PREFIX = ".sux";
 	
-	private Index index = null;
+	private IndexOnDisk index = null;
 	private DocumentIndex doi = null;
 	
 	private LongBigList docidsList;
 	private LongBigList freqsList;
 	
-	public SuccinctInvertedIndex(Index index, String structureName) throws IOException 
+	public SuccinctInvertedIndex(IndexOnDisk index, String structureName) throws IOException 
 	{
 		this(index, structureName, index.getDocumentIndex());
 	}
 
 	@SuppressWarnings("resource")
-	public SuccinctInvertedIndex(Index index, String structureName, DocumentIndex _doi) throws IOException
+	public SuccinctInvertedIndex(IndexOnDisk index, String structureName, DocumentIndex _doi) throws IOException
 	{
 		this.index = index;
 		this.doi = _doi;
@@ -51,7 +52,8 @@ public class SuccinctInvertedIndex implements PostingIndex<BitIndexPointer>
 
 	}
 	
-	public IterablePosting getPostings(BitIndexPointer pointer) throws IOException 
+	@Override
+	public IterablePosting getPostings(Pointer pointer) throws IOException 
 	{
 		int df = ((SuccinctLexiconEntry)pointer).getDocumentFrequency();
 		int N = index.getCollectionStatistics().getNumberOfDocuments();
@@ -85,4 +87,5 @@ public class SuccinctInvertedIndex implements PostingIndex<BitIndexPointer>
 	{
 		
 	}
+
 }

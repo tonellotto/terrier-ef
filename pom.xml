@@ -4,7 +4,7 @@
 
   <groupId>it.cnr.isti.hpclab</groupId>
   <artifactId>terrier-succinct</artifactId>
-  <version>1.1</version>
+  <version>1.4.0</version>
   <packaging>jar</packaging>
 
   <name>Terrier Quasi Succinct Indexes</name>
@@ -12,7 +12,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-<!--    <skipTests>true</skipTests> -->
   </properties>
 
   <dependencies>
@@ -39,7 +38,7 @@
     <dependency>
       <groupId>it.cnr.isti.hpclab</groupId>
       <artifactId>terrier-skipping</artifactId>
-      <version>1.1</version>
+      <version>1.4.0</version>
     </dependency>
     
   </dependencies>

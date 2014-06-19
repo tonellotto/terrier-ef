@@ -19,13 +19,14 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.terrier.structures.BasicLexiconEntry;
 import org.terrier.structures.Index;
+import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.postings.IterablePosting;
 
 @RunWith(value = Parameterized.class)
 public class IndexReadingTest extends ApplicationSetupTest
 {
-	protected Index originalIndex = null;
+	protected IndexOnDisk originalIndex = null;
 	protected Index succinctIndex = null;
 	
 	private int skipSize;

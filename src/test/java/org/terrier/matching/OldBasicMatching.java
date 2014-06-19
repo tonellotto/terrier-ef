@@ -134,13 +134,14 @@ public class OldBasicMatching implements Matching {
 	 * @param _index the object that encapsulates the basic
 	 *        data structures used for retrieval.
 	 */
+	@SuppressWarnings("unchecked")
 	public OldBasicMatching(Index _index) {
 		documentModifiers = new ArrayList<DocumentScoreModifier>();
 		this.index = _index;
 		this.lexicon = _index.getLexicon();
 
 		
-		this.invertedIndex = _index.getInvertedIndex();
+		this.invertedIndex = (PostingIndex<Pointer>) _index.getInvertedIndex();
 		this.collectionStatistics = _index.getCollectionStatistics();
 		resultSet = new CollectionResultSet(collectionStatistics.getNumberOfDocuments());		
 		//adding document and term score modifiers that will be 

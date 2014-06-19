@@ -27,7 +27,7 @@ import org.terrier.structures.postings.IterablePosting;
 public class IndexReadingTest extends ApplicationSetupTest
 {
 	protected IndexOnDisk originalIndex = null;
-	protected Index succinctIndex = null;
+	protected IndexOnDisk succinctIndex = null;
 	
 	private int skipSize;
 	
@@ -55,6 +55,12 @@ public class IndexReadingTest extends ApplicationSetupTest
 		
 		succinctIndex = Index.createIndex(args[0], args[1] + SuccinctInvertedIndex.USUAL_PREFIX);
 		// System.out.println(succinctIndex.getIndexProperty("log2Quantum", ""));
+	}
+	
+	@Test
+	public void testRandomPostingLists() throws IOException
+	{
+		QuasiSuccinctIndexGenerator.randomSanityCheck(originalIndex, succinctIndex);
 	}
 	
 	@Test public void testPostingLists() throws IOException

@@ -1,5 +1,6 @@
 package it.cnr.isti.hpclab.succinct;
 
+import static org.junit.Assert.assertEquals;
 import it.cnr.isti.hpclab.succinct.structures.SuccinctDocumentIndex;
 import it.cnr.isti.hpclab.succinct.structures.SuccinctInvertedIndex;
 import it.cnr.isti.hpclab.succinct.structures.SuccinctLexiconEntry;
@@ -13,7 +14,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Random;
 
+import org.terrier.structures.BasicLexiconEntry;
 import org.terrier.structures.BitIndexPointer;
 //import org.terrier.structures.FSADocumentIndex;
 import org.terrier.structures.FSOMapFileLexiconOutputStream;
@@ -57,11 +60,70 @@ public class QuasiSuccinctIndexGenerator
 			System.err.println(Index.getLastIndexLoadError());
 			System.exit(-2);
 		}
-		
+				
 		createLexiconDocidsFreqs(path, dstPrefix, srcIndex);
 		createDocumentIndex(path, dstPrefix, srcIndex);
 		createMetaIndex(path, dstPrefix, srcIndex);
 		createProperties(path, dstPrefix, srcIndex);
+		
+		
+		IndexOnDisk dstIndex;
+		dstIndex = Index.createIndex(path, dstPrefix);
+		if (Index.getLastIndexLoadError() != null) {
+			System.err.println(Index.getLastIndexLoadError());
+			System.exit(-2);
+		}
+				
+		randomSanityCheck(srcIndex, dstIndex);
+	}
+
+	public static void randomSanityCheck(IndexOnDisk srcIndex, IndexOnDisk dstIndex) throws IOException 
+	{
+		Random rnd = new Random(System.currentTimeMillis());
+		int numSamples = 50 + 1 + rnd.nextInt(50);
+		System.err.println("Randomly checking " + numSamples + " terms and posting list for sanity check");
+		
+		if (srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() != dstIndex.getCollectionStatistics().getNumberOfUniqueTerms()) {
+			System.err.println("Original index has " + srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
+			System.err.println("Succinct index has " + dstIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
+			System.exit(-1);
+		}
+
+		Map.Entry<String, LexiconEntry> originalEntry;
+		Map.Entry<String, LexiconEntry> succinctEntry;
+		
+		BasicLexiconEntry ble;
+		SuccinctLexiconEntry sle;
+
+		for (int i = 0; i < numSamples; i++) {
+			int termid = rnd.nextInt(dstIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+			
+			originalEntry = srcIndex.getLexicon().getLexiconEntry(termid);
+			succinctEntry = dstIndex.getLexicon().getLexiconEntry(termid);
+			
+			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
+			//System.err.println(succinctEntry.getKey());
+			
+			ble = (BasicLexiconEntry) originalEntry.getValue();
+			sle = (SuccinctLexiconEntry) succinctEntry.getValue();
+
+			
+			System.err.println("Checking term " + originalEntry.getKey());
+
+			IterablePosting srcPosting = srcIndex.getInvertedIndex().getPostings(ble);
+			IterablePosting dstPosting = dstIndex.getInvertedIndex().getPostings(sle);
+						
+			while (srcPosting.next() != IterablePosting.END_OF_LIST && dstPosting.next() != IterablePosting.END_OF_LIST) {
+				//System.err.println("DOCID: " + srcPosting.getId() + " -> " + dstPosting.getId());
+				//System.err.println("FREQ:  " + srcPosting.getFrequency() + " -> " + dstPosting.getFrequency());
+				if ((srcPosting.getId() != dstPosting.getId()) || (srcPosting.getFrequency() != dstPosting.getFrequency())) {
+					System.err.println("Something went wrong...");
+					System.exit(-1);
+				}
+			}
+		}
+			
+		
 	}
 
 	private static void createProperties(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
@@ -106,7 +168,6 @@ public class QuasiSuccinctIndexGenerator
 		Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".meta.idx", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".meta.idx");
 	}
 
-	@SuppressWarnings("resource")
 	private static void createLexiconDocidsFreqs(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
 	{
 		// The new lexicon writer (please note it is an output stream)
@@ -124,11 +185,13 @@ public class QuasiSuccinctIndexGenerator
 		LongWordBitWriter freqs = new LongWordBitWriter( new FileOutputStream(path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".freqs").getChannel(), BYTEORDER );
 
 		
-		TerrierTimer tt = new TerrierTimer("", srcIndex.getCollectionStatistics().getNumberOfUniqueTerms());tt.start();    
+		TerrierTimer tt = new TerrierTimer("Creating Lexicon Docids and Frequencies", srcIndex.getCollectionStatistics().getNumberOfUniqueTerms());tt.start();    
 		Iterator<Entry<String, LexiconEntry>> lexiconIterator = srcIndex.getLexicon().iterator();
 				
 		long docidsOffset = 0;
 		long freqsOffset = 0;
+		
+		int cnt = 0;
 		while (lexiconIterator.hasNext()) {
 			// We get the next lexicon entry from the source index (assuming them ordered by termid)
 			Map.Entry<String, LexiconEntry> leIn = lexiconIterator.next();
@@ -162,15 +225,16 @@ public class QuasiSuccinctIndexGenerator
 			freqsOffset  += freqsAccumulator.dump(freqs);
 			
 			tt.increment();
+			cnt++;
 		}
 		tt.finished();
+		System.err.println("Total " + srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() + ", processed " + cnt);
 				
 		docidsAccumulator.close();
 		docids.close();
 		freqsAccumulator.close();
 		freqs.close();
 		los.close();
-		srcIndex.close();
 		
 		// Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".lexicon.fsomaphash", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".lexicon.fsomaphash");
 	}

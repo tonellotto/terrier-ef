@@ -108,7 +108,7 @@ public class QuasiSuccinctIndexGenerator
 			sle = (SuccinctLexiconEntry) succinctEntry.getValue();
 
 			
-			System.err.println("Checking term " + originalEntry.getKey());
+			System.err.println("Checking term " + originalEntry.getKey() + " (" + originalEntry.getValue().getDocumentFrequency() + " entries)");
 
 			IterablePosting srcPosting = srcIndex.getInvertedIndex().getPostings(ble);
 			IterablePosting dstPosting = dstIndex.getInvertedIndex().getPostings(sle);
@@ -168,6 +168,7 @@ public class QuasiSuccinctIndexGenerator
 		Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".meta.idx", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".meta.idx");
 	}
 
+	@SuppressWarnings("resource")
 	private static void createLexiconDocidsFreqs(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
 	{
 		// The new lexicon writer (please note it is an output stream)

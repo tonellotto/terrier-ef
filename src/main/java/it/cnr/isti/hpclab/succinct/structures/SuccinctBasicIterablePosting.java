@@ -5,16 +5,10 @@ import it.cnr.isti.hpclab.succinct.util.FreqReader;
 import it.cnr.isti.hpclab.succinct.util.LongWordBitReader;
 import it.cnr.isti.hpclab.succinct.util.Utils;
 import it.unimi.dsi.fastutil.longs.LongBigList;
-import it.unimi.dsi.util.ByteBufferLongBigList;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteOrder;
-import java.nio.channels.FileChannel.MapMode;
 
 import org.terrier.structures.DocumentIndex;
-import org.terrier.structures.Index;
 import org.terrier.structures.postings.IterablePosting;
 import org.terrier.structures.postings.WritablePosting;
 
@@ -173,5 +167,4 @@ public class SuccinctBasicIterablePosting implements IterablePosting
 	{
 		throw new RuntimeException();
 	}
-
 }

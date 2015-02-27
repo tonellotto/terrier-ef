@@ -168,5 +168,4 @@ public class SuccinctBasicIterablePosting implements IterablePosting
 	{
 		throw new RuntimeException();
 	}
-
 }

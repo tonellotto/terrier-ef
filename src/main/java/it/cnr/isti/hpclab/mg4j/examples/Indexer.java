@@ -1,4 +1,4 @@
-package it.cnr.isti.hpclab;
+package it.cnr.isti.hpclab.mg4j.examples;
 
 import it.unimi.di.big.mg4j.document.CompositeDocumentFactory;
 import it.unimi.di.big.mg4j.document.DocumentFactory;
@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Deprecated
+@SuppressWarnings("unused")
 public class Indexer 
 {
 	static final Logger logger = LoggerFactory.getLogger(Indexer.class);

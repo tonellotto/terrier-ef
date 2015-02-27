@@ -1,4 +1,4 @@
-package it.cnr.isti.hpclab;
+package it.cnr.isti.hpclab.mg4j.examples;
 
 import it.unimi.di.big.mg4j.document.HtmlDocumentFactory;
 import it.unimi.di.big.mg4j.index.DiskBasedIndex;
@@ -28,12 +28,10 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
  * a {@linkplain QueryEngine query engine}. First argument is the basename of an index (possibly produced
  * by an {@link HtmlDocumentFactory}) that has fields <code>title</code> and <code>text</code>.
  * Second argument is a query.
- * 
- * @author Sebastiano Vigna
- * @since 2.2
  */
 
 @Deprecated
+@SuppressWarnings("unused")
 public class RunQuery
 {
 	private static void runQuery( String[] arg) throws Exception
@@ -93,7 +91,6 @@ public class RunQuery
 		
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static void main( String arg[] ) throws Exception 
 	{
 		/*

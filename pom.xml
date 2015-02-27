@@ -21,20 +21,20 @@
       <artifactId>junit</artifactId>
       <version>4.8.1</version>
     </dependency>
-
+<!--
     <dependency>
 	<groupId>it.unimi.dsi</groupId>
 	<artifactId>dsiutils</artifactId>
 	<version>2.1.7</version>
     </dependency>    
-
-
+-->
+<!--
 	<dependency>
 		<groupId>it.unimi.di</groupId>
 		<artifactId>mg4j-big</artifactId>
 		<version>5.2.1</version>
 	</dependency>
-	
+-->
     <dependency>
       <groupId>it.cnr.isti.hpclab</groupId>
       <artifactId>terrier-skipping</artifactId>
@@ -43,70 +43,53 @@
     
   </dependencies>
 
-  <build>
-  
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <configuration>
-          <downloadSources>true</downloadSources>
-          <downloadJavadocs>true</downloadJavadocs>
-        </configuration>
-      </plugin>
+  <build>  
+
+		<plugins>
+   			<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-eclipse-plugin</artifactId>
+        		<configuration>
+          			<downloadSources>true</downloadSources>
+          			<downloadJavadocs>true</downloadJavadocs>
+        		</configuration>
+      		</plugin>
        
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>   
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.17</version>
-        <configuration>
-          <excludes>
-          	<exclude>**/deprecated/*.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-      
-<!-- 
+			<plugin>
+	  			<groupId>org.apache.maven.plugins</groupId>
+	  			<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<excludes>
+				    	<exclude>it/cnr/isti/hpclab/mg4j/examples/*.java</exclude>
+				    </excludes>
+			  	</configuration>
+			</plugin>
+	
       		<plugin>
         		<groupId>org.apache.maven.plugins</groupId>
-        		<artifactId>maven-shade-plugin</artifactId>
-        		<version>2.2</version>
+        		<artifactId>maven-source-plugin</artifactId>
         		<executions>
           			<execution>
-            			<phase>package</phase>
+            			<id>attach-sources</id>
             			<goals>
-              				<goal>shade</goal>
+              				<goal>jar</goal>
             			</goals>
-            			<configuration>
-						    <filters>
-        						<filter>
-						            <artifact>*:*</artifact>
-            						<excludes>
-						                <exclude>META-INF/*.SF</exclude>
-                						<exclude>META-INF/*.DSA</exclude>
-                						<exclude>META-INF/*.RSA</exclude>
-            						</excludes>
-        						</filter>
-    						</filters>
-						</configuration>
           			</execution>
         		</executions>
+      		</plugin>   
+      
+      		<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-surefire-plugin</artifactId>
+        		<version>2.17</version>
+        		<configuration>
+          			<excludes>
+          				<exclude>**/deprecated/*.java</exclude>
+						<exclude>src/main/java/it/cnr/isti/hpclab/mg4j/examples/*.java</exclude>
+          			</excludes>
+        		</configuration>
       		</plugin>
--->     		
-    </plugins>
+    	</plugins>
      
   </build>
 </project>

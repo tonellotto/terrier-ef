@@ -5,7 +5,6 @@ This package provides Elias-Fano compression for docids and frequencies in Terri
 It depends on the following packages:
 
 * `terrier-skipping`, version 1.4.0
-* `mg4j-big` , version 5.2.1
 
 The package name is `terrier-succinct`, with current version 1.4.0.
 
@@ -18,3 +17,14 @@ Given a Terrier plain old index, the following code can be used to generate a ne
     mvn clean install
     
 Note that this package does not produce an *uberjar*.
+
+To convert an existing index:
+
+    java -Xmx16G -ea -server \
+        -Dterrier.etc=/home/khast/ \
+        -Dstopwords.filename=/home/khast/stopwords-list.txt \
+        -cp terrier-matching-1.4.0.jar \
+        it.cnr.isti.hpclab.succinct.QuasiSuccinctIndexGenerator \
+        /data1/khast/index-java cw09a5
+        
+The output quasi-succinct index will have the prefix `cw09a5.sux`.

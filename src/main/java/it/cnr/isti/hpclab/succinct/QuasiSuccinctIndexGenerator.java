@@ -33,7 +33,7 @@ import org.terrier.utility.TerrierTimer;
 
 public class QuasiSuccinctIndexGenerator 
 {
-	public static int LOG2QUANTUM = 8;
+	public static int LOG2QUANTUM = Integer.parseInt(System.getProperty("log2quantum", "8"));
 	private static ByteOrder BYTEORDER = ByteOrder.nativeOrder();
 	private static int DEFAULT_CACHE_SIZE = 64 * 1024;
 	

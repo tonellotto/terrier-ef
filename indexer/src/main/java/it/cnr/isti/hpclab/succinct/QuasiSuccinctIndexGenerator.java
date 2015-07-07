@@ -1,6 +1,6 @@
 package it.cnr.isti.hpclab.succinct;
 
-import static org.junit.Assert.assertEquals;
+// import static org.junit.Assert.assertEquals;
 import it.cnr.isti.hpclab.succinct.structures.SuccinctDocumentIndex;
 import it.cnr.isti.hpclab.succinct.structures.SuccinctInvertedIndex;
 import it.cnr.isti.hpclab.succinct.structures.SuccinctLexiconEntry;
@@ -101,7 +101,7 @@ public class QuasiSuccinctIndexGenerator
 			originalEntry = srcIndex.getLexicon().getLexiconEntry(termid);
 			succinctEntry = dstIndex.getLexicon().getLexiconEntry(termid);
 			
-			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
+			// assertEquals(originalEntry.getKey(), succinctEntry.getKey());
 			//System.err.println(succinctEntry.getKey());
 			
 			ble = (BasicLexiconEntry) originalEntry.getValue();

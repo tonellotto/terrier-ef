@@ -1,8 +1,10 @@
-package it.cnr.isti.hpclab.succinct.structures;
+package it.cnr.isti.hpclab.ef.structures;
 
+import it.cnr.isti.hpclab.ef.EliasFano;
 import it.unimi.dsi.io.InputBitStream;
 import it.unimi.dsi.io.OutputBitStream;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,18 +15,18 @@ import org.terrier.structures.DocumentIndexEntry;
 //import org.terrier.structures.FSADocumentIndex;
 import org.terrier.structures.IndexOnDisk;
 
-public class SuccinctDocumentIndex implements DocumentIndex
+public class EFDocumentIndex implements DocumentIndex
 {
-	private static Logger LOGGER = Logger.getLogger( SuccinctDocumentIndex.class );
+	private static Logger LOGGER = Logger.getLogger( EFDocumentIndex.class );
 	
 	private int[] docLengths = null;
 	
-	public SuccinctDocumentIndex(final IndexOnDisk index) throws IOException
+	public EFDocumentIndex(final IndexOnDisk index) throws IOException
 	{
-		this(index.getPath() + "/" + index.getPrefix() + ".sizes", index.getCollectionStatistics().getNumberOfDocuments());
+		this(index.getPath() + File.separator + index.getPrefix() + EliasFano.SIZE_EXTENSION, index.getCollectionStatistics().getNumberOfDocuments());
 	}
 	
-	public SuccinctDocumentIndex(final String path, final int size) throws IOException
+	public EFDocumentIndex(final String path, final int size) throws IOException
 	{
 		docLengths = new int[size];
 		final InputBitStream in = new InputBitStream( new FileInputStream( path ), false );
@@ -58,14 +60,5 @@ public class SuccinctDocumentIndex implements DocumentIndex
 		for (int i = 0; i < index.getNumberOfDocuments(); i++)
 			out.writeGamma(index.getDocumentLength(i));
 		out.close();
-	}
-	
-	public static void main(String[] args) throws IOException
-	{
-		final int numDocs = 1692096;
-		DocumentIndex docIndex = new SuccinctDocumentIndex("/Users/khast/index-mg4j/wt10g-text.sizes", numDocs);
-		
-		for (int i = 0; i < numDocs; i++)
-			System.err.println(docIndex.getDocumentLength(i));
 	}
 }

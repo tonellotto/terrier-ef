@@ -1,4 +1,4 @@
-package it.cnr.isti.hpclab.succinct.util;
+package it.cnr.isti.hpclab.ef.util;
 
 import it.unimi.dsi.bits.Fast;
 
@@ -14,7 +14,7 @@ public class Utils
 	 *               <var>k</var>-th element decreased by <var>k</var>).
 	 * @return the number of bits for the Elias&ndash;Fano encoding of a list with the specified parameters.
 	 */
-	public static int lowerBits( final long length, final long upperBound, final boolean strict ) 
+	public static int lowerBits(final long length, final long upperBound, final boolean strict) 
 	{
 		return length == 0 ? 0 : Math.max( 0, Fast.mostSignificantBit( ( upperBound - ( strict ? length : 0 ) ) / length ) );
 	}
@@ -31,7 +31,7 @@ public class Utils
 	 *                    the number of bits for forward pointers is returned.
 	 * @return the size of bits of forward or skip pointers the Elias&ndash;Fano encoding of a list with the specified parameters.
 	 */
-	public static int pointerSize( final long length, final long upperBound, final boolean strict, final boolean indexZeroes ) 
+	public static int pointerSize(final long length, final long upperBound, final boolean strict, final boolean indexZeroes) 
 	{
 		// Note that if we index ones it might happen that a pointer points just after the end of the bit stream.
 		return Math.max(  0, Fast.ceilLog2( length + ( ( upperBound - ( strict ? length : 0 ) ) >>> lowerBits( length, upperBound, strict ) ) + ( indexZeroes ? 0 : 1 ) ) );
@@ -50,7 +50,7 @@ public class Utils
 	 *                    the (exact) number of forward pointers is returned.
 	 * @return an upper bound on the number of skip pointers or the (exact) number of forward pointers.
 	 */
-	public static long numberOfPointers( final long length, final long upperBound, final int log2Quantum, final boolean strict, final boolean indexZeroes ) 
+	public static long numberOfPointers(final long length, final long upperBound, final int log2Quantum, final boolean strict, final boolean indexZeroes) 
 	{
 		if ( length == 0 ) 
 			return 0;
@@ -58,6 +58,4 @@ public class Utils
 			return ( ( upperBound - ( strict ? length : 0 ) ) >>> lowerBits( length, upperBound, strict ) ) >>> log2Quantum;
 		return length >>> log2Quantum;
 	}
-
-	
 }

@@ -1,15 +1,14 @@
-package it.cnr.isti.hpclab.succinct.util;
+package it.cnr.isti.hpclab.ef.util;
 
 import static it.unimi.dsi.bits.Fast.MSBS_STEP_8;
 import static it.unimi.dsi.bits.Fast.ONES_STEP_4;
 import static it.unimi.dsi.bits.Fast.ONES_STEP_8;
+
 import it.unimi.dsi.bits.Fast;
 import it.unimi.dsi.fastutil.longs.LongBigList;
 
 public class FreqReader 
 {
-	private static final boolean DEBUG = false;
-
 	/** The longword bit reader for pointers. */
 	private final LongWordBitReader skipPointers;
 	/** The longword bit reader for the lower bits. */
@@ -74,9 +73,8 @@ public class FreqReader
 		window = list.getLong(curr = position / Long.SIZE) & -1L << (int) (position);
 	}
 
-	public long getLong(final long index) {
-		if (DEBUG)
-			System.err.println(this + ".getLong(" + index + ") [currentIndex = " + currentIndex + "]");
+	public long getLong(final long index) 
+	{
 
 		long delta = index - currentIndex;
 
@@ -84,9 +82,7 @@ public class FreqReader
 			prevPrefixSum = prefixSum;
 			while (window == 0)
 				window = list.getLong(++curr);
-			prefixSum = curr * Long.SIZE + Long.numberOfTrailingZeros(window)
-					- currentIndex++ - upperBitsStart << l
-					| lowerBits.extract();
+			prefixSum = curr * Long.SIZE + Long.numberOfTrailingZeros(window) - currentIndex++ - upperBitsStart << l | lowerBits.extract();
 			window &= window - 1;
 			return prefixSum - prevPrefixSum + 1;
 		}
@@ -95,8 +91,7 @@ public class FreqReader
 			final long block = index >>> log2Quantum;
 			assert block > 0;
 			assert block <= numberOfPointers;
-			final long skip = skipPointers.extract(skipPointersStart
-					+ (block - 1) * pointerSize);
+			final long skip = skipPointers.extract(skipPointersStart + (block - 1) * pointerSize);
 			position(upperBitsStart + skip - 1);
 			final long blockOnes = block << log2Quantum;
 			delta = index - blockOnes + 1;
@@ -105,9 +100,6 @@ public class FreqReader
 		for (int bitCount; (bitCount = Long.bitCount(window)) < delta; delta -= bitCount)
 			window = list.getLong(++curr);
 
-		// System.err.println( "index: " + index + " delta: " + delta +
-		// " curr: " + curr + " window: " + Long.toBinaryString( window ) );
-
 		/*
 		 * This appears to be faster than != 0 (WTF?!). Note that for delta == 1
 		 * the following code is a NOP.
@@ -115,25 +107,19 @@ public class FreqReader
 		if (--delta > 0) {
 			// Phase 1: sums by byte
 			final long word = window;
-			assert delta < Long.bitCount(word) : delta + " >= "
-					+ Long.bitCount(word);
+			assert delta < Long.bitCount(word) : delta + " >= "	+ Long.bitCount(word);
 			long byteSums = word - ((word & 0xa * ONES_STEP_4) >>> 1);
-			byteSums = (byteSums & 3 * ONES_STEP_4)
-					+ ((byteSums >>> 2) & 3 * ONES_STEP_4);
+			byteSums = (byteSums & 3 * ONES_STEP_4) + ((byteSums >>> 2) & 3 * ONES_STEP_4);
 			byteSums = (byteSums + (byteSums >>> 4)) & 0x0f * ONES_STEP_8;
 			byteSums *= ONES_STEP_8;
 
-			// Phase 2: compare each byte sum with delta to obtain the relevant
-			// byte
+			// Phase 2: compare each byte sum with delta to obtain the relevant byte
 			final long rankStep8 = delta * ONES_STEP_8;
-			final long byteOffset = (((((rankStep8 | MSBS_STEP_8) - byteSums) & MSBS_STEP_8) >>> 7)
-					* ONES_STEP_8 >>> 53)
-					& ~0x7;
+			final long byteOffset = (((((rankStep8 | MSBS_STEP_8) - byteSums) & MSBS_STEP_8) >>> 7)	* ONES_STEP_8 >>> 53) & ~0x7;
 
 			final int byteRank = (int) (delta - (((byteSums << 8) >>> byteOffset) & 0xFF));
 
-			final int select = (int) (byteOffset + Fast.selectInByte[(int) (word >>> byteOffset & 0xFF)
-					| byteRank << 8]);
+			final int select = (int) (byteOffset + Fast.selectInByte[(int) (word >>> byteOffset & 0xFF)	| byteRank << 8]);
 
 			// We cancel up to, but not including, the target one.
 			window &= -1L << select;
@@ -141,21 +127,18 @@ public class FreqReader
 
 		assert window != 0;
 		currentIndex = index + 1;
-		prevPrefixSum = curr * Long.SIZE + Long.numberOfTrailingZeros(window)
-				- (index - 1) - upperBitsStart << l
-				| lowerBits.extract(lowerBitsStart + l * (index - 1));
+		prevPrefixSum = curr * Long.SIZE + Long.numberOfTrailingZeros(window) - (index - 1) - upperBitsStart << l | lowerBits.extract(lowerBitsStart + l * (index - 1));
 		window &= window - 1;
 		while (window == 0)
 			window = list.getLong(++curr);
-		prefixSum = curr * Long.SIZE + Long.numberOfTrailingZeros(window)
-				- index - upperBitsStart << l
-				| lowerBits.extract();
+		prefixSum = curr * Long.SIZE + Long.numberOfTrailingZeros(window) - index - upperBitsStart << l | lowerBits.extract();
 		window &= window - 1;
 		return prefixSum - prevPrefixSum + 1;
 	}
 
-	public String toString() {
-		return this.getClass().getSimpleName() + '@'
-				+ Integer.toHexString(System.identityHashCode(this));
+	@Override
+	public String toString() 
+	{
+		return this.getClass().getSimpleName() + '@' + Integer.toHexString(System.identityHashCode(this));
 	}
 }

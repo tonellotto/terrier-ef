@@ -1,11 +1,9 @@
-package it.cnr.isti.hpclab.succinct.util;
+package it.cnr.isti.hpclab.ef.util;
 
 import it.unimi.dsi.fastutil.longs.LongBigList;
 
 public final class LongWordBitReader 
 {
-	private static final boolean DEBUG = false;
-
 	/** The underlying list. */
 	private final LongBigList list;
 	/** The extraction width for {@link #extract()} and {@link #extract(long)}. */
@@ -34,16 +32,11 @@ public final class LongWordBitReader
 
 	public LongWordBitReader position(final long position) 
 	{
-		if (DEBUG)
-			System.err.println(this + ".position(" + position + ") [buffer = " + Long.toBinaryString(buffer) + ", filled = " + filled + "]");
-
 		buffer = list.getLong(curr = position / Long.SIZE);
 		final int bitPosition = (int) (position % Long.SIZE);
 		buffer >>>= bitPosition;
 		filled = Long.SIZE - bitPosition;
 
-		if (DEBUG)
-			System.err.println(this + ".position() filled: " + filled + " buffer: " + Long.toBinaryString(buffer));
 		return this;
 	}
 
@@ -54,9 +47,6 @@ public final class LongWordBitReader
 
 	private long extractInternal(final int width) 
 	{
-		if (DEBUG)
-			System.err.println(this + ".extract(" + width + ") [buffer = " + Long.toBinaryString(buffer) + ", filled = " + filled + "]");
-
 		if (width <= filled) {
 			long result = buffer & (1L << width) - 1;
 			filled -= width;
@@ -75,10 +65,8 @@ public final class LongWordBitReader
 		}
 	}
 
-	public long extract() {
-		if (DEBUG)
-			System.err.println(this + ".extract() " + l + " bits [buffer = " + Long.toBinaryString(buffer) + ", filled = " + filled + "]");
-
+	public long extract() 
+	{
 		if (l <= filled) {
 			final long result = buffer & mask;
 			filled -= l;
@@ -97,9 +85,6 @@ public final class LongWordBitReader
 
 	public long extract(long position) 
 	{
-		if (DEBUG)
-			System.err.println(this + ".extract(" + position + ") [l=" + l + "]");
-
 		final int bitPosition = (int) (position % Long.SIZE);
 		final int totalOffset = bitPosition + l;
 		final long result = list.getLong(curr = position / Long.SIZE) >>> bitPosition;
@@ -118,10 +103,8 @@ public final class LongWordBitReader
 		return result | t << -bitPosition & mask;
 	}
 
-	public int readUnary() {
-		if (DEBUG)
-			System.err.println(this + ".readUnary() [buffer = " + Long.toBinaryString(buffer) + ", filled = " + filled + "]");
-
+	public int readUnary() 
+	{
 		int accumulated = 0;
 
 		for (;;) {
@@ -131,15 +114,12 @@ public final class LongWordBitReader
 				/* msb + 1 can be Long.SIZE, so we must break down the shift. */
 				buffer >>>= msb;
 				buffer >>>= 1;
-				if (DEBUG)
-					System.err.println(this + ".readUnary() => " + (msb + accumulated));
 				return msb + accumulated;
 			}
 			accumulated += filled;
 			buffer = list.getLong(++curr);
 			filled = Long.SIZE;
 		}
-
 	}
 
 	public long readNonZeroGamma() 

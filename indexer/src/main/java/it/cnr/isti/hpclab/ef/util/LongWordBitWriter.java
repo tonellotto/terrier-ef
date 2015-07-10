@@ -1,4 +1,4 @@
-package it.cnr.isti.hpclab.succinct.util;
+package it.cnr.isti.hpclab.ef.util;
 
 import it.unimi.dsi.bits.Fast;
 
@@ -107,7 +107,6 @@ public final class LongWordBitWriter
 			append(cache.readLong(), width);
 			l -= width;
 		}
-
 		return cache.length();
 	}
 
@@ -126,15 +125,14 @@ public final class LongWordBitWriter
 			free = Long.SIZE;
 			return result;
 		}
-
 		return 0;
 	}
 
 	public int writeUnary(long value)
 	{
 		return 0;
-		
 	}
+	
 	public int writeNonZeroGamma(long value) throws IOException 
 	{
 		if (value <= 0)

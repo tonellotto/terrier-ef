@@ -1,4 +1,4 @@
-package it.cnr.isti.hpclab.succinct.util;
+package it.cnr.isti.hpclab.ef.util;
 
 import java.io.Closeable;
 import java.io.File;
@@ -23,10 +23,7 @@ public final class LongWordCache implements Closeable
 	/** A channel opened on {@link #spillFile}. */
 	private final FileChannel spillChannel;
 	
-	/**
-	 * A cache for longwords. Will be spilled to {@link #spillChannel} in case
-	 * more than {@link #cacheLength} bits are added.
-	 */
+	/** A cache for longwords. Will be spilled to {@link #spillChannel} in case more than {@link #cacheLength} bits are added. */
 	private final ByteBuffer cache;
 	
 	/** The current bit buffer. */
@@ -232,5 +229,4 @@ public final class LongWordCache implements Closeable
 		
 		cache.close();
 	}
-
 }

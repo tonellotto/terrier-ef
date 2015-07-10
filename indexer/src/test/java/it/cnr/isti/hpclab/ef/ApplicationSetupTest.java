@@ -1,4 +1,4 @@
-package it.cnr.isti.hpclab;
+package it.cnr.isti.hpclab.ef;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -131,43 +131,24 @@ public class ApplicationSetupTest
 	
 	private void createTerrierPropertiesFile() throws IOException
 	{
-		//creating the terrier.properties file
+		// creating the terrier.properties file
 		PrintWriter propertiesWriter = new PrintWriter(new FileWriter(terrierEtc + File.separator + "terrier.properties"));
 		System.out.println("Creating terrier.properties file.");		
-		propertiesWriter.println("#default controls for query expansion");
-		propertiesWriter.println("querying.postprocesses.order=QueryExpansion");
-		propertiesWriter.println("querying.postprocesses.controls=qe:QueryExpansion");
-		propertiesWriter.println("#default controls for the web-based interface. SimpleDecorate");
-		propertiesWriter.println("#is the simplest metadata decorator. For more control, see Decorate.");
-		propertiesWriter.println("querying.postfilters.order=SimpleDecorate,SiteFilter,Scope");
-		propertiesWriter.println("querying.postfilters.controls=decorate:SimpleDecorate,site:SiteFilter,scope:Scope");
-		propertiesWriter.println();
-		propertiesWriter.println("#default and allowed controls");
-		propertiesWriter.println("querying.default.controls=");
-		propertiesWriter.println("querying.allowed.controls=scope,qe,qemodel,start,end,site,scope");
-		propertiesWriter.println();
 		propertiesWriter.println("#document tags specification");
 		propertiesWriter.println("#for processing the contents of");
 		propertiesWriter.println("#the documents, ignoring DOCHDR");
 		propertiesWriter.println("TrecDocTags.doctag=DOC");
 		propertiesWriter.println("TrecDocTags.idtag=DOCNO");
 		propertiesWriter.println("TrecDocTags.skip=DOCHDR");
+
 		propertiesWriter.println("#set to true if the tags can be of various case");
 		propertiesWriter.println("TrecDocTags.casesensitive=false");
 
-		propertiesWriter.println();
-		propertiesWriter.println("#query tags specification");
-		propertiesWriter.println("TrecQueryTags.doctag=TOP");
-		propertiesWriter.println("TrecQueryTags.idtag=NUM");
-		propertiesWriter.println("TrecQueryTags.process=TOP,NUM,TITLE");
-		propertiesWriter.println("TrecQueryTags.skip=DESC,NARR");
-		propertiesWriter.println();
 		propertiesWriter.println("#stop-words file");
 		propertiesWriter.println("stopwords.filename=stopword-list.txt");
-		propertiesWriter.println();
+
 		propertiesWriter.println("#the processing stages a term goes through");
 		propertiesWriter.println("termpipelines=Stopwords,PorterStemmer");
-		propertiesWriter.println();
 		
 		propertiesWriter.close();
 		
@@ -208,12 +189,4 @@ public class ApplicationSetupTest
 		i.close();
 	}	
 	
-	/*
-	protected void addGlobalTerrierProperties(Properties p) throws Exception 
-	{
-		p.setProperty("trec.topics.parser","SingleLineTRECQuery");
-		p.setProperty("ignore.low.idf.terms","false");
-	}
-	*/
-
 }

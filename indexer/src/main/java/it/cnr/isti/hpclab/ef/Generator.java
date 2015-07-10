@@ -1,24 +1,22 @@
-package it.cnr.isti.hpclab.succinct;
+package it.cnr.isti.hpclab.ef;
 
-// import static org.junit.Assert.assertEquals;
-import it.cnr.isti.hpclab.succinct.structures.SuccinctDocumentIndex;
-import it.cnr.isti.hpclab.succinct.structures.SuccinctInvertedIndex;
-import it.cnr.isti.hpclab.succinct.structures.SuccinctLexiconEntry;
-import it.cnr.isti.hpclab.succinct.util.LongWordBitWriter;
-import it.cnr.isti.hpclab.succinct.util.SequenceEncoder;
+import it.cnr.isti.hpclab.ef.structures.EFDocumentIndex;
+import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
+import it.cnr.isti.hpclab.ef.util.IndexUtil;
+import it.cnr.isti.hpclab.ef.util.LongWordBitWriter;
+import it.cnr.isti.hpclab.ef.util.SequenceEncoder;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.Random;
 
 import org.terrier.structures.BasicLexiconEntry;
 import org.terrier.structures.BitIndexPointer;
-//import org.terrier.structures.FSADocumentIndex;
 import org.terrier.structures.FSOMapFileLexiconOutputStream;
 import org.terrier.structures.Index;
 import org.terrier.structures.IndexOnDisk;
@@ -27,13 +25,12 @@ import org.terrier.structures.LexiconOutputStream;
 import org.terrier.structures.collections.FSOrderedMapFile;
 import org.terrier.structures.postings.IterablePosting;
 import org.terrier.structures.seralization.FixedSizeTextFactory;
-import org.terrier.utility.ApplicationSetup;
-import org.terrier.utility.Files;
+
 import org.terrier.utility.TerrierTimer;
 
-public class QuasiSuccinctIndexGenerator 
+public class Generator 
 {
-	public static int LOG2QUANTUM = Integer.parseInt(System.getProperty("log2quantum", "8"));
+	public static int LOG2QUANTUM = Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8"));
 	private static ByteOrder BYTEORDER = ByteOrder.nativeOrder();
 	private static int DEFAULT_CACHE_SIZE = 64 * 1024;
 	
@@ -44,14 +41,16 @@ public class QuasiSuccinctIndexGenerator
 	
 	public static void main(final String args[]) throws IOException 
 	{
+		Index.setIndexLoadingProfileAsRetrieval(false);
+		
 		if (args.length != 2) {
-			System.err.println("Usage: java it.cnr.isti.hpclab.succinct.QuasiSuccinctIndexGenerator <index.path> <src.index.prefix>");
+			System.err.println("Usage: java it.cnr.isti.hpclab.ef.Generator <index.path> <src.index.prefix>");
 			System.exit(-1);
 		}
 
 		String path = args[0];
 		String srcPrefix = args[1];
-		String dstPrefix = srcPrefix + SuccinctInvertedIndex.USUAL_PREFIX;
+		String dstPrefix = srcPrefix + EliasFano.USUAL_EXTENSION;
 
 		IndexOnDisk srcIndex;
 
@@ -63,9 +62,8 @@ public class QuasiSuccinctIndexGenerator
 				
 		createLexiconDocidsFreqs(path, dstPrefix, srcIndex);
 		createDocumentIndex(path, dstPrefix, srcIndex);
-		createMetaIndex(path, dstPrefix, srcIndex);
+		// createMetaIndex(path, dstPrefix, srcIndex);
 		createProperties(path, dstPrefix, srcIndex);
-		
 		
 		IndexOnDisk dstIndex;
 		dstIndex = Index.createIndex(path, dstPrefix);
@@ -90,89 +88,66 @@ public class QuasiSuccinctIndexGenerator
 		}
 
 		Map.Entry<String, LexiconEntry> originalEntry;
-		Map.Entry<String, LexiconEntry> succinctEntry;
+		Map.Entry<String, LexiconEntry> efEntry;
 		
 		BasicLexiconEntry ble;
-		SuccinctLexiconEntry sle;
+		EFLexiconEntry efle;
 
 		for (int i = 0; i < numSamples; i++) {
 			int termid = rnd.nextInt(dstIndex.getCollectionStatistics().getNumberOfUniqueTerms());
 			
 			originalEntry = srcIndex.getLexicon().getLexiconEntry(termid);
-			succinctEntry = dstIndex.getLexicon().getLexiconEntry(termid);
+			efEntry       = dstIndex.getLexicon().getLexiconEntry(termid);
 			
 			// assertEquals(originalEntry.getKey(), succinctEntry.getKey());
 			//System.err.println(succinctEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (SuccinctLexiconEntry) succinctEntry.getValue();
+			ble  = (BasicLexiconEntry) originalEntry.getValue();
+			efle = (EFLexiconEntry) efEntry.getValue();
 
-			
-			System.err.println("Checking term " + originalEntry.getKey() + " (" + originalEntry.getValue().getDocumentFrequency() + " entries)");
+			// System.err.println("Checking term " + originalEntry.getKey() + " (" + originalEntry.getValue().getDocumentFrequency() + " entries)");
 
 			IterablePosting srcPosting = srcIndex.getInvertedIndex().getPostings(ble);
-			IterablePosting dstPosting = dstIndex.getInvertedIndex().getPostings(sle);
+			IterablePosting dstPosting = dstIndex.getInvertedIndex().getPostings(efle);
 						
 			while (srcPosting.next() != IterablePosting.END_OF_LIST && dstPosting.next() != IterablePosting.END_OF_LIST) {
-				//System.err.println("DOCID: " + srcPosting.getId() + " -> " + dstPosting.getId());
-				//System.err.println("FREQ:  " + srcPosting.getFrequency() + " -> " + dstPosting.getFrequency());
 				if ((srcPosting.getId() != dstPosting.getId()) || (srcPosting.getFrequency() != dstPosting.getFrequency())) {
-					System.err.println("Something went wrong...");
+					System.err.println("Something went wrong in random sanity check...");
 					System.exit(-1);
 				}
 			}
 		}
-			
-		
 	}
 
 	private static void createProperties(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
-	{
-		 Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".properties",
-			 		    path               + ApplicationSetup.FILE_SEPARATOR + dstPrefix            + ".properties");
- 
-		 // Update new properties
-		 String propertiesFilename = path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".properties";
-		 Properties properties = new Properties();
-		 properties.load(Files.openFileStream(propertiesFilename));
-		 properties.setProperty("index.inverted.class", "it.cnr.isti.hpclab.succinct.structures.SuccinctInvertedIndex");
-		 properties.setProperty("index.inverted.parameter_types", "org.terrier.structures.IndexOnDisk,java.lang.String,org.terrier.structures.DocumentIndex");
-		 properties.setProperty("index.inverted.parameter_values", "index,structureName,document");
-		 
-		 properties.setProperty("index.lexicon-valuefactory.class", "it.cnr.isti.hpclab.succinct.structures.SuccinctLexiconEntry$Factory");
-		 properties.setProperty("index.lexicon.bsearchshortcut", "default");
-		 
-		 properties.setProperty("index.document.class", "it.cnr.isti.hpclab.succinct.structures.SuccinctDocumentIndex");
-		 properties.setProperty("index.document.parameter_types", "org.terrier.structures.IndexOnDisk");
-		 properties.setProperty("index.document.parameter_values", "index");
-
-		 
-		 properties.setProperty("log2Quantum", Integer.toString(LOG2QUANTUM));
-		 properties.setProperty("ByteOrder", BYTEORDER.toString());
-		 
-		 // This property disables the lookup for the meta-0.fsohashmap file that we never bring with new indexes
-		 properties.setProperty("index.meta.reverse-key-names", "");
-		 
-		 properties.store(Files.writeFileStream(propertiesFilename),"");
+	{		
+		String filename = path + File.separator + dstPrefix + ".properties";
+		int num_docs = srcIndex.getCollectionStatistics().getNumberOfDocuments();
+		int num_terms = srcIndex.getCollectionStatistics().getNumberOfUniqueTerms();
+		long num_pointers = srcIndex.getCollectionStatistics().getNumberOfPointers();
+		long num_tokens = srcIndex.getCollectionStatistics().getNumberOfTokens();
+		
+		IndexUtil.writeSuccinctIndexProperties(filename, num_docs, num_terms, num_pointers, num_tokens, LOG2QUANTUM);
   	}
 
 	private static void createDocumentIndex(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
 	{
-		//Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".document.fsarrayfile", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".document.fsarrayfile");
-		SuccinctDocumentIndex.write((org.terrier.structures.DocumentIndex) srcIndex.getDocumentIndex(), path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".sizes");
+		EFDocumentIndex.write((org.terrier.structures.DocumentIndex) srcIndex.getDocumentIndex(), path + File.separator + dstPrefix + ".sizes");
 	}
 
+	/*
 	private static void createMetaIndex(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
 	{
 		Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".meta.zdata", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".meta.zdata");
 		Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".meta.idx", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".meta.idx");
 	}
+	*/
 
 	@SuppressWarnings("resource")
 	private static void createLexiconDocidsFreqs(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
 	{
 		// The new lexicon writer (please note it is an output stream)
-		LexiconOutputStream<String> los = new FSOMapFileLexiconOutputStream(path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(ApplicationSetup.MAX_TERM_LENGTH));
+		LexiconOutputStream<String> los = new FSOMapFileLexiconOutputStream(path + File.separator + dstPrefix + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
 				
 		int numberOfDocuments = srcIndex.getCollectionStatistics().getNumberOfDocuments();
 		// The sequence encoder to generate posting lists (docids)
@@ -181,12 +156,11 @@ public class QuasiSuccinctIndexGenerator
 		SequenceEncoder freqsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
 
 		// The new docids inverted file
-		LongWordBitWriter docids = new LongWordBitWriter( new FileOutputStream(path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".docids").getChannel(), BYTEORDER );
+		LongWordBitWriter docids = new LongWordBitWriter( new FileOutputStream(path + File.separator + dstPrefix + EliasFano.DOCID_EXTENSION).getChannel(), BYTEORDER );
 		// The new freqs inverted file
-		LongWordBitWriter freqs = new LongWordBitWriter( new FileOutputStream(path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".freqs").getChannel(), BYTEORDER );
+		LongWordBitWriter freqs = new LongWordBitWriter( new FileOutputStream(path + File.separator + dstPrefix + EliasFano.FREQ_EXTENSION).getChannel(), BYTEORDER );
 
-		
-		TerrierTimer tt = new TerrierTimer("Creating Lexicon Docids and Frequencies", srcIndex.getCollectionStatistics().getNumberOfUniqueTerms());tt.start();    
+		TerrierTimer tt = new TerrierTimer("Creating EliasFano Lexicon, Docids and Frequencies", srcIndex.getCollectionStatistics().getNumberOfUniqueTerms());tt.start();    
 		Iterator<Entry<String, LexiconEntry>> lexiconIterator = srcIndex.getLexicon().iterator();
 				
 		long docidsOffset = 0;
@@ -199,13 +173,11 @@ public class QuasiSuccinctIndexGenerator
 			LexiconEntry le = leIn.getValue();
 				    	    	
 			// We create the new lexicon entry with skip offset data included
-			SuccinctLexiconEntry leOut = new SuccinctLexiconEntry( le.getTermId(), le.getDocumentFrequency(), le.getFrequency(), docidsOffset, freqsOffset);
+			EFLexiconEntry leOut = new EFLexiconEntry( le.getTermId(), le.getDocumentFrequency(), le.getFrequency(), docidsOffset, freqsOffset);
 				       	
 			// We write the new lexicon entry to the new lexicon
 			los.writeNextEntry(leIn.getKey(), leOut);
 					 
-			//if (leIn.getKey().equals("new"))
-			//	System.err.println(freqsOffset);
 			IterablePosting p = srcIndex.getInvertedIndex().getPostings((BitIndexPointer)le);
 					 			
 			docidsAccumulator.init( le.getDocumentFrequency(), numberOfDocuments, false, true, LOG2QUANTUM );
@@ -216,11 +188,7 @@ public class QuasiSuccinctIndexGenerator
 				docidsAccumulator.add( p.getId() - lastDocid );
 				lastDocid = p.getId();
 				freqsAccumulator.add(p.getFrequency());
-				//if (leIn.getKey().equals("attori"))
-				//	System.err.print(p.getFrequency() + " ");
 			}
-			//if (leIn.getKey().equals("attori"))
-			//	System.err.println();
 						
 			docidsOffset += docidsAccumulator.dump(docids);		
 			freqsOffset  += freqsAccumulator.dump(freqs);
@@ -236,7 +204,5 @@ public class QuasiSuccinctIndexGenerator
 		freqsAccumulator.close();
 		freqs.close();
 		los.close();
-		
-		// Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".lexicon.fsomaphash", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".lexicon.fsomaphash");
 	}
 }

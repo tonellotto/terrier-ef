@@ -1,4 +1,4 @@
-package it.cnr.isti.hpclab.succinct.util;
+package it.cnr.isti.hpclab.ef.util;
 
 import it.unimi.dsi.bits.Fast;
 

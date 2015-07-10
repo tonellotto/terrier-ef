@@ -1,4 +1,4 @@
-package it.cnr.isti.hpclab.succinct.structures;
+package it.cnr.isti.hpclab.ef.structures;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -10,7 +10,7 @@ import org.terrier.structures.EntryStatistics;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.seralization.FixedSizeWriteableFactory;
 
-public class SuccinctLexiconEntry extends LexiconEntry implements BitIndexPointer
+public class EFLexiconEntry extends LexiconEntry implements BitIndexPointer
 {
 	private static final long serialVersionUID = 1L;
 
@@ -27,22 +27,24 @@ public class SuccinctLexiconEntry extends LexiconEntry implements BitIndexPointe
 	
 	public static class Factory implements FixedSizeWriteableFactory<LexiconEntry>
 	{
+		@Override
 		public int getSize() 
 		{
 			return 3 * 4 + 2 * 8;
 		}
 		
+		@Override
 		public LexiconEntry newInstance() 
 		{
-			return new SuccinctLexiconEntry();
+			return new EFLexiconEntry();
 		}
 	}
 	
-	public SuccinctLexiconEntry() 
+	public EFLexiconEntry() 
 	{
 	}
 	
-	public SuccinctLexiconEntry(int tid, int n_t, int TF, long docidOffset, long freqOffset) 
+	public EFLexiconEntry(int tid, int n_t, int TF, long docidOffset, long freqOffset) 
 	{
 		this.termId = tid;
 		this.n_t = n_t;
@@ -52,7 +54,6 @@ public class SuccinctLexiconEntry extends LexiconEntry implements BitIndexPointe
 		this.freqOffset = freqOffset;
 	}
 	
-
 	public long getDocidOffset() 
 	{
 		return this.docidOffset;
@@ -63,7 +64,6 @@ public class SuccinctLexiconEntry extends LexiconEntry implements BitIndexPointe
 		return this.freqOffset;
 	}
 
-	
 	@Override
 	public void readFields(DataInput in) throws IOException 
 	{
@@ -91,83 +91,99 @@ public class SuccinctLexiconEntry extends LexiconEntry implements BitIndexPointe
 	}
 
 	@Override
-	public int getFrequency() {
+	public int getFrequency() 
+	{
 		return TF;
 	}
 
 	@Override
-	public int getDocumentFrequency() {
+	public int getDocumentFrequency() 
+	{
 		return n_t;
 	}
 
 	@Override
-	public int getTermId() {
+	public int getTermId() 
+	{
 		return termId;
 	}
 
 	@Override
-	public void add(EntryStatistics e) {
+	public void add(EntryStatistics e) 
+	{
 		throw new RuntimeException("Should not be invoked");
 	}
 
 	@Override
-	public void subtract(EntryStatistics e) {
+	public void subtract(EntryStatistics e) 
+	{
 		throw new RuntimeException("Should not be invoked");
 	}
 
 	@Override
-	public void setTermId(int newTermId) {
+	public void setTermId(int newTermId) 
+	{
 		this.termId = newTermId;
 	}
 
 	@Override
-	public void setStatistics(int n_t, int TF) {
+	public void setStatistics(int n_t, int TF) 
+	{
 		this.n_t = n_t;
 		this.TF = TF;
 	}
 	
 	@Override
-	public void setNumberOfEntries(int n) {
+	public void setNumberOfEntries(int n) 
+	{
 		this.n_t = n;
 	}
 	
 	@Override 
-	public int getNumberOfEntries() {
+	public int getNumberOfEntries() 
+	{
 		return this.n_t;
 	}
 
 	@Override
-	public long getOffset() {
+	public long getOffset() 
+	{
 		throw new RuntimeException("Should not be invoked");
 	}
 
 	@Override
-	public byte getOffsetBits() {
+	public byte getOffsetBits() 
+	{
 		throw new RuntimeException("Should not be invoked");
 	}
 
 	@Override
-	public void setOffset(long bytes, byte bits) {
+	public void setOffset(long bytes, byte bits) 
+	{
 		throw new RuntimeException("Should not be invoked");
 	}
 
 	@Override
-	public void setOffset(BitFilePosition pos) {
+	public void setOffset(BitFilePosition pos) 
+	{
 		throw new RuntimeException("Should not be invoked");
 	}
 
 	@Override
-	public void setBitIndexPointer(BitIndexPointer pointer) {
+	public void setBitIndexPointer(BitIndexPointer pointer) 
+	{
 		throw new RuntimeException("Should not be invoked");
 	}
 
 	@Override
-	public void setFileNumber(byte fileId) {
+	public void setFileNumber(byte fileId) 
+	{
 		throw new RuntimeException("Should not be invoked");
 	}
 
 	@Override
-	public byte getFileNumber() {
+	public byte getFileNumber() 
+	{
 		throw new RuntimeException("Should not be invoked");
 	}
 }

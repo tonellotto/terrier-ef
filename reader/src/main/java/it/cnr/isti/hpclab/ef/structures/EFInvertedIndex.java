@@ -20,11 +20,11 @@ import org.terrier.structures.postings.IterablePosting;
 
 public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 {
-	private IndexOnDisk index = null;
-	private DocumentIndex doi = null;
+	protected IndexOnDisk index = null;
+	protected DocumentIndex doi = null;
 	
-	private LongBigList docidsList;
-	private LongBigList freqsList;
+	protected LongBigList docidsList;
+	protected LongBigList freqsList;
 	
 	public EFInvertedIndex(IndexOnDisk index, String structureName) throws IOException 
 	{

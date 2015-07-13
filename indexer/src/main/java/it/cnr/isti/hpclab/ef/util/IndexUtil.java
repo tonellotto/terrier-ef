@@ -28,7 +28,7 @@ public class IndexUtil
 	 * 
 	 * @throws IOException if something wrong at I/O level happens
 	 */
-	public static void writeSuccinctIndexProperties(final String filename, final int num_docs, final int num_terms, final long num_pointers, final long num_tokens, final int log2quantum) throws IOException
+	public static void writeEFIndexProperties(final String filename, final int num_docs, final int num_terms, final long num_pointers, final long num_tokens, final int log2quantum) throws IOException
 	{
 		File file = new File(filename);
 		

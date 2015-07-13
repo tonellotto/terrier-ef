@@ -127,7 +127,7 @@ public class Generator
 		long num_pointers = srcIndex.getCollectionStatistics().getNumberOfPointers();
 		long num_tokens = srcIndex.getCollectionStatistics().getNumberOfTokens();
 		
-		IndexUtil.writeSuccinctIndexProperties(filename, num_docs, num_terms, num_pointers, num_tokens, LOG2QUANTUM);
+		IndexUtil.writeEFIndexProperties(filename, num_docs, num_terms, num_pointers, num_tokens, LOG2QUANTUM);
   	}
 
 	private static void createDocumentIndex(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 

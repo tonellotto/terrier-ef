@@ -24,13 +24,13 @@
 		<dependency>
 			<groupId>it.unimi.dsi</groupId>
 			<artifactId>fastutil</artifactId>
-			<version>7.0.10</version>
+			<version>6.5.12</version>
 		</dependency>
 
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.17</version> <!-- Should be 1.2.15 but it has broken dependencies -->
+			<version>1.2.16</version> <!-- Should be 1.2.15 but it has broken dependencies -->
 		</dependency>
 
   	</dependencies>

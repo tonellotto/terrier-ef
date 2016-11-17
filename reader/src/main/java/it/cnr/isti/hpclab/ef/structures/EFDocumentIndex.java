@@ -12,6 +12,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.terrier.structures.DocumentIndex;
 import org.terrier.structures.DocumentIndexEntry;
+import org.terrier.structures.Index;
 //import org.terrier.structures.FSADocumentIndex;
 import org.terrier.structures.IndexOnDisk;
 
@@ -60,5 +61,19 @@ public class EFDocumentIndex implements DocumentIndex
 		for (int i = 0; i < index.getNumberOfDocuments(); i++)
 			out.writeGamma(index.getDocumentLength(i));
 		out.close();
+	}
+	
+	public static void main(String[] args) throws IOException
+	{
+		Index.setIndexLoadingProfileAsRetrieval(false);
+		Index idx = Index.createIndex();
+		if (idx == null) {
+			LOGGER.error("No such index : "+ Index.getLastIndexLoadError());				
+		} else {
+			DocumentIndex di = new EFDocumentIndex((IndexOnDisk) idx);
+			for (int i = 0; i < di.getNumberOfDocuments(); i++) {
+				System.out.println(di.getDocumentLength(i));
+			}
+		}
 	}
 }

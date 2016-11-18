@@ -14,7 +14,7 @@ public class EFLexiconEntry extends LexiconEntry implements BitIndexPointer
 {
 	private static final long serialVersionUID = 1L;
 
-	/** the termid of this entry */
+	/** the term id of this entry */
 	public int termId;
 	/** the number of document that this entry occurs in */
 	public int n_t;
@@ -30,7 +30,7 @@ public class EFLexiconEntry extends LexiconEntry implements BitIndexPointer
 		@Override
 		public int getSize() 
 		{
-			return 3 * 4 + 2 * 8;
+			return 3 * Integer.BYTES + 2 * Long.BYTES;
 		}
 		
 		@Override
@@ -109,18 +109,6 @@ public class EFLexiconEntry extends LexiconEntry implements BitIndexPointer
 	}
 
 	@Override
-	public void add(EntryStatistics e) 
-	{
-		throw new RuntimeException("Should not be invoked");
-	}
-
-	@Override
-	public void subtract(EntryStatistics e) 
-	{
-		throw new RuntimeException("Should not be invoked");
-	}
-
-	@Override
 	public void setTermId(int newTermId) 
 	{
 		this.termId = newTermId;
@@ -145,45 +133,15 @@ public class EFLexiconEntry extends LexiconEntry implements BitIndexPointer
 		return this.n_t;
 	}
 
-	@Override
-	public long getOffset() 
-	{
-		throw new RuntimeException("Should not be invoked");
-	}
-
-	@Override
-	public byte getOffsetBits() 
-	{
-		throw new RuntimeException("Should not be invoked");
-	}
-
-	@Override
-	public void setOffset(long bytes, byte bits) 
-	{
-		throw new RuntimeException("Should not be invoked");
-	}
-
-	@Override
-	public void setOffset(BitFilePosition pos) 
-	{
-		throw new RuntimeException("Should not be invoked");
-	}
-
-	@Override
-	public void setBitIndexPointer(BitIndexPointer pointer) 
-	{
-		throw new RuntimeException("Should not be invoked");
-	}
-
-	@Override
-	public void setFileNumber(byte fileId) 
-	{
-		throw new RuntimeException("Should not be invoked");
-	}
-
-	@Override
-	public byte getFileNumber() 
-	{
-		throw new RuntimeException("Should not be invoked");
-	}
+	// Bunch of unnecessary methods I do not want to implement :-)
+	
+	@Override public void add(EntryStatistics e) 					  { throw new RuntimeException("Should not be invoked"); }
+	@Override public void subtract(EntryStatistics e) 				  { throw new RuntimeException("Should not be invoked"); }
+	@Override public long getOffset() 								  { throw new RuntimeException("Should not be invoked"); }
+	@Override public byte getOffsetBits() 							  { throw new RuntimeException("Should not be invoked"); }
+	@Override public void setOffset(long bytes, byte bits) 			  { throw new RuntimeException("Should not be invoked"); }
+	@Override public void setOffset(BitFilePosition pos) 			  { throw new RuntimeException("Should not be invoked"); }
+	@Override public void setBitIndexPointer(BitIndexPointer pointer) { throw new RuntimeException("Should not be invoked"); }
+	@Override public void setFileNumber(byte fileId) 				  { throw new RuntimeException("Should not be invoked"); }
+	@Override public byte getFileNumber() 							  { throw new RuntimeException("Should not be invoked"); }
 }

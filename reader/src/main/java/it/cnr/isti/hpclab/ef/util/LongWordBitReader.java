@@ -70,7 +70,7 @@ public final class LongWordBitReader
 	{
 		return curr * Long.SIZE + Long.SIZE - filled;
 	}
-
+/*
 	private long extractInternal(final int width) 
 	{
 		if (width <= filled) {
@@ -90,7 +90,7 @@ public final class LongWordBitReader
 			return result;
 		}
 	}
-
+*/
 	public long extract() 
 	{
 		if (l <= filled) {
@@ -128,7 +128,7 @@ public final class LongWordBitReader
 
 		return result | t << -bitPosition & mask;
 	}
-
+/*
 	public int readUnary() 
 	{
 		int accumulated = 0;
@@ -137,7 +137,7 @@ public final class LongWordBitReader
 			if (buffer != 0) {
 				final int msb = Long.numberOfTrailingZeros(buffer);
 				filled -= msb + 1;
-				/* msb + 1 can be Long.SIZE, so we must break down the shift. */
+				// msb + 1 can be Long.SIZE, so we must break down the shift.
 				buffer >>>= msb;
 				buffer >>>= 1;
 				return msb + accumulated;
@@ -158,4 +158,5 @@ public final class LongWordBitReader
 	{
 		return readNonZeroGamma() - 1;
 	}
+*/
 }

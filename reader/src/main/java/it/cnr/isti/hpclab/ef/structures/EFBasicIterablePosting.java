@@ -102,8 +102,6 @@ public class EFBasicIterablePosting implements IterablePosting
 	@Override
 	public void close() throws IOException 
 	{
-		//dis.close();
-		//fis.close();
 	}
 
 	@Override

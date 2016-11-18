@@ -25,11 +25,13 @@
  */
 package it.cnr.isti.hpclab.ef.util;
 
-import it.unimi.dsi.bits.Fast;
+// import it.unimi.dsi.bits.Fast;
 
 import java.io.IOException;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
 import java.nio.channels.WritableByteChannel;
 
 /**
@@ -73,7 +75,7 @@ public final class LongWordBitWriter
 	public int append(final long value, final int width) throws IOException 
 	{
 		if (ASSERTS)
-			assert width == Long.SIZE || (-1L << width & value) == 0;
+			assert width == Long.SIZE || (-1L << width & value) == 0; 
 		
 		buffer |= value << (Long.SIZE - free);
 
@@ -153,11 +155,7 @@ public final class LongWordBitWriter
 		return 0;
 	}
 
-	public int writeUnary(long value)
-	{
-		return 0;
-	}
-	
+/*	
 	public int writeNonZeroGamma(long value) throws IOException 
 	{
 		if (value <= 0)
@@ -175,7 +173,8 @@ public final class LongWordBitWriter
 			throw new IllegalArgumentException("The argument " + value + " is negative.");
 		return writeNonZeroGamma(value + 1);
 	}
-
+*/
+	
 	public void close() throws IOException 
 	{
 		byteBuffer.putLong(buffer);

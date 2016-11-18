@@ -30,8 +30,10 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
 import java.nio.channels.FileChannel;
 
 /**
@@ -54,6 +56,7 @@ public final class LongWordCache implements Closeable
 	
 	/** The current bit buffer. */
 	private long buffer;
+	
 	/** The current number of free bits in {@link #buffer}. */
 	private int free;
 	

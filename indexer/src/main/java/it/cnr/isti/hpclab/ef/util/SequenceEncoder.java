@@ -32,7 +32,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * This class implements an encoder of sequences of natural numbers according to Elias Fano and can dump it to a bit file,
+ * This class implements an encoder of sequences of natural numbers according to Elias-Fano and can dump it to a bit file,
  * according to an internally hardcoded structure (pointers, lowers, uppers).
  */
 public class SequenceEncoder implements Closeable 

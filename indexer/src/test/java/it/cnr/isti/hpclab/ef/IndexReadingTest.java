@@ -172,14 +172,14 @@ public class IndexReadingTest extends ApplicationSetupTest
 			IterablePosting op = originalIndex.getInvertedIndex().getPostings(ble);
 			IterablePosting sp = succinctIndex.getInvertedIndex().getPostings(sle);
 			
-			int numSkips = 0;
+			// int numSkips = 0;
 			
 			int cnt = 0;
 			while (op.next() != IterablePosting.EOL) {
 				
 				if (++cnt == skipSize) {
 					cnt = 0;
-					numSkips++;
+					// numSkips++;
 					sp.next(op.getId() + 1);
 					op.next();
 					System.err.println(op.getId());

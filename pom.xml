@@ -4,14 +4,14 @@
 
   	<groupId>it.cnr.isti.hpclab</groupId>
   	<artifactId>terrier-eliasfano-modules</artifactId>
-  	<version>2.0</version>
+  	<version>4.1</version>
   	<packaging>pom</packaging>
   	<name>terrier eliasfano modules</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<modules>
@@ -20,17 +20,10 @@
 	</modules>
 
 	<dependencies>
-
-        <dependency>
-            <groupId>it.cnr.isti.hpclab</groupId>
-            <artifactId>terrier-skipping-reader</artifactId>
-            <version>2.0</version>
-        </dependency>
-
         <dependency>
             <groupId>it.cnr.isti.hpclab</groupId>
             <artifactId>terrier-reader</artifactId>
-            <version>2.0</version>
+            <version>4.1</version>
         </dependency>
 
         <dependency>

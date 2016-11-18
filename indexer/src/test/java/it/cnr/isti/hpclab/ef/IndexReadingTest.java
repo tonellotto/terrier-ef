@@ -38,6 +38,7 @@ public class IndexReadingTest extends ApplicationSetupTest
 	@Parameters
 	public static Collection<Object[]> skipSizeValues()
 	{
+		//return Arrays.asList(new Object[][] { {2} });
 		return Arrays.asList(new Object[][] { {2}, {3}, {4} });
 	}
 	
@@ -88,7 +89,7 @@ public class IndexReadingTest extends ApplicationSetupTest
 			IterablePosting op = originalIndex.getInvertedIndex().getPostings(ble);
 			IterablePosting sp = succinctIndex.getInvertedIndex().getPostings(sle);
 			
-			while (op.next() != IterablePosting.END_OF_LIST && sp.next() != IterablePosting.END_OF_LIST) {
+			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
 				assertEquals(op.getId(), sp.getId());
 				assertEquals(op.getFrequency(), sp.getFrequency());
 				assertEquals(op.getDocumentLength(), sp.getDocumentLength());
@@ -125,13 +126,13 @@ public class IndexReadingTest extends ApplicationSetupTest
 			int numSkips = 0;
 			
 			int cnt = 0;
-			while (op.next() != IterablePosting.END_OF_LIST) {
+			while (op.next() != IterablePosting.EOL) {
 				
 				if (++cnt == skipSize) {
 					cnt = 0;
 					numSkips++;
 					sp.next(op.getId());
-					assertTrue(sp.getId() != IterablePosting.END_OF_LIST);
+					assertTrue(sp.getId() != IterablePosting.EOL);
 					assertEquals(op.getId(), sp.getId());
 					assertEquals(op.getFrequency(), sp.getFrequency());
 					assertEquals(op.getDocumentLength(), sp.getDocumentLength());
@@ -160,10 +161,11 @@ public class IndexReadingTest extends ApplicationSetupTest
 			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
 			
 			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
-			// System.err.println(succinctEntry.getKey());
 			
 			ble = (BasicLexiconEntry) originalEntry.getValue();
 			sle = (EFLexiconEntry) succinctEntry.getValue();
+			
+			System.err.println(succinctEntry.getKey() + " has " + ble.getDocumentFrequency() + " postings");
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
@@ -173,23 +175,25 @@ public class IndexReadingTest extends ApplicationSetupTest
 			int numSkips = 0;
 			
 			int cnt = 0;
-			while (op.next() != IterablePosting.END_OF_LIST) {
+			while (op.next() != IterablePosting.EOL) {
 				
 				if (++cnt == skipSize) {
 					cnt = 0;
 					numSkips++;
 					sp.next(op.getId() + 1);
 					op.next();
+					System.err.println(op.getId());
 					assertEquals(op.getId(), sp.getId());
-					if (op.getId() != IterablePosting.END_OF_LIST) {
+					if (op.getId() != IterablePosting.EOL) {
 						assertEquals(op.getFrequency(), sp.getFrequency());
 						assertEquals(op.getDocumentLength(), sp.getDocumentLength());
 					}
 				}			
 			}
-
+			/*
 			if (numSkips > 0)
 				System.err.println("SKIP: " + numSkips);
+				*/
 		}
 	}
 	

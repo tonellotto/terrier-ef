@@ -5,7 +5,7 @@
     <parent>
         <groupId>it.cnr.isti.hpclab</groupId>
         <artifactId>terrier-eliasfano-modules</artifactId>
-        <version>2.0</version>
+        <version>4.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -31,14 +31,15 @@
     	<dependency>
       		<groupId>it.cnr.isti.hpclab</groupId>
       		<artifactId>terrier-eliasfano-reader</artifactId>
-      		<version>2.0</version>
+      		<version>4.1</version>
     	</dependency>
 
-    	<dependency>
-      		<groupId>it.cnr.isti.hpclab</groupId>
-      		<artifactId>terrier-indexer</artifactId>
-      		<version>2.0</version>
-    	</dependency>
+        <dependency>
+            <groupId>it.cnr.isti.hpclab</groupId>
+            <artifactId>terrier-indexer</artifactId>
+            <version>4.1</version>
+            <scope>test</scope>
+        </dependency>
 
   	</dependencies>
 

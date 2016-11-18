@@ -150,10 +150,4 @@ public class EFBasicIterablePosting implements IterablePosting
 	{
 		return "(" + currentDocument + "," + currentFrequency + ")";
 	}
-
-	@Override
-	public long getCurrentAddress() 
-	{
-		throw new RuntimeException();
-	}
 }

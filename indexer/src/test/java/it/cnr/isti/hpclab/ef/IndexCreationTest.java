@@ -34,7 +34,7 @@ public class IndexCreationTest extends ApplicationSetupTest
 		System.err.println(le);
 		
 		IterablePosting p = index.getInvertedIndex().getPostings(le);
-		while (p.next() != IterablePosting.END_OF_LIST)
+		while (p.next() != IterablePosting.EOL)
 		{
 			System.err.print(p + ", ");
 		}

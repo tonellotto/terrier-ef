@@ -2,11 +2,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   	<modelVersion>4.0.0</modelVersion>
 
-  	<groupId>it.cnr.isti.hpclab</groupId>
-  	<artifactId>terrier-eliasfano-modules</artifactId>
-  	<version>4.1</version>
-  	<packaging>pom</packaging>
-  	<name>terrier eliasfano modules</name>
+   <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
+  <groupId>it.cnr.isti.hpclab</groupId>
+  <artifactId>terrier-eliasfano-modules</artifactId>
+  <version>4.1</version>
+  <packaging>pom</packaging>
+  <name>terrier eliasfano modules</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

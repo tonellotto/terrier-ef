@@ -70,27 +70,7 @@ public final class LongWordBitReader
 	{
 		return curr * Long.SIZE + Long.SIZE - filled;
 	}
-/*
-	private long extractInternal(final int width) 
-	{
-		if (width <= filled) {
-			long result = buffer & (1L << width) - 1;
-			filled -= width;
-			buffer >>>= width;
-			return result;
-		} else {
-			long result = buffer;
-			buffer = list.getLong(++curr);
 
-			final int remainder = width - filled;
-			// Note that this WON'T WORK if remainder == Long.SIZE, but that's not going to happen.
-			result |= (buffer & (1L << remainder) - 1) << filled;
-			buffer >>>= remainder;
-			filled = Long.SIZE - remainder;
-			return result;
-		}
-	}
-*/
 	public long extract() 
 	{
 		if (l <= filled) {
@@ -102,7 +82,7 @@ public final class LongWordBitReader
 			long result = buffer;
 			buffer = list.getLong(++curr);
 			result |= buffer << filled & mask;
-			// Note that this WON'T WORK if remainder == Long.SIZE, but that's // not going to happen.
+			// Note that this WON'T WORK if remainder == Long.SIZE, but that's not going to happen.
 			buffer >>>= l - filled;
 			filled += longSizeMinusl;
 			return result;
@@ -128,7 +108,9 @@ public final class LongWordBitReader
 
 		return result | t << -bitPosition & mask;
 	}
-/*
+
+	// The following methods are used only for positions!!!
+	
 	public int readUnary() 
 	{
 		int accumulated = 0;
@@ -158,5 +140,24 @@ public final class LongWordBitReader
 	{
 		return readNonZeroGamma() - 1;
 	}
-*/
+
+	private long extractInternal(final int width) 
+	{
+		if (width <= filled) {
+			long result = buffer & (1L << width) - 1;
+			filled -= width;
+			buffer >>>= width;
+			return result;
+		} else {
+			long result = buffer;
+			buffer = list.getLong(++curr);
+
+			final int remainder = width - filled;
+			// Note that this WON'T WORK if remainder == Long.SIZE, but that's not going to happen.
+			result |= (buffer & (1L << remainder) - 1) << filled;
+			buffer >>>= remainder;
+			filled = Long.SIZE - remainder;
+			return result;
+		}
+	}
 }

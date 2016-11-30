@@ -34,6 +34,8 @@ import java.nio.ByteOrder;
 
 import java.nio.channels.WritableByteChannel;
 
+import it.unimi.dsi.bits.Fast;
+
 /**
  * This class implements a bit-oriented output stream implemented through long integers. 
  */
@@ -154,8 +156,17 @@ public final class LongWordBitWriter
 		}
 		return 0;
 	}
-
-/*	
+	
+	public void close() throws IOException 
+	{
+		byteBuffer.putLong(buffer);
+		byteBuffer.flip();
+		writableByteChannel.write(byteBuffer);
+		writableByteChannel.close();
+	}
+	
+	// These methods are here for positions
+	
 	public int writeNonZeroGamma(long value) throws IOException 
 	{
 		if (value <= 0)
@@ -172,14 +183,5 @@ public final class LongWordBitWriter
 		if (value < 0)
 			throw new IllegalArgumentException("The argument " + value + " is negative.");
 		return writeNonZeroGamma(value + 1);
-	}
-*/
-	
-	public void close() throws IOException 
-	{
-		byteBuffer.putLong(buffer);
-		byteBuffer.flip();
-		writableByteChannel.write(byteBuffer);
-		writableByteChannel.close();
 	}
 }

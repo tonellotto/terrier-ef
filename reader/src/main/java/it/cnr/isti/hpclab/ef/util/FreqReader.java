@@ -1,5 +1,5 @@
 /*
- * The original source code is it.unimi.di.big.mg4j.index.QuasiSuccinctIndexReader class
+ * The original source code is it.unimi.di.big.mg4j.index.QuasiSuccinctIndexReader.CountReader class
  * 
  * http://mg4j.di.unimi.it/docs-big/it/unimi/di/big/mg4j/index/QuasiSuccinctIndexReader.html
  * 
@@ -167,4 +167,9 @@ public class FreqReader
 	{
 		return this.getClass().getSimpleName() + '@' + Integer.toHexString(System.identityHashCode(this));
 	}
+	
+	// The following methods are used just for PositionReader
+	
+	public long prevPrefixSum() { return prevPrefixSum; }
+	public long currentIndex()  { return currentIndex;  }
 }

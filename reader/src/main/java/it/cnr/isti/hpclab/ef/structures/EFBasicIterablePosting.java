@@ -19,8 +19,8 @@ public class EFBasicIterablePosting implements IterablePosting
 	private LongWordBitReader docidsLongWordBitReader;
 	private DocumentIndex doi;
 	
-	private DocidReader docidReader = null;
-	private FreqReader freqReader = null;
+	protected DocidReader docidReader = null;
+	protected FreqReader freqReader = null;
 	private long currentDocument;
 	private long currentFrequency;
 	private long N;
@@ -35,6 +35,8 @@ public class EFBasicIterablePosting implements IterablePosting
 		this.freqList = _freqList;
 		this.doi = doi;
 		this.N = upperBoundDocid;
+		
+		// TODO: This is probably useless, we move to docidsPosition, then we read docidsPosition, and the object is never used again...
 		
 		docidsLongWordBitReader = new LongWordBitReader( docidList, 0 );
 		docidsLongWordBitReader.position(docidsPosition);

@@ -25,6 +25,7 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 	
 	protected LongBigList docidsList;
 	protected LongBigList freqsList;
+	protected LongBigList posList;
 	
 	public EFInvertedIndex(IndexOnDisk index, String structureName) throws IOException 
 	{
@@ -46,8 +47,11 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		else
 			throw new RuntimeException();
 
-		docidsList = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.DOCID_EXTENSION ).getChannel(), byteOrder, MapMode.READ_ONLY );
-		freqsList  = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.FREQ_EXTENSION  ).getChannel(), byteOrder, MapMode.READ_ONLY );
+		docidsList   = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.DOCID_EXTENSION ).getChannel(), byteOrder, MapMode.READ_ONLY );
+		freqsList    = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.FREQ_EXTENSION  ).getChannel(), byteOrder, MapMode.READ_ONLY );
+		
+		if (hasPositions())
+			posList  = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.POS_EXTENSION   ).getChannel(), byteOrder, MapMode.READ_ONLY );
 	}
 	
 	@Override
@@ -64,8 +68,16 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		if (log2Quantum == 0)
 			throw new RuntimeException();
 		
+		IterablePosting rtr = null;
+		if (hasPositions()) {
+			EFPosLexiconEntry ple = (EFPosLexiconEntry)pointer;
+			long posOffset  = ple.getPosOffset();
+			long sumsMaxPos = ple.getSumsMaxPos();
+			rtr = new EFPosIterablePosting(docidsList, freqsList, posList, doi, df, N, F, sumsMaxPos, log2Quantum, docidOffset, freqOffset, posOffset);
 
-		IterablePosting rtr = new EFBasicIterablePosting(docidsList, freqsList, doi, df, N, F, log2Quantum, docidOffset, freqOffset);
+		} else {
+			rtr = new EFBasicIterablePosting(docidsList, freqsList, doi, df, N, F, log2Quantum, docidOffset, freqOffset);
+		}
 		return rtr;
 	}
 	
@@ -73,4 +85,16 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 	public void close()
 	{
 	}
+
+	public boolean hasPositions()
+	{
+		 return "true".equals(index.getIndexProperty(EliasFano.HAS_POSITIONS, "false"));
+	}
+
+	/*
+	public static boolean hasPositions(final IndexOnDisk index)
+	{
+		 return "true".equals(index.getIndexProperty(EliasFano.HAS_POSITIONS, "false"));
+	}
+	*/
 }

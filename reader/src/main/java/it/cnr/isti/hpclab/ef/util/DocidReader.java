@@ -1,5 +1,5 @@
 /*
- * The original source code is it.unimi.di.big.mg4j.index.QuasiSuccinctIndexReader class
+ * The original source code is it.unimi.di.big.mg4j.index.QuasiSuccinctIndexReader.EliasFanoPointerReader class
  * 
  * http://mg4j.di.unimi.it/docs-big/it/unimi/di/big/mg4j/index/QuasiSuccinctIndexReader.html
  * 

@@ -4,13 +4,12 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.terrier.structures.Index;
 import org.terrier.structures.Lexicon;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.postings.IterablePosting;
 
-public class IndexCreationTest extends ApplicationSetupTest
+public class IndexCreationDebug extends ApplicationSetupTest
 {
 	private Index index = null;
 	
@@ -26,7 +25,7 @@ public class IndexCreationTest extends ApplicationSetupTest
 		index.close();
 	} 
 	
-	@Test public void printPostingList() throws IOException
+	public void printPostingList() throws IOException
 	{
 		Lexicon<String> lex = index.getLexicon();
 		

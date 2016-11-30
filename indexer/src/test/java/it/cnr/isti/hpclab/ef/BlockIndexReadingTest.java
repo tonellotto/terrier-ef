@@ -1,7 +1,9 @@
 package it.cnr.isti.hpclab.ef;
 
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,18 +21,21 @@ import org.terrier.structures.Index;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.postings.IterablePosting;
+import org.terrier.structures.postings.bit.BlockIterablePosting;
+import org.terrier.utility.ApplicationSetup;
 
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
+import it.cnr.isti.hpclab.ef.structures.EFPosIterablePosting;
 
 @RunWith(value = Parameterized.class)
-public class IndexReadingTest extends ApplicationSetupTest
+public class BlockIndexReadingTest extends ApplicationSetupTest
 {
 	protected IndexOnDisk originalIndex = null;
 	protected IndexOnDisk succinctIndex = null;
 	
 	private int skipSize;
 	
-	public IndexReadingTest(int skipSize)
+	public BlockIndexReadingTest(int skipSize)
 	{
 		this.skipSize = skipSize;
 	}
@@ -38,30 +43,30 @@ public class IndexReadingTest extends ApplicationSetupTest
 	@Parameters
 	public static Collection<Object[]> skipSizeValues()
 	{
-		//return Arrays.asList(new Object[][] { {2} });
+		// return Arrays.asList(new Object[][] { {2} });
 		return Arrays.asList(new Object[][] { {2}, {3}, {4} });
 	}
 	
 	@Before 
 	public void createIndex() throws Exception
 	{
+		ApplicationSetup.BLOCK_INDEXING = true;
 		super.doShakespeareIndexing();
 		originalIndex = Index.createIndex();
 		
 		String args[] = new String[2];
 		args[0] = originalIndex.getPath();
 		args[1] = originalIndex.getPrefix();
-		Generator.LOG2QUANTUM = 3;
-		Generator.main(args);
+		PosGenerator.LOG2QUANTUM = 3;
+		PosGenerator.main(args);
 		
 		succinctIndex = Index.createIndex(args[0], args[1] + EliasFano.USUAL_EXTENSION);
-		// System.out.println(succinctIndex.getIndexProperty("log2Quantum", ""));
 	}
 	
 	@Test
 	public void testRandomPostingLists() throws IOException
 	{
-		Generator.randomSanityCheck(originalIndex, succinctIndex);
+		PosGenerator.randomSanityCheck(originalIndex, succinctIndex);
 	}
 	
 	@Test 
@@ -86,13 +91,14 @@ public class IndexReadingTest extends ApplicationSetupTest
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
-			IterablePosting op = originalIndex.getInvertedIndex().getPostings(ble);
-			IterablePosting sp = succinctIndex.getInvertedIndex().getPostings(sle);
+			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
+			EFPosIterablePosting sp = (EFPosIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
 			
 			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
 				assertEquals(op.getId(), sp.getId());
 				assertEquals(op.getFrequency(), sp.getFrequency());
 				assertEquals(op.getDocumentLength(), sp.getDocumentLength());
+				assertArrayEquals(op.getPositions(), sp.getPositions());
 			}
 		}
 	}
@@ -120,32 +126,30 @@ public class IndexReadingTest extends ApplicationSetupTest
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
-			IterablePosting op = originalIndex.getInvertedIndex().getPostings(ble);
-			IterablePosting sp = succinctIndex.getInvertedIndex().getPostings(sle);
+			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
+			EFPosIterablePosting sp = (EFPosIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
 			
-			int numSkips = 0;
+//			int numSkips = 0;
 			
 			int cnt = 0;
 			while (op.next() != IterablePosting.EOL) {
 				
 				if (++cnt == skipSize) {
 					cnt = 0;
-					numSkips++;
+//					numSkips++;
 					sp.next(op.getId());
 					assertTrue(sp.getId() != IterablePosting.EOL);
 					assertEquals(op.getId(), sp.getId());
 					assertEquals(op.getFrequency(), sp.getFrequency());
 					assertEquals(op.getDocumentLength(), sp.getDocumentLength());
+					assertArrayEquals(op.getPositions(), sp.getPositions());
 				}			
 			}
-
-			if (numSkips > 0)
-				System.err.println("SKIP: " + numSkips);
 		}
 	}
 	
 
-	@Test
+	// @Test
 	public void nextAfterEverySkip() throws IOException
 	{
 		System.err.println("Skipping after every " + skipSize + " postings");
@@ -190,6 +194,10 @@ public class IndexReadingTest extends ApplicationSetupTest
 					}
 				}			
 			}
+			/*
+			if (numSkips > 0)
+				System.err.println("SKIP: " + numSkips);
+				*/
 		}
 	}
 	

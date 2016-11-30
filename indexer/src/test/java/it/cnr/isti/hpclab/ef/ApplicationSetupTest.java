@@ -188,5 +188,4 @@ public class ApplicationSetupTest
 		assertTrue("Index does not have an meta structure", i.hasIndexStructure("meta"));
 		i.close();
 	}	
-	
 }

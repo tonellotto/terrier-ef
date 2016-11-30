@@ -37,7 +37,7 @@ public class IndexUtil
 
 		Properties properties = new Properties();
 
-		properties.setProperty("index.terrier.version", "4.0");
+		properties.setProperty("index.terrier.version", "4.1");
 		
 		properties.setProperty("num.Documents", Integer.toString(num_docs));
 		properties.setProperty("num.Terms",     Integer.toString(num_terms));
@@ -61,6 +61,54 @@ public class IndexUtil
 		properties.setProperty("index.lexicon-keyfactory.parameter_values", "${max.term.length}");
 		
 		properties.setProperty("index.lexicon-valuefactory.class",            "it.cnr.isti.hpclab.ef.structures.EFLexiconEntry$Factory");
+		properties.setProperty("index.lexicon-valuefactory.parameter_values", "");
+		properties.setProperty("index.lexicon-valuefactory.parameter_types",  "");
+
+		properties.setProperty("index.document.class",            "it.cnr.isti.hpclab.ef.structures.EFDocumentIndex");
+		properties.setProperty("index.document.parameter_types",  "org.terrier.structures.IndexOnDisk");
+		properties.setProperty("index.document.parameter_values", "index");
+
+		properties.setProperty("index.inverted.class", 		      "it.cnr.isti.hpclab.ef.structures.EFInvertedIndex");
+		properties.setProperty("index.inverted.parameter_types",  "org.terrier.structures.IndexOnDisk,java.lang.String,org.terrier.structures.DocumentIndex");
+		properties.setProperty("index.inverted.parameter_values", "index,structureName,document");
+
+		properties.store(Files.writeFileStream(filename),"");
+	}
+	
+	public static void writeEFPosIndexProperties(final String filename, final int num_docs, final int num_terms, final long num_pointers, final long num_tokens, final int log2quantum) throws IOException
+	{
+		File file = new File(filename);
+		
+		if (file.isDirectory())
+			throw new IllegalArgumentException("The filename provided (" + filename + ") is a directory");
+
+		Properties properties = new Properties();
+
+		properties.setProperty("index.terrier.version", "4.1");
+		
+		properties.setProperty("num.Documents", Integer.toString(num_docs));
+		properties.setProperty("num.Terms",     Integer.toString(num_terms));
+		properties.setProperty("num.Pointers",  Long.toString(num_pointers));
+		properties.setProperty("num.Tokens",    Long.toString(num_tokens));
+		
+		properties.setProperty(EliasFano.LOG2QUANTUM, Integer.toString(log2quantum));
+		properties.setProperty(EliasFano.BYTEORDER,   ByteOrder.nativeOrder().toString());
+		properties.setProperty(EliasFano.HAS_POSITIONS, "true");
+		
+		properties.setProperty("max.term.length",Integer.toString(DEFAULT_MAX_TERM_LENGTH));
+		
+		properties.setProperty("index.lexicon.termids", "aligned");
+		properties.setProperty("index.lexicon.bsearchshortcut", "default");
+
+		properties.setProperty("index.lexicon.class",		     "org.terrier.structures.FSOMapFileLexicon");
+		properties.setProperty("index.lexicon.parameter_types",  "java.lang.String,org.terrier.structures.IndexOnDisk");
+		properties.setProperty("index.lexicon.parameter_values", "structureName,index");
+
+		properties.setProperty("index.lexicon-keyfactory.class",            "org.terrier.structures.seralization.FixedSizeTextFactory");
+		properties.setProperty("index.lexicon-keyfactory.parameter_types",  "java.lang.String");
+		properties.setProperty("index.lexicon-keyfactory.parameter_values", "${max.term.length}");
+		
+		properties.setProperty("index.lexicon-valuefactory.class",            "it.cnr.isti.hpclab.ef.structures.EFPosLexiconEntry$Factory");
 		properties.setProperty("index.lexicon-valuefactory.parameter_values", "");
 		properties.setProperty("index.lexicon-valuefactory.parameter_types",  "");
 

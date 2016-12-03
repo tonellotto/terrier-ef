@@ -203,13 +203,18 @@ public class PosGenerator
 			long sumMaxPos = 0; // in the first pass, we need to compute the upper bound to encode positions
 			
 			long lastDocid = 0;
+			long occurrency = 0; // Do not trust le.getFrequency() because of block max limit!
 			while (p.next() != IterablePosting.END_OF_LIST) {
 				docidsAccumulator.add( p.getId() - lastDocid );
 				lastDocid = p.getId();
 				freqsAccumulator.add(p.getFrequency());
 				sumMaxPos += p.getPositions()[p.getPositions().length - 1];
+				occurrency += p.getPositions().length;
 			}
 			p.close();
+			
+			if (occurrency != le.getFrequency())
+					throw new IllegalStateException("Lexicon term occurencies (" + le.getFrequency() + " different form positions-counted occurrencies (" + occurrency + ")");
 			
 			// We create the new lexicon entry with skip offset data included
 			EFPosLexiconEntry leOut = new EFPosLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(),

@@ -3,26 +3,27 @@ package it.cnr.isti.hpclab.ef.structures;
 import java.util.Arrays;
 
 import org.terrier.structures.DocumentIndex;
+import org.terrier.structures.postings.BlockPosting;
 
 import it.cnr.isti.hpclab.ef.util.LongWordBitReader;
-import it.cnr.isti.hpclab.ef.util.PosReader;
+import it.cnr.isti.hpclab.ef.util.PositionReader;
 import it.cnr.isti.hpclab.ef.util.Utils;
 import it.unimi.dsi.fastutil.longs.LongBigList;
 
-public class EFPosIterablePosting extends EFBasicIterablePosting
+public class EFBlockIterablePosting extends EFBasicIterablePosting implements BlockPosting
 {
 	private LongBigList posList;
 
 	private LongWordBitReader posLongWordBitReader;
-	private PosReader posReader = null;
+	private PositionReader posReader = null;
 	
 	private int[] currentPositions;
 
-	public EFPosIterablePosting()
+	public EFBlockIterablePosting()
 	{	
 	}
 
-	public EFPosIterablePosting(LongBigList _docidList, LongBigList _freqList, LongBigList _posList, 
+	public EFBlockIterablePosting(LongBigList _docidList, LongBigList _freqList, LongBigList _posList, 
 							    DocumentIndex doi, int numEntries, 
 							    int upperBoundDocid, int upperBoundFreq, long upperBoundPos,
 							    int log2Quantum, 
@@ -42,10 +43,11 @@ public class EFPosIterablePosting extends EFBasicIterablePosting
 		int pointerSize = (numberOfPointers == 0 ? -1 : (int) posLongWordBitReader.readNonZeroGamma());
 		
 		
-		this.posReader = new PosReader( posList, l, posLongWordBitReader.position(), numberOfPointers, pointerSize, upperBoundFreq, log2Quantum );
+		this.posReader = new PositionReader( posList, l, posLongWordBitReader.position(), numberOfPointers, pointerSize, upperBoundFreq, log2Quantum );
 		currentPositions = null;
 	}
 	
+	@Override
 	public int[] getPositions()
 	{
 		int numPositions = super.getFrequency();

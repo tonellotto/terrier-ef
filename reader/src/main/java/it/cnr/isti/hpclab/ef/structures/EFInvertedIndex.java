@@ -1,6 +1,5 @@
 package it.cnr.isti.hpclab.ef.structures;
 
-
 import it.cnr.isti.hpclab.ef.EliasFano;
 import it.unimi.dsi.fastutil.longs.LongBigList;
 import it.unimi.dsi.util.ByteBufferLongBigList;
@@ -70,10 +69,10 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		
 		IterablePosting rtr = null;
 		if (hasPositions()) {
-			EFPosLexiconEntry ple = (EFPosLexiconEntry)pointer;
+			EFBlockLexiconEntry ple = (EFBlockLexiconEntry)pointer;
 			long posOffset  = ple.getPosOffset();
 			long sumsMaxPos = ple.getSumsMaxPos();
-			rtr = new EFPosIterablePosting(docidsList, freqsList, posList, doi, df, N, F, sumsMaxPos, log2Quantum, docidOffset, freqOffset, posOffset);
+			rtr = new EFBlockIterablePosting(docidsList, freqsList, posList, doi, df, N, F, sumsMaxPos, log2Quantum, docidOffset, freqOffset, posOffset);
 
 		} else {
 			rtr = new EFBasicIterablePosting(docidsList, freqsList, doi, df, N, F, log2Quantum, docidOffset, freqOffset);
@@ -90,11 +89,4 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 	{
 		 return "true".equals(index.getIndexProperty(EliasFano.HAS_POSITIONS, "false"));
 	}
-
-	/*
-	public static boolean hasPositions(final IndexOnDisk index)
-	{
-		 return "true".equals(index.getIndexProperty(EliasFano.HAS_POSITIONS, "false"));
-	}
-	*/
 }

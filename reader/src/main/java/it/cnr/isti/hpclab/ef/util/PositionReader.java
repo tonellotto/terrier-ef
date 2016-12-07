@@ -33,7 +33,7 @@ import static it.unimi.dsi.bits.Fast.ONES_STEP_8;
 import it.unimi.dsi.bits.Fast;
 import it.unimi.dsi.fastutil.longs.LongBigList;
 
-public class PosReader 
+public class PositionReader 
 {
 	/** The longword bit reader for pointers. */
 	private final LongWordBitReader skipPointers;
@@ -72,7 +72,7 @@ public class PosReader
 	/** The base of the sequence of positions currently returned. */
 	private long base;
 
-	public PosReader(final LongBigList list, final int l, final long skipPointersStart, final long numberOfPointers, final int pointerSize, final long occurrency, final int log2Quantum) 
+	public PositionReader(final LongBigList list, final int l, final long skipPointersStart, final long numberOfPointers, final int pointerSize, final long occurrency, final int log2Quantum) 
 	{
 		this.list = list; 
 		this.l = l;

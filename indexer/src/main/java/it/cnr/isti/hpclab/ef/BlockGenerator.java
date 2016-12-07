@@ -2,8 +2,8 @@ package it.cnr.isti.hpclab.ef;
 
 import it.cnr.isti.hpclab.ef.structures.EFDocumentIndex;
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
-import it.cnr.isti.hpclab.ef.structures.EFPosIterablePosting;
-import it.cnr.isti.hpclab.ef.structures.EFPosLexiconEntry;
+import it.cnr.isti.hpclab.ef.structures.EFBlockIterablePosting;
+import it.cnr.isti.hpclab.ef.structures.EFBlockLexiconEntry;
 import it.cnr.isti.hpclab.ef.util.IndexUtil;
 import it.cnr.isti.hpclab.ef.util.LongWordBitWriter;
 import it.cnr.isti.hpclab.ef.util.SequenceEncoder;
@@ -31,7 +31,7 @@ import org.terrier.structures.seralization.FixedSizeTextFactory;
 
 import org.terrier.utility.TerrierTimer;
 
-public class PosGenerator 
+public class BlockGenerator 
 {
 	public static int LOG2QUANTUM = Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8"));
 	private static ByteOrder BYTEORDER = ByteOrder.nativeOrder();
@@ -47,7 +47,7 @@ public class PosGenerator
 		Index.setIndexLoadingProfileAsRetrieval(false);
 		
 		if (args.length != 2) {
-			System.err.println("Usage: java it.cnr.isti.hpclab.ef.PosGenerator <index.path> <src.index.prefix>");
+			System.err.println("Usage: java " + BlockGenerator.class.getName() + " <index.path> <src.index.prefix>");
 			System.exit(-1);
 		}
 
@@ -108,7 +108,7 @@ public class PosGenerator
 			System.err.println("Checking term " + originalEntry.getKey() + " (" + originalEntry.getValue().getDocumentFrequency() + " entries), termid " + termid + " Tot pos " + originalEntry.getValue().getFrequency());
 
 			BlockIterablePosting srcPosting = (BlockIterablePosting) srcIndex.getInvertedIndex().getPostings(ble);
-			EFPosIterablePosting dstPosting = (EFPosIterablePosting) dstIndex.getInvertedIndex().getPostings(efle);
+			EFBlockIterablePosting dstPosting = (EFBlockIterablePosting) dstIndex.getInvertedIndex().getPostings(efle);
 						
 			while (srcPosting.next() != IterablePosting.END_OF_LIST && dstPosting.next() != IterablePosting.END_OF_LIST) {
 				if ((srcPosting.getId() != dstPosting.getId()) || (srcPosting.getFrequency() != dstPosting.getFrequency())) {
@@ -217,7 +217,7 @@ public class PosGenerator
 					throw new IllegalStateException("Lexicon term occurencies (" + le.getFrequency() + " different form positions-counted occurrencies (" + occurrency + ")");
 			
 			// We create the new lexicon entry with skip offset data included
-			EFPosLexiconEntry leOut = new EFPosLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(),
+			EFBlockLexiconEntry leOut = new EFBlockLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(),
 															docidsOffset, freqsOffset, posOffset, sumMaxPos);
 			// We write the new lexicon entry to the new lexicon
 			los.writeNextEntry(leIn.getKey(), leOut);

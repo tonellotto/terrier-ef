@@ -108,7 +108,7 @@ public class IndexUtil
 		properties.setProperty("index.lexicon-keyfactory.parameter_types",  "java.lang.String");
 		properties.setProperty("index.lexicon-keyfactory.parameter_values", "${max.term.length}");
 		
-		properties.setProperty("index.lexicon-valuefactory.class",            "it.cnr.isti.hpclab.ef.structures.EFPosLexiconEntry$Factory");
+		properties.setProperty("index.lexicon-valuefactory.class",            "it.cnr.isti.hpclab.ef.structures.EFBlockLexiconEntry$Factory");
 		properties.setProperty("index.lexicon-valuefactory.parameter_values", "");
 		properties.setProperty("index.lexicon-valuefactory.parameter_types",  "");
 

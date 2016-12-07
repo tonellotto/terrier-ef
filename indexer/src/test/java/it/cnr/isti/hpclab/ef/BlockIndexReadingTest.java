@@ -25,7 +25,7 @@ import org.terrier.structures.postings.bit.BlockIterablePosting;
 import org.terrier.utility.ApplicationSetup;
 
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
-import it.cnr.isti.hpclab.ef.structures.EFPosIterablePosting;
+import it.cnr.isti.hpclab.ef.structures.EFBlockIterablePosting;
 
 @RunWith(value = Parameterized.class)
 public class BlockIndexReadingTest extends ApplicationSetupTest
@@ -57,8 +57,8 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 		String args[] = new String[2];
 		args[0] = originalIndex.getPath();
 		args[1] = originalIndex.getPrefix();
-		PosGenerator.LOG2QUANTUM = 3;
-		PosGenerator.main(args);
+		BlockGenerator.LOG2QUANTUM = 3;
+		BlockGenerator.main(args);
 		
 		succinctIndex = Index.createIndex(args[0], args[1] + EliasFano.USUAL_EXTENSION);
 	}
@@ -66,7 +66,7 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 	@Test
 	public void testRandomPostingLists() throws IOException
 	{
-		PosGenerator.randomSanityCheck(originalIndex, succinctIndex);
+		BlockGenerator.randomSanityCheck(originalIndex, succinctIndex);
 	}
 	
 	@Test 
@@ -92,7 +92,7 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
 			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFPosIterablePosting sp = (EFPosIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
+			EFBlockIterablePosting sp = (EFBlockIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
 			
 			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
 				assertEquals(op.getId(), sp.getId());
@@ -127,7 +127,7 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
 			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFPosIterablePosting sp = (EFPosIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
+			EFBlockIterablePosting sp = (EFBlockIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
 			
 //			int numSkips = 0;
 			

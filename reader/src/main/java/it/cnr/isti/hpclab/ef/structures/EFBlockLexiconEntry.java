@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.terrier.structures.LexiconEntry;
 
-public class EFPosLexiconEntry extends EFLexiconEntry
+public class EFBlockLexiconEntry extends EFLexiconEntry
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -26,15 +26,15 @@ public class EFPosLexiconEntry extends EFLexiconEntry
 		@Override
 		public LexiconEntry newInstance() 
 		{
-			return new EFPosLexiconEntry();
+			return new EFBlockLexiconEntry();
 		}
 	}
 	
-	public EFPosLexiconEntry() 
+	public EFBlockLexiconEntry() 
 	{
 	}
 
-	public EFPosLexiconEntry(int tid, int n_t, int TF, long docidOffset, long freqOffset, long posOffset, long sumsMaxPos) 
+	public EFBlockLexiconEntry(int tid, int n_t, int TF, long docidOffset, long freqOffset, long posOffset, long sumsMaxPos) 
 	{
 		super(tid, n_t, TF, docidOffset, freqOffset);
 		this.posOffset = posOffset;

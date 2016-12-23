@@ -21,9 +21,9 @@ public class EFBasicIterablePosting implements IterablePosting
 	
 	protected DocidReader docidReader = null;
 	protected FreqReader freqReader = null;
-	private long currentDocument;
-	private long currentFrequency;
-	private long N;
+	protected long currentDocument;
+	protected long currentFrequency;
+	protected long N;
 	
 	public EFBasicIterablePosting()
 	{	

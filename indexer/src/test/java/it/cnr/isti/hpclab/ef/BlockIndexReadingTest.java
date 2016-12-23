@@ -102,7 +102,78 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 			}
 		}
 	}
-	
+
+	@Test 
+	public void testPostingListsLazyPositionsRead() throws IOException
+	{
+		assertEquals(originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(), succinctIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+		
+		Map.Entry<String, LexiconEntry> originalEntry;
+		Map.Entry<String, LexiconEntry> succinctEntry;
+		
+		BasicLexiconEntry ble;
+		EFLexiconEntry sle;
+		
+		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
+			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
+			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
+			
+			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
+			
+			ble = (BasicLexiconEntry) originalEntry.getValue();
+			sle = (EFLexiconEntry) succinctEntry.getValue();
+			
+			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
+			
+			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
+			EFBlockIterablePosting sp = (EFBlockIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
+			
+			int cnt = 0;
+			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
+				assertEquals(op.getId(), sp.getId());
+				assertEquals(op.getFrequency(), sp.getFrequency());
+				assertEquals(op.getDocumentLength(), sp.getDocumentLength());
+				if (cnt++ % 2 == 0)
+					assertArrayEquals(op.getPositions(), sp.getPositions());
+			}
+		}
+	}
+
+	@Test 
+	public void testPostingListsRepeatPositionsRead() throws IOException
+	{
+		assertEquals(originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(), succinctIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+		
+		Map.Entry<String, LexiconEntry> originalEntry;
+		Map.Entry<String, LexiconEntry> succinctEntry;
+		
+		BasicLexiconEntry ble;
+		EFLexiconEntry sle;
+		
+		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
+			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
+			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
+			
+			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
+			
+			ble = (BasicLexiconEntry) originalEntry.getValue();
+			sle = (EFLexiconEntry) succinctEntry.getValue();
+			
+			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
+			
+			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
+			EFBlockIterablePosting sp = (EFBlockIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
+			
+			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
+				assertEquals(op.getId(), sp.getId());
+				assertEquals(op.getFrequency(), sp.getFrequency());
+				assertEquals(op.getDocumentLength(), sp.getDocumentLength());
+				assertArrayEquals(op.getPositions(), sp.getPositions());
+				assertArrayEquals(op.getPositions(), sp.getPositions());
+			}
+		}
+	}
+
 	@Test
 	public void nextIntoEverySkip() throws IOException
 	{

@@ -27,6 +27,7 @@ import org.terrier.structures.LexiconOutputStream;
 import org.terrier.structures.collections.FSOrderedMapFile;
 import org.terrier.structures.postings.IterablePosting;
 import org.terrier.structures.postings.bit.BlockIterablePosting;
+import org.terrier.structures.postings.BlockPosting;
 import org.terrier.structures.seralization.FixedSizeTextFactory;
 
 import org.terrier.utility.TerrierTimer;
@@ -107,7 +108,7 @@ public class BlockGenerator
 
 			System.err.println("Checking term " + originalEntry.getKey() + " (" + originalEntry.getValue().getDocumentFrequency() + " entries), termid " + termid + " Tot pos " + originalEntry.getValue().getFrequency());
 
-			BlockIterablePosting srcPosting = (BlockIterablePosting) srcIndex.getInvertedIndex().getPostings(ble);
+			IterablePosting srcPosting = srcIndex.getInvertedIndex().getPostings(ble);
 			EFBlockIterablePosting dstPosting = (EFBlockIterablePosting) dstIndex.getInvertedIndex().getPostings(efle);
 						
 			while (srcPosting.next() != IterablePosting.END_OF_LIST && dstPosting.next() != IterablePosting.END_OF_LIST) {
@@ -115,7 +116,7 @@ public class BlockGenerator
 					System.err.println("Something went wrong in random sanity check...");
 					System.exit(-1);
 				}
-				int[] srcPositions = srcPosting.getPositions();
+				int[] srcPositions = ((BlockPosting)srcPosting).getPositions();
 				int[] dstPositions = dstPosting.getPositions();
 				
 				if (srcPositions.length != dstPositions.length) {

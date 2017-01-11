@@ -2,6 +2,7 @@ package it.cnr.isti.hpclab.ef;
 
 import it.cnr.isti.hpclab.ef.structures.EFDocumentIndex;
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
+
 import it.cnr.isti.hpclab.ef.util.IndexUtil;
 import it.cnr.isti.hpclab.ef.util.LongWordBitWriter;
 import it.cnr.isti.hpclab.ef.util.SequenceEncoder;

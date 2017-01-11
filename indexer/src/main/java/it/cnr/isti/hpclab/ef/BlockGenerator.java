@@ -26,7 +26,6 @@ import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.LexiconOutputStream;
 import org.terrier.structures.collections.FSOrderedMapFile;
 import org.terrier.structures.postings.IterablePosting;
-import org.terrier.structures.postings.bit.BlockIterablePosting;
 import org.terrier.structures.postings.BlockPosting;
 import org.terrier.structures.seralization.FixedSizeTextFactory;
 
@@ -196,7 +195,7 @@ public class BlockGenerator
 			if (le.getTermId() == 951)
 				System.err.println("CAZZO");
 */
-			BlockIterablePosting p = (BlockIterablePosting) srcIndex.getInvertedIndex().getPostings((BitIndexPointer)le);
+			IterablePosting p = srcIndex.getInvertedIndex().getPostings((BitIndexPointer)le);
 					 			
 			docidsAccumulator.init( le.getDocumentFrequency(), numberOfDocuments, false, true, LOG2QUANTUM );
 			freqsAccumulator.init(  le.getDocumentFrequency(), le.getFrequency(), true, false, LOG2QUANTUM );
@@ -209,8 +208,8 @@ public class BlockGenerator
 				docidsAccumulator.add( p.getId() - lastDocid );
 				lastDocid = p.getId();
 				freqsAccumulator.add(p.getFrequency());
-				sumMaxPos += p.getPositions()[p.getPositions().length - 1];
-				occurrency += p.getPositions().length;
+				sumMaxPos += ((BlockPosting)p).getPositions()[((BlockPosting)p).getPositions().length - 1];
+				occurrency += ((BlockPosting)p).getPositions().length;
 			}
 			p.close();
 			
@@ -226,11 +225,11 @@ public class BlockGenerator
 			// After computing sumMaxPos, we re-scan the posting list to encode the positions
 			posAccumulator.init(le.getFrequency(), le.getDocumentFrequency() + sumMaxPos, true, false, LOG2QUANTUM );
 			
-			p = (BlockIterablePosting) srcIndex.getInvertedIndex().getPostings((BitIndexPointer)le);
+			p = srcIndex.getInvertedIndex().getPostings((BitIndexPointer)le);
 			
 			int[] positions = null;
 			while (p.next() != IterablePosting.END_OF_LIST) {
-				positions = p.getPositions();
+				positions = ((BlockPosting)p).getPositions();
 				posAccumulator.add(1 + positions[0]);
 				for (int i = 1; i < positions.length; i++)
 					posAccumulator.add(positions[i] - positions[i-1]);

@@ -62,7 +62,7 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		long docidOffset = le.getDocidOffset();
 		long freqOffset = le.getFreqOffset();
 		int F = le.getFrequency();
-				
+		
 		int log2Quantum = index.getIntIndexProperty(EliasFano.LOG2QUANTUM, 0);
 		if (log2Quantum == 0)
 			throw new RuntimeException();
@@ -75,6 +75,7 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 			rtr = new EFBlockIterablePosting(docidsList, freqsList, posList, doi, df, N, F, sumsMaxPos, log2Quantum, docidOffset, freqOffset, posOffset);
 
 		} else {
+
 			rtr = new EFBasicIterablePosting(docidsList, freqsList, doi, df, N, F, log2Quantum, docidOffset, freqOffset);
 		}
 		return rtr;

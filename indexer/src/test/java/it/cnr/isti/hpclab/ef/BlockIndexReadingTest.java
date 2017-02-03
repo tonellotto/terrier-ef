@@ -51,6 +51,7 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 	public void createIndex() throws Exception
 	{
 		ApplicationSetup.BLOCK_INDEXING = true;
+		// ApplicationSetup.MAX_BLOCKS = 2;
 		super.doShakespeareIndexing();
 		originalIndex = Index.createIndex();
 		
@@ -220,7 +221,7 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 	}
 	
 
-	// @Test
+	@Test
 	public void nextAfterEverySkip() throws IOException
 	{
 		System.err.println("Skipping after every " + skipSize + " postings");

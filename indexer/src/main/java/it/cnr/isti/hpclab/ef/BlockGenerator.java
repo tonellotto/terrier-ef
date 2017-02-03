@@ -214,11 +214,16 @@ public class BlockGenerator
 			p.close();
 			
 			if (occurrency != le.getFrequency())
-					throw new IllegalStateException("Lexicon term occurencies (" + le.getFrequency() + " different form positions-counted occurrencies (" + occurrency + ")");
-			
+					throw new IllegalStateException("Lexicon term occurencies (" + le.getFrequency() + ") different form positions-counted occurrencies (" + occurrency + ")");
+/*
+			if (occurrency < le.getFrequency()) {
+				System.err.println("Lexicon term occurencies (" + le.getFrequency() + ") more than form positions-counted occurrencies (" + occurrency + ")");
+				System.err.println("Max length of positions array was enforced, please remember to set \"blocks.max\"  in future Terrier indexing processes");
+				System.err.println("Using le.getFrequency() as positions UB in EF, with no guarantees");
+			}
+*/
 			// We create the new lexicon entry with skip offset data included
-			EFBlockLexiconEntry leOut = new EFBlockLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(),
-															docidsOffset, freqsOffset, posOffset, sumMaxPos);
+			EFBlockLexiconEntry leOut = new EFBlockLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(), docidsOffset, freqsOffset, posOffset, sumMaxPos);
 			// We write the new lexicon entry to the new lexicon
 			los.writeNextEntry(leIn.getKey(), leOut);
 			

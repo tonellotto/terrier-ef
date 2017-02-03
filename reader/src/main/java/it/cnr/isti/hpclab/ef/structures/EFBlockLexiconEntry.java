@@ -14,6 +14,7 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	private long posOffset;
 
 	private long sumsMaxPos = 0l;
+	// private long occurrencies = 0l;
 	
 	public static class Factory extends EFLexiconEntry.Factory
 	{
@@ -34,11 +35,12 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	{
 	}
 
-	public EFBlockLexiconEntry(int tid, int n_t, int TF, long docidOffset, long freqOffset, long posOffset, long sumsMaxPos) 
+	public EFBlockLexiconEntry(int tid, int n_t, int TF, long docidOffset, long freqOffset, long posOffset, long sumsMaxPos/*, long occurrencies*/) 
 	{
 		super(tid, n_t, TF, docidOffset, freqOffset);
 		this.posOffset = posOffset;
 		this.sumsMaxPos = sumsMaxPos;
+		// this.occurrencies = occurrencies;
 	}
 
 	@Override
@@ -47,6 +49,7 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 		super.readFields(in);
 		this.posOffset = in.readLong();
 		this.sumsMaxPos = in.readLong();
+		// this.occurrencies = in.readLong();
 	}
 	
 	@Override
@@ -55,6 +58,7 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 		super.write(out);
 		out.writeLong(this.posOffset);
 		out.writeLong(this.sumsMaxPos);
+		// out.writeLong(this.occurrencies);
 	}
 
 	@Override
@@ -72,4 +76,12 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	{
 		return this.sumsMaxPos;
 	}
+	
+	/*
+	public long getOccurrencies()
+	{
+		return this.occurrencies;
+	}
+	*/
+
 }

@@ -46,11 +46,11 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		else
 			throw new RuntimeException();
 
-		docidsList   = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.DOCID_EXTENSION ).getChannel(), byteOrder, MapMode.READ_ONLY );
-		freqsList    = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.FREQ_EXTENSION  ).getChannel(), byteOrder, MapMode.READ_ONLY );
+		docidsList  = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.DOCID_EXTENSION ).getChannel(), byteOrder, MapMode.READ_ONLY );
+		freqsList   = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.FREQ_EXTENSION  ).getChannel(), byteOrder, MapMode.READ_ONLY );
 		
 		if (hasPositions())
-			posList  = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.POS_EXTENSION   ).getChannel(), byteOrder, MapMode.READ_ONLY );
+			posList = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.POS_EXTENSION   ).getChannel(), byteOrder, MapMode.READ_ONLY );
 	}
 	
 	@Override

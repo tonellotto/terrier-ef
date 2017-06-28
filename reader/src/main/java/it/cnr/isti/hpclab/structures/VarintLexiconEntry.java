@@ -37,6 +37,7 @@ public class VarintLexiconEntry extends EFLexiconEntry implements BitIndexPointe
 	@Override
 	public void readFields(DataInput in) throws IOException 
 	{
+		super.termId	  = Varint.readUnsignedInt(in);
 		super.TF          = Varint.readUnsignedInt(in);
 		super.n_t         = Varint.readUnsignedInt(in);
 		super.docidOffset = Varint.readUnsignedLong(in);
@@ -46,6 +47,7 @@ public class VarintLexiconEntry extends EFLexiconEntry implements BitIndexPointe
 	@Override
 	public void write(DataOutput out) throws IOException 
 	{
+		Varint.writeUnsignedInt(super.termId, out);
 		Varint.writeUnsignedInt(TF, out);
 		Varint.writeUnsignedInt(n_t, out);
 		Varint.writeUnsignedLong(docidOffset, out);

@@ -46,6 +46,18 @@
             <version>4.1</version>
         </dependency>
 
+		<dependency>
+    		<groupId>it.unimi.dsi</groupId>
+    		<artifactId>sux4j</artifactId>
+    		<version>4.1.0</version>
+		</dependency>
+		
+    	<dependency>
+      		<groupId>it.cnr.isti.hpclab</groupId>
+      		<artifactId>terrier-util</artifactId>
+          <version>4.1</version>
+    	</dependency>
+		
   	</dependencies>
 
 	<build>

@@ -24,7 +24,7 @@ public class VarintLexicon extends Lexicon<String>
 	public static final String LEXICON_DATA    = ".lex-data";
 	public static final String LEXICON_OFFSETS = ".lex-offsets";
 	
-	private int numberOfEntries;
+	protected int numberOfEntries;
 	
 	private ByteBufferInputStream offsetsFile;
 	private DataInputStream offsetsDis;
@@ -70,7 +70,7 @@ public class VarintLexicon extends Lexicon<String>
 		return numberOfEntries;
 	}
 
-	private int binarySearch(final String key) throws IOException 
+	protected int binarySearch(final String key) throws IOException 
 	{
         int lo = 0;
         int hi = numberOfEntries - 1;

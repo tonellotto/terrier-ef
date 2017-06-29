@@ -26,10 +26,10 @@ public class VarintLexicon extends Lexicon<String>
 	
 	protected int numberOfEntries;
 	
-	private ByteBufferInputStream offsetsFile;
+	protected ByteBufferInputStream offsetsFile;
 	private DataInputStream offsetsDis;
 	
-	private ByteBufferInputStream dataFile; 
+	protected ByteBufferInputStream dataFile; 
 	private DataInputStream dataDis;
 	
 	private  WriteableFactory<LexiconEntry> factory;

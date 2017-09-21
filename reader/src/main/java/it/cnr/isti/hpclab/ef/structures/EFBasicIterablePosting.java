@@ -150,4 +150,20 @@ public class EFBasicIterablePosting implements IterablePosting
 	{
 		return "(" + currentDocument + "," + currentFrequency + ")";
 	}
+	
+	/**
+	 * Returns the position of the current docid w.r.t. the beginning of the list (indexed at 0).
+	 *  
+	 * @return The position of the current docid w.r.t. the beginning of the list.
+	 * 
+	 *  @throws IllegalStateException if this method is invoked  when the posting list has been fully traversed, i.e.,
+	 *  	the current document points to <code>IterablePosting.END_OF_LIST</code>.
+	 */
+	public long getCurrentDocidPosition()
+	{
+		if (currentDocument == IterablePosting.END_OF_LIST )
+			throw new IllegalStateException("Can't invoke this method when the posting list has been fully traversed.");
+		
+		return docidReader.getCurrentPos() - 1;
+	}
 }

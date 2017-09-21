@@ -180,4 +180,13 @@ public class DocidReader
 	{
 		return this.getClass().getSimpleName() + '@' + Integer.toHexString( System.identityHashCode( this ) );
 	}
+	
+	/**
+	 * Returns the index of the current prefix sum, i.e., the position of the current docid w.r.t. the beginning of the list. 
+	 * @return The index of the current prefix sum. 
+	 */
+	public long getCurrentPos()
+	{
+		return currentIndex;
+	}
 }

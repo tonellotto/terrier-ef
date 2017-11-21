@@ -22,8 +22,8 @@ public class EFLexiconEntry extends LexiconEntry implements BitIndexPointer
 	public int TF;
 
 	/** the offsets we need */
-	private long docidOffset;
-	private long freqOffset;
+	public long docidOffset;
+	public long freqOffset;
 	
 	public static class Factory implements FixedSizeWriteableFactory<LexiconEntry>
 	{

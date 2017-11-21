@@ -106,7 +106,6 @@ public class BlockGenerator
 			efle = (EFLexiconEntry) efEntry.getValue();
 
 			System.err.println("Checking term " + originalEntry.getKey() + " (" + originalEntry.getValue().getDocumentFrequency() + " entries), termid " + termid + " Tot pos " + originalEntry.getValue().getFrequency());
-
 			IterablePosting srcPosting = srcIndex.getInvertedIndex().getPostings(ble);
 			EFBlockIterablePosting dstPosting = (EFBlockIterablePosting) dstIndex.getInvertedIndex().getPostings(efle);
 						

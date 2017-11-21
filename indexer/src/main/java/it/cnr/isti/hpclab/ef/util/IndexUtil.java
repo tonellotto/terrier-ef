@@ -121,5 +121,4 @@ public class IndexUtil
 		properties.setProperty("index.inverted.parameter_values", "index,structureName,document");
 
 		properties.store(Files.writeFileStream(filename),"");
-	}
-}
+	}}

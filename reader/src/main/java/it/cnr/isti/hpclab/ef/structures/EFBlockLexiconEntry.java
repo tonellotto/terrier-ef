@@ -11,9 +11,9 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	private static final long serialVersionUID = 1L;
 	
 	/** the offsets we need */
-	private long posOffset;
+	public long posOffset;
 
-	private long sumsMaxPos = 0l;
+	public long sumsMaxPos = 0l;
 	// private long occurrencies = 0l;
 	
 	public static class Factory extends EFLexiconEntry.Factory

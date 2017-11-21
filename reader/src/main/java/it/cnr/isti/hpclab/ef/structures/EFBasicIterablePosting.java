@@ -36,8 +36,6 @@ public class EFBasicIterablePosting implements IterablePosting
 		this.doi = doi;
 		this.N = upperBoundDocid;
 		
-		// TODO: This is probably useless, we move to docidsPosition, then we read docidsPosition, and the object is never used again...
-		
 		docidsLongWordBitReader = new LongWordBitReader( docidList, 0 );
 		docidsLongWordBitReader.position(docidsPosition);
 		

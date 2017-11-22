@@ -128,7 +128,7 @@ public final class LongWordCache implements Closeable
 	{
 		length = buffer = 0;
 		free = Long.SIZE;
-		cache.clear();
+		((Buffer)cache).clear();
 		spillMustBeRewind = true;
 	}
 
@@ -185,9 +185,9 @@ public final class LongWordCache implements Closeable
 	public long readLong() throws IOException 
 	{
 		if (!cache.hasRemaining()) {
-			cache.clear();
+			((Buffer)cache).clear();
 			spillChannel.read(cache);
-			cache.flip();
+			((Buffer)cache).flip();
 		}
 		return cache.getLong();
 	}
@@ -202,12 +202,12 @@ public final class LongWordCache implements Closeable
 			cache.putLong(buffer);
 
 		if (length > cacheLength) {
-			cache.flip();
+			((Buffer)cache).flip();
 			spillChannel.write(cache);
 			spillChannel.position(0);
 			((Buffer)cache).clear();
 			spillChannel.read(cache);
-			cache.flip();
+			((Buffer)cache).flip();
 		} else
 			cache.rewind();
 	}
@@ -220,9 +220,9 @@ public final class LongWordCache implements Closeable
 				spillMustBeRewind = false;
 				spillChannel.position(0);
 			}
-			cache.flip();
+			((Buffer)cache).flip();
 			spillChannel.write(cache);
-			cache.clear();
+			((Buffer)cache).clear();
 		}
 	}
 	

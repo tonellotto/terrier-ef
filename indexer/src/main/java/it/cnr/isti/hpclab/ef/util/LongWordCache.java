@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -204,7 +205,7 @@ public final class LongWordCache implements Closeable
 			cache.flip();
 			spillChannel.write(cache);
 			spillChannel.position(0);
-			cache.clear();
+			((Buffer)cache).clear();
 			spillChannel.read(cache);
 			cache.flip();
 		} else

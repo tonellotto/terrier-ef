@@ -25,10 +25,9 @@
  */
 package it.cnr.isti.hpclab.ef.util;
 
-// import it.unimi.dsi.bits.Fast;
-
 import java.io.IOException;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -42,7 +41,6 @@ import it.unimi.dsi.bits.Fast;
 public final class LongWordBitWriter 
 {
 	private static final int BUFFER_SIZE = 64 * 1024;
-	private static final boolean ASSERTS = true;
 
 	/** The 64-bit buffer, whose upper {@link #free} bits do not contain data. */
 	private long buffer;
@@ -75,10 +73,7 @@ public final class LongWordBitWriter
 	 * @throws IOException when something goes wrong
 	 */
 	public int append(final long value, final int width) throws IOException 
-	{
-		if (ASSERTS)
-			assert width == Long.SIZE || (-1L << width & value) == 0; 
-		
+	{		
 		buffer |= value << (Long.SIZE - free);
 
 		if (width < free)
@@ -86,9 +81,9 @@ public final class LongWordBitWriter
 		else {
 			byteBuffer.putLong(buffer); // filled
 			if (!byteBuffer.hasRemaining()) {
-				byteBuffer.flip();
+				((Buffer)byteBuffer).flip();
 				writableByteChannel.write(byteBuffer);
-				byteBuffer.clear();
+				((Buffer)byteBuffer).clear();
 			}
 
 			if (width == free) {
@@ -139,14 +134,15 @@ public final class LongWordBitWriter
 		return cache.length();
 	}
 
-	public int align() throws IOException 
+	/*
+	private int align() throws IOException 
 	{
 		if (free != Long.SIZE) {
 			byteBuffer.putLong(buffer); // partially filled
 			if (!byteBuffer.hasRemaining()) {
-				byteBuffer.flip();
+				((Buffer)byteBuffer).flip();
 				writableByteChannel.write(byteBuffer);
-				byteBuffer.clear();
+				((Buffer)byteBuffer).clear();
 			}
 
 			final int result = free;
@@ -156,11 +152,12 @@ public final class LongWordBitWriter
 		}
 		return 0;
 	}
+	*/
 	
 	public void close() throws IOException 
 	{
 		byteBuffer.putLong(buffer);
-		byteBuffer.flip();
+		((Buffer)byteBuffer).flip();
 		writableByteChannel.write(byteBuffer);
 		writableByteChannel.close();
 	}

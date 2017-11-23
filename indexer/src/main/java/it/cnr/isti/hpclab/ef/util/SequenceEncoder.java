@@ -23,10 +23,7 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 package it.cnr.isti.hpclab.ef.util;
-
-import it.unimi.dsi.bits.Fast;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -37,7 +34,6 @@ import java.io.IOException;
  */
 public class SequenceEncoder implements Closeable 
 {
-	private static final boolean ASSERTS = true;
 	/** The minimum size in bytes of a {@link LongWordCache}. */
 	private static final int MIN_CACHE_SIZE = 16;
 
@@ -73,8 +69,6 @@ public class SequenceEncoder implements Closeable
 	private long quantumMask;
 	/** Whether we should index ones or zeroes. */
 	private boolean indexZeroes;
-	/** If true, we are writing a ranked characteristic function. */
-	private boolean ranked;
 	/** The last position where a one was set. */
 	private long lastOnePosition;
 	/** The expected number of points. */
@@ -92,9 +86,8 @@ public class SequenceEncoder implements Closeable
 	 * @param log2Quantum the base 2 logarithm of the quantum used to compute skip (or forward) pointer
 	 * @throws IOException if something goes wrong
 	 */
-	public SequenceEncoder(int bufferSize, int log2Quantum) throws IOException 
+	public SequenceEncoder(int bufferSize, final int log2Quantum) throws IOException 
 	{
-		// A reasonable logic to allocate space.
 		bufferSize = bufferSize & -bufferSize; // Ensure power of 2.
 		/*
 		 * Very approximately, half of the cache for lower, half for upper, and
@@ -164,15 +157,10 @@ public class SequenceEncoder implements Closeable
 
 		l = Utils.lowerBits(correctedLength, upperBound, strict);
 
-		//ranked = correctedLength + (upperBound >>> l) + correctedLength * l > upperBound && !strict && indexZeroes;
-		ranked = false;
-		if (ranked)
-			l = 0;
-
 		lowerBitsMask = (1L << l) - 1;
 
-		pointerSize = ranked ? Fast.length(correctedLength)	: Utils.pointerSize(correctedLength, upperBound, strict, indexZeroes);
-		expectedNumberOfPointers = ranked ? Math.max(0, upperBound >>> log2Quantum) : Utils.numberOfPointers(correctedLength, upperBound, log2Quantum, strict, indexZeroes);
+		pointerSize = Utils.pointerSize(correctedLength, upperBound, strict, indexZeroes);
+		expectedNumberOfPointers = Utils.numberOfPointers(correctedLength, upperBound, log2Quantum, strict, indexZeroes);
 	}
 
 	/**
@@ -182,7 +170,6 @@ public class SequenceEncoder implements Closeable
 	 */
 	public void add(final long x) throws IOException 
 	{
-		// System.err.println( "add(" + x + "), l = " + l + ", length = " + length );
 		if (strict && x == 0)
 			throw new IllegalArgumentException("Zeroes are not allowed.");
 		currentPrefixSum += x - (strict ? 1 : 0);
@@ -190,15 +177,11 @@ public class SequenceEncoder implements Closeable
 			throw new IllegalArgumentException("Too large prefix sum: "	+ currentPrefixSum + " >= " + correctedUpperBound);
 		if (l != 0)
 			lowerBits.append(currentPrefixSum & lowerBitsMask, l);
-		final long onePosition = ranked ? currentPrefixSum : (currentPrefixSum >>> l) + currentLength;
+		final long onePosition = (currentPrefixSum >>> l) + currentLength;
 
 		upperBits.writeUnary((int) (onePosition - lastOnePosition - 1));
 
-		if (ranked) {
-			for (long position = lastOnePosition + quantum & -1L << log2Quantum; position <= onePosition; position += quantum)
-				if (position != 0)
-					pointers.append(currentLength, pointerSize);
-		} else if (indexZeroes) {
+		if (indexZeroes) {
 			long zeroesBefore = lastOnePosition - currentLength + 1;
 			for (long position = lastOnePosition + (zeroesBefore & -1L << log2Quantum) + quantum - zeroesBefore; position < onePosition; position += quantum, zeroesBefore += quantum)
 				pointers.append(position + 1, pointerSize);
@@ -223,27 +206,16 @@ public class SequenceEncoder implements Closeable
 			throw new IllegalStateException();
 		if (!strict && indexZeroes) {
 			// Add last fictional document pointer equal to the number of documents.
-			if (ranked) {
-				if (lastOnePosition >= correctedUpperBound)
-					throw new IllegalStateException("The last written pointer is " + lastOnePosition + " >= " + correctedUpperBound);
-				add(correctedUpperBound - lastOnePosition);
-			} else
-				add(correctedUpperBound - currentPrefixSum);
+			add(correctedUpperBound - currentPrefixSum);
 		}
-		if (ASSERTS)
-			assert !ranked || pointers.length() / pointerSize == expectedNumberOfPointers : "Expected "	+ expectedNumberOfPointers + " pointers for ranked index, found " + pointers.length() / pointerSize;
 		if (indexZeroes && pointerSize != 0)
 			for (long actualPointers = pointers.length() / pointerSize; actualPointers++ < expectedNumberOfPointers;)
 				pointers.append(0, pointerSize);
-		if (ASSERTS)
-			assert pointerSize == 0 || pointers.length() / pointerSize == expectedNumberOfPointers : "Expected " + expectedNumberOfPointers + " pointers, found " + pointers.length() / pointerSize;
-		// System.err.println("pointerSize :" + pointerSize );
-		bitsForPointers = lwobs.append(pointers);
-		// System.err.println("lower: " + result );
+
+		bitsForPointers  = lwobs.append(pointers);
 		bitsForLowerBits = lwobs.append(lowerBits);
-		// System.err.println("upper: " + result );
 		bitsForUpperBits = lwobs.append(upperBits);
-		// System.err.println("end: " + result );
+
 		return bitsForLowerBits + bitsForUpperBits + bitsForPointers;
 	}
 

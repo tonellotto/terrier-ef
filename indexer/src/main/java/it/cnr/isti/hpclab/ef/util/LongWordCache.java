@@ -23,7 +23,6 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 package it.cnr.isti.hpclab.ef.util;
 
 import java.io.Closeable;
@@ -46,7 +45,6 @@ import java.nio.channels.FileChannel;
  */
 public final class LongWordCache implements Closeable 
 {
-	private static final boolean ASSERTS = true;
 	/** The spill file. */
 	private final File spillFile;
 	/** A channel opened on {@link #spillFile}. */
@@ -99,8 +97,6 @@ public final class LongWordCache implements Closeable
 	 */
 	public int append(final long value, final int width) throws IOException 
 	{
-		if (ASSERTS)
-			assert width == Long.SIZE || (-1L << width & value) == 0; // -1 == 0xFFFFFFFF
 		buffer |= value << (Long.SIZE - free);
 		length += width;
 
@@ -209,7 +205,7 @@ public final class LongWordCache implements Closeable
 			spillChannel.read(cache);
 			((Buffer)cache).flip();
 		} else
-			cache.rewind();
+			((Buffer)cache).rewind();
 	}
 	
 	private void flushBuffer() throws IOException 
@@ -249,8 +245,6 @@ public final class LongWordCache implements Closeable
 		System.err.println(cache.readLong());
 		System.err.println(cache.readLong());
 		System.err.println(cache.readLong());
-		
-		//cache.rewind();
 		
 		System.err.println(cache.readLong());
 		System.err.println(cache.readLong());

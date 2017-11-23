@@ -70,10 +70,8 @@ public class DocidReader
 	/** The last value returned by {@link #getNextUpperBits()}. */ 
 	private long lastUpperBits;
 		
-	public DocidReader( final LongBigList list, final LongWordBitReader lowerBits, final long lowerBitsStart, final int l, final LongWordBitReader skipPointers, final long skipPointersStart, final long numberOfPointers, final int pointerSize, final long frequency, final int log2Quantum ) 
+	public DocidReader(final LongBigList list, final LongWordBitReader lowerBits, final long lowerBitsStart, final int l, final LongWordBitReader skipPointers, final long skipPointersStart, final long numberOfPointers, final int pointerSize, final long frequency, final int log2Quantum) 
 	{
-		// this( list, lowerBitsStart + l * ( frequency + 1L ), skipPointers, skipPointersStart, numberOfPointers, pointerSize, frequency, log2Quantum );
-		
 		this.list = list;
 		this.upperBitsStart = lowerBitsStart + l * ( frequency + 1L );
 		this.skipPointers = skipPointers;
@@ -91,16 +89,17 @@ public class DocidReader
 		position( upperBitsStart );
 	}
 
-	private void position( final long position ) 
+	private void position(final long position) 
 	{
-		window = list.getLong( curr = position / Long.SIZE ) & -1L << (int)( position );
+		window = list.getLong(curr = position / Long.SIZE) & -1L << (int)(position);
 	}
 
 	private long getNextUpperBits() 
 	{
-		while ( window == 0 ) 
+		while (window == 0) 
 			window = list.getLong( ++curr );
-		lastUpperBits = curr * Long.SIZE + Long.numberOfTrailingZeros( window ) - currentIndex++ - upperBitsStart;
+		
+		lastUpperBits = curr * Long.SIZE + Long.numberOfTrailingZeros(window) - currentIndex++ - upperBitsStart;
 		window &= window - 1;
 		return lastUpperBits;
 	}
@@ -110,40 +109,40 @@ public class DocidReader
 		return getNextUpperBits() << l | lowerBits.extract();
 	}
 
-	public long skipTo( final long lowerBound ) 
+	public long skipTo(final long lowerBound) 
 	{
 		final long zeroesToSkip = lowerBound >>> l;
 
-		if ( zeroesToSkip - lastUpperBits < SKIPPING_THRESHOLD ) {
+		if (zeroesToSkip - lastUpperBits < SKIPPING_THRESHOLD) {
 			long prefixSum;
-			while( ( prefixSum = getNextPrefixSum() ) < lowerBound )
+			while ((prefixSum = getNextPrefixSum()) < lowerBound)
 				;
 			return prefixSum;
 		}
 			
-		if ( zeroesToSkip - lastUpperBits > quantum ) {
+		if (zeroesToSkip - lastUpperBits > quantum) {
 			final long block = zeroesToSkip >>> log2Quantum;
 			assert block > 0;
 			assert block <= numberOfPointers;
 			final long blockZeroes = block << log2Quantum;
-			final long skip = skipPointers.extract( skipPointersStart + ( block - 1 ) * pointerSize );
+			final long skip = skipPointers.extract(skipPointersStart + (block - 1) * pointerSize);
 			assert skip != 0;
-			position( upperBitsStart + skip );
+			position(upperBitsStart + skip);
 			currentIndex = skip - blockZeroes;
 		}
 
 		long delta = zeroesToSkip - curr * Long.SIZE + currentIndex + upperBitsStart;			
 		assert delta >= 0 : delta;
 
-		for( int bitCount; ( bitCount = Long.bitCount( ~window ) ) < delta; ) {
-			window = list.getLong( ++curr );
+		for (int bitCount; (bitCount = Long.bitCount( ~window )) < delta; ) {
+			window = list.getLong(++curr);
 			delta -= bitCount;
 			currentIndex += Long.SIZE - bitCount;
 		}
 			
 		/* Note that for delta == 1 the following code is a NOP, but the test for zero is so faster that
 	       it is not worth replacing with a > 1. Predecrementing won't work as delta might be zero. */
-		if ( delta-- != 0 ) { 
+		if (delta-- != 0) { 
 			// Phase 1: sums by byte
 			final long word = ~window;
 			assert delta < Long.bitCount( word ) : delta + " >= " + Long.bitCount( word );
@@ -168,7 +167,7 @@ public class DocidReader
 		final long lower = lowerBits.extract( lowerBitsStart + l * currentIndex );
 		long prefixSum = getNextUpperBits() << l | lower; 
 			
-		for(;;) {
+		for (;;) {
 			if ( prefixSum >= lowerBound ) 
 				return prefixSum;
 			prefixSum = getNextPrefixSum();
@@ -178,7 +177,7 @@ public class DocidReader
 	@Override
 	public String toString() 
 	{
-		return this.getClass().getSimpleName() + '@' + Integer.toHexString( System.identityHashCode( this ) );
+		return this.getClass().getSimpleName() + '@' + Integer.toHexString(System.identityHashCode(this));
 	}
 	
 	/**

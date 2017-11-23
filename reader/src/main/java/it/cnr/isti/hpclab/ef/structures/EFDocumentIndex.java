@@ -38,13 +38,13 @@ public class EFDocumentIndex implements DocumentIndex
 	}
 	
 	@Override
-	public DocumentIndexEntry getDocumentEntry(int docid) throws IOException 
+	public DocumentIndexEntry getDocumentEntry(final int docid) throws IOException 
 	{
 		throw new RuntimeException("");
 	}
 
 	@Override
-	public int getDocumentLength(int docid) throws IOException 
+	public int getDocumentLength(final int docid) throws IOException 
 	{
 		return docLengths[docid];
 	}

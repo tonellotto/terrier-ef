@@ -100,8 +100,6 @@ public class PositionReader
 
 	public int getFirstPosition(long index) 
 	{
-		// System.err.println( this + ".getFirstPosition(" + index + ")" );
-		// System.err.println( "current prefixSum = " + prefixSum );
 		long delta = index - currentIndex;
 
 		if (delta == 0) {	// shortcut

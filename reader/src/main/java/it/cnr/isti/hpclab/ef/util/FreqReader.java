@@ -23,7 +23,6 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 package it.cnr.isti.hpclab.ef.util;
 
 import static it.unimi.dsi.bits.Fast.MSBS_STEP_8;

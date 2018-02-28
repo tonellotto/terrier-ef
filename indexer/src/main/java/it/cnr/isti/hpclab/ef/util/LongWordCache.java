@@ -39,18 +39,20 @@ import java.nio.channels.FileChannel;
 /**
  * This is a cache for long (i.e., 64 bits) objects, accessible at bit level. It seems that
  * the cache must be populated first, then "rewinded", then accessed sequentially.
- * It is backed by a file {@link #spillFile} on disk accessed via Java NIO {@link #spillChannel}. 
- * Up to {@link #cacheLength} bits are held in memory, everything else on disk.
+ * It is backed by a file {@link #spill_file} on disk accessed via Java NIO {@link #spill_channel}. 
+ * Up to {@link #cache_bit_length} bits are held in memory, everything else on disk.
  *
  */
 public final class LongWordCache implements Closeable 
 {
 	/** The spill file. */
-	private final File spillFile;
-	/** A channel opened on {@link #spillFile}. */
-	private final FileChannel spillChannel;
+	private final File spill_file;
+	/** A channel opened on {@link #spill_file}. */
+	private final FileChannel spill_channel;
+	/** Whether {@link #spill_channel} should be repositioned at 0 <b>before usage</b>. */
+	private boolean spill_must_be_rewind;
 	
-	/** A cache for longwords. Will be spilled to {@link #spillChannel} in case more than {@link #cacheLength} bits are added. */
+	/** A cache for longwords. Will be spilled to {@link #spill_channel} in case more than {@link #cache_bit_length} bits are added. */
 	private final ByteBuffer cache;
 	
 	/** The current bit buffer. */
@@ -60,61 +62,58 @@ public final class LongWordCache implements Closeable
 	private int free;
 	
 	/** The length of the cache, in <b>bits</b>. */
-	private long cacheLength;
+	private long cache_bit_length;
 	
 	/** The number of bits currently stored. */
 	private long length;
 	
-	/** Whether {@link #spillChannel} should be repositioned at 0 <b>before usage</b>. */
-	private boolean spillMustBeRewind;
-
 	/**
-	 * Creates a cache with a length of <code>cacheSize</code> length in bits. 
+	 * Creates a cache with a length of <code>cache_size</code> length in bits. 
 	 * The <code>suffix</code> is the suffix of the temporary file created to back up
 	 * the cache on disk. It is deleted on exit.
 	 * 
-	 * @param cacheSize the length of the cache memory buffer in bits
-	 * @param suffix the suffix of the temporary file backing up the cache on disk
+	 * @param cache_bit_size the length of the cache memory buffer in bits
+	 * @param tmp_suffix the suffix of the temporary file backing up the cache on disk
 	 * @throws IOException if something goes wrong
 	 */
 	@SuppressWarnings("resource")
-	public LongWordCache(final int cacheSize, final String suffix) throws IOException 
+	public LongWordCache(final int cache_bit_size, final String tmp_suffix) throws IOException 
 	{
-		spillFile = File.createTempFile(LongWordCache.class.getName(), suffix);
-		spillFile.deleteOnExit();
-		spillChannel = new RandomAccessFile(spillFile, "rw").getChannel();
-		cache = ByteBuffer.allocateDirect(cacheSize).order(ByteOrder.nativeOrder());
-		cacheLength = cacheSize * 8L; // in bits
+		spill_file = File.createTempFile(LongWordCache.class.getName(), tmp_suffix);
+		spill_file.deleteOnExit();
+		spill_channel = new RandomAccessFile(spill_file, "rw").getChannel();
+		cache = ByteBuffer.allocateDirect(cache_bit_size).order(ByteOrder.nativeOrder());
+		cache_bit_length = cache_bit_size * 8L; // in bits
 		free = Long.SIZE;
 	}
 
 	/**
-	 * Insert in cache a long <code>value</code> on <code>width</code> bits (lower positions).
+	 * Insert in cache a long <code>value</code> on <code>bit_width</code> bits (lower positions).
 	 * @param value the value to insert in cache
-	 * @param width the size in bits of the value to insert
+	 * @param bit_width the size in bits of the value to insert
 	 * @return the number of bits written
 	 * @throws IOException if something goes wrong
 	 */
-	public int append(final long value, final int width) throws IOException 
+	public int append(final long value, final int bit_width) throws IOException 
 	{
 		buffer |= value << (Long.SIZE - free);
-		length += width;
+		length += bit_width;
 
-		if (width < free)
-			free -= width;
+		if (bit_width < free)
+			free -= bit_width;
 		else {
 			flushBuffer();
 
-			if (width == free) {
+			if (bit_width == free) {
 				buffer = 0;
 				free = Long.SIZE;
 			} else {
 				// free < Long.SIZE
 				buffer = value >>> free;
-				free = Long.SIZE - width + free; // width > free
+				free = Long.SIZE - bit_width + free; // width > free
 			}
 		}
-		return width;
+		return bit_width;
 	}
 
 	/**
@@ -125,7 +124,7 @@ public final class LongWordCache implements Closeable
 		length = buffer = 0;
 		free = Long.SIZE;
 		((Buffer)cache).clear();
-		spillMustBeRewind = true;
+		spill_must_be_rewind = true;
 	}
 
 	/**
@@ -134,8 +133,8 @@ public final class LongWordCache implements Closeable
 	@Override
 	public void close() throws IOException 
 	{
-		spillChannel.close();
-		spillFile.delete();
+		spill_channel.close();
+		spill_file.delete();
 	}
 
 	/**
@@ -182,7 +181,7 @@ public final class LongWordCache implements Closeable
 	{
 		if (!cache.hasRemaining()) {
 			((Buffer)cache).clear();
-			spillChannel.read(cache);
+			spill_channel.read(cache);
 			((Buffer)cache).flip();
 		}
 		return cache.getLong();
@@ -197,12 +196,12 @@ public final class LongWordCache implements Closeable
 		if (free != Long.SIZE)
 			cache.putLong(buffer);
 
-		if (length > cacheLength) {
+		if (length > cache_bit_length) {
 			((Buffer)cache).flip();
-			spillChannel.write(cache);
-			spillChannel.position(0);
+			spill_channel.write(cache);
+			spill_channel.position(0);
 			((Buffer)cache).clear();
-			spillChannel.read(cache);
+			spill_channel.read(cache);
 			((Buffer)cache).flip();
 		} else
 			((Buffer)cache).rewind();
@@ -212,12 +211,12 @@ public final class LongWordCache implements Closeable
 	{
 		cache.putLong(buffer);
 		if (!cache.hasRemaining()) {
-			if (spillMustBeRewind) {
-				spillMustBeRewind = false;
-				spillChannel.position(0);
+			if (spill_must_be_rewind) {
+				spill_must_be_rewind = false;
+				spill_channel.position(0);
 			}
 			((Buffer)cache).flip();
-			spillChannel.write(cache);
+			spill_channel.write(cache);
 			((Buffer)cache).clear();
 		}
 	}

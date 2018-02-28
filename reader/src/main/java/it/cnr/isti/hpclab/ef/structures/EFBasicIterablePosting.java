@@ -159,9 +159,10 @@ public class EFBasicIterablePosting implements IterablePosting
 	 */
 	public long getCurrentDocidPosition()
 	{
+		/*
 		if (currentDocument == IterablePosting.END_OF_LIST )
 			throw new IllegalStateException("Can't invoke this method when the posting list has been fully traversed.");
-		
+		*/
 		return docidReader.getCurrentPos() - 1;
 	}
 }

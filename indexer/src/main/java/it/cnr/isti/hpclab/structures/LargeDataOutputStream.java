@@ -17,8 +17,8 @@ public class LargeDataOutputStream extends OutputStream implements DataOutput
 
     public LargeDataOutputStream(OutputStream out) 
     {
-    	written = 0;
-    	dos = new DataOutputStream(out);
+    		written = 0;
+    		dos = new DataOutputStream(out);
     }
 
     /**
@@ -72,14 +72,14 @@ public class LargeDataOutputStream extends OutputStream implements DataOutput
     @Override
     public final void writeShort(int v) throws IOException 
     {
-    	dos.writeShort(v);
+    		dos.writeShort(v);
         incCount(Short.BYTES);
     }
 
     @Override
     public final void writeChar(int v) throws IOException 
     {        
-    	dos.writeChar(v);
+    		dos.writeChar(v);
         incCount(Character.BYTES);
     }
 
@@ -93,7 +93,7 @@ public class LargeDataOutputStream extends OutputStream implements DataOutput
     @Override
     public final void writeLong(long v) throws IOException 
     {        
-    	dos.writeLong(v);
+    		dos.writeLong(v);
         incCount(Long.BYTES);
     }
 
@@ -126,7 +126,7 @@ public class LargeDataOutputStream extends OutputStream implements DataOutput
     @Override
     public final void writeUTF(String str) throws IOException 
     {    
-    	int strlen = str.length();
+    		final int strlen = str.length();
         int utflen = 0;
         int c = 0;
         
@@ -142,9 +142,9 @@ public class LargeDataOutputStream extends OutputStream implements DataOutput
             }
         }
     	
-    	dos.writeUTF(str);
+    		dos.writeUTF(str);
     	
-    	incCount(utflen + Short.BYTES);
+    		incCount(utflen + Short.BYTES);
     }
 
     public final long size() 

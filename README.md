@@ -1,24 +1,14 @@
-# Elias-Fano Compression in Terrier 4
+# Elias-Fano Compression in Terrier 5
 
-This package provides Elias-Fano compression for docids and frequencies in Terrier 4. It is heavily based on the MG4J implementation provided by Sebastiano Vigna. 
+This package provides Elias-Fano compression for docids, frequencies and positions in Terrier 5. At its core, it is a refactoring of the Elias-Fano compression included in the [MG4J](mg4j.di.unimi.it).
 
-It is composed by two submodules:
+The package name is `terrier-eliasfano`, with current version 1.5.
 
-* `reader`, providing data structure and algorithms to correctly read an Elias-Fano compressed index
-* `indexer`, providing data structure and algorithms to convert a standard Terrier index into an Elias-Fano compressed index
-
-It depends on the following packages:
-
-* `terrier-skipping-reader`
-* `terrier-reader`
-
-The package name is `terrier-eliasfano`, with current version 2.0.
-
-## Elias-Fano Inverted Index
+## Elias-Fano Inverted Index (TO BE UPDATED)
 
 This package plugs the encoding-decoding procedures for quasi-succinct indexes implemented by MG4J into the Terrier index data structures.
 
-Given a Terrier plain old index, the following code can be used to generate a new quasi-succinct index compatible with Terrier 4 APIs:
+Given a Terrier plain old index, the following code can be used to generate a new quasi-succinct index compatible with Terrier 5 APIs:
 
     mvn clean install
 

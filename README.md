@@ -20,7 +20,7 @@ This package provides Elias-Fano compression for docids, frequencies and positio
  		keywords = {compressed indices, succinct data structures},
 	} 
 
-MG4J is [free software](http://www.gnu.org/philosophy/free-sw.html) distributed under the [GNU Lesser General Public License](http://www.gnu.org/copyleft/lesser.html).
+This package is [free software](http://www.gnu.org/philosophy/free-sw.html) distributed under the [GNU Lesser General Public License](http://www.gnu.org/copyleft/lesser.html).
 
 ## Elias-Fano Inverted Index (TO BE UPDATED)
 

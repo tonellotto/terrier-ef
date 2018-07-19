@@ -18,7 +18,7 @@ This package provides Elias-Fano compression for docids, frequencies and positio
  		publisher = {ACM},
  		address = {New York, NY, USA},
  		keywords = {compressed indices, succinct data structures},
-	} 
+	}
 
 This package is [free software](http://www.gnu.org/philosophy/free-sw.html) distributed under the [GNU Lesser General Public License](http://www.gnu.org/copyleft/lesser.html).
 

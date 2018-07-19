@@ -7,7 +7,7 @@
  *  		 
  * Terrier - Terabyte Retriever
  *
- * Copyright (C) 2004-2015 the University of Glasgow. 
+ * Copyright (C) 2004-2018 the University of Glasgow. 
  */
 
 /**

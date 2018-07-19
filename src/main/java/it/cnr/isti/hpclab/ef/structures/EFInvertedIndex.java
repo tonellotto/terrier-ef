@@ -17,22 +17,31 @@ import org.terrier.structures.Pointer;
 import org.terrier.structures.PostingIndex;
 import org.terrier.structures.postings.IterablePosting;
 
+/**
+ * Class to access an Elias-Fano encoded inverted index in Terrier.
+ */
 public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 {
-	protected IndexOnDisk index = null;
-	protected DocumentIndex doi = null;
+	protected final IndexOnDisk index;
+	protected final DocumentIndex doi;
 	
-	protected LongBigList docidsList;
-	protected LongBigList freqsList;
-	protected LongBigList posList;
+	protected final LongBigList docidsList;
+	protected final LongBigList freqsList;
+	protected final LongBigList posList;
 	
-	public EFInvertedIndex(IndexOnDisk index, String structureName) throws IOException 
+	/**
+	 * Constructor
+	 * @param index the index containing the inverted index
+	 * @param structureName
+	 * @throws IOException
+	 */
+	public EFInvertedIndex(final IndexOnDisk index) throws IOException 
 	{
-		this(index, structureName, index.getDocumentIndex());
+		this(index, index.getDocumentIndex());
 	}
 
 	@SuppressWarnings("resource")
-	public EFInvertedIndex(IndexOnDisk index, String structureName, DocumentIndex _doi) throws IOException
+	public EFInvertedIndex(final IndexOnDisk index, final DocumentIndex _doi) throws IOException
 	{
 		this.index = index;
 		this.doi = _doi;
@@ -51,41 +60,47 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		
 		if (hasPositions())
 			posList = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.POS_EXTENSION   ).getChannel(), byteOrder, MapMode.READ_ONLY );
+		else
+			posList = null;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
-	public IterablePosting getPostings(Pointer pointer) throws IOException 
+	public IterablePosting getPostings(final Pointer pointer) throws IOException 
 	{
-		EFLexiconEntry le = (EFLexiconEntry)pointer;
-		int df = le.getDocumentFrequency();
-		int N = index.getCollectionStatistics().getNumberOfDocuments();
-		long docidOffset = le.getDocidOffset();
-		long freqOffset = le.getFreqOffset();
-		int F = le.getFrequency();
+		int df 			 = ((EFLexiconEntry)pointer).getDocumentFrequency();
+		long docidOffset = ((EFLexiconEntry)pointer).getDocidOffset();
+		long freqOffset  = ((EFLexiconEntry)pointer).getFreqOffset();
+		int F 			 = ((EFLexiconEntry)pointer).getFrequency();
 		
-		int log2Quantum = index.getIntIndexProperty(EliasFano.LOG2QUANTUM, 0);
+		int N 			 = index.getCollectionStatistics().getNumberOfDocuments();
+		int log2Quantum  = index.getIntIndexProperty(EliasFano.LOG2QUANTUM, 0);
+		
+		// Sanity check
 		if (log2Quantum == 0)
 			throw new RuntimeException();
 		
 		IterablePosting rtr = null;
 		if (hasPositions()) {
-			EFBlockLexiconEntry ple = (EFBlockLexiconEntry)pointer;
-			long posOffset  = ple.getPosOffset();
-			long sumsMaxPos = ple.getSumsMaxPos();
+			long posOffset  = ((EFBlockLexiconEntry)pointer).getPosOffset();
+			long sumsMaxPos = ((EFBlockLexiconEntry)pointer).getSumsMaxPos();
 			rtr = new EFBlockIterablePosting(docidsList, freqsList, posList, doi, df, N, F, sumsMaxPos, log2Quantum, docidOffset, freqOffset, posOffset);
-
 		} else {
-
 			rtr = new EFBasicIterablePosting(docidsList, freqsList, doi, df, N, F, log2Quantum, docidOffset, freqOffset);
 		}
 		return rtr;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public void close()
 	{
 	}
 
+	/**
+	 * Return true if the index contains positional information, false otherwise.
+	 * @return true if the index contains positional information, false otherwise.
+	 */
 	public boolean hasPositions()
 	{
 		 return "true".equals(index.getIndexProperty(EliasFano.HAS_POSITIONS, "false"));

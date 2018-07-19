@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
+// import org.junit.Test;
 import org.terrier.structures.Index;
 import org.terrier.structures.Lexicon;
 import org.terrier.structures.LexiconEntry;
@@ -26,7 +26,8 @@ public class IndexCreationDebug extends ApplicationSetupTest
 		index.close();
 	} 
 	
-	@Test public void printPostingList() throws IOException
+	//@Test 
+	public void printPostingList() throws IOException
 	{
 		Lexicon<String> lex = index.getLexicon();
 		

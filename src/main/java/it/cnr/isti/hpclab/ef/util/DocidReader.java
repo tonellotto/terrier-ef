@@ -8,20 +8,6 @@
  * MG4J: Managing Gigabytes for Java (big)
  *
  * Copyright (C) 2012 Sebastiano Vigna 
- *
- *  This library is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU Lesser General Public License as published by the Free
- *  Software Foundation; either version 3 of the License, or (at your option)
- *  any later version.
- *
- *  This library is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
- *  for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 package it.cnr.isti.hpclab.ef.util;
@@ -140,8 +126,11 @@ public class DocidReader
 			currentIndex += Long.SIZE - bitCount;
 		}
 			
-		/* Note that for delta == 1 the following code is a NOP, but the test for zero is so faster that
-	       it is not worth replacing with a > 1. Predecrementing won't work as delta might be zero. */
+		/* 
+		 * Note that for delta == 1 the following code is a NOP,
+		 * but the test for zero is so faster that it is not worth replacing with a > 1. 
+		 * Pre-decrementing won't work as delta might be zero.
+		 */
 		if (delta-- != 0) { 
 			// Phase 1: sums by byte
 			final long word = ~window;
@@ -150,7 +139,6 @@ public class DocidReader
 			byteSums = ( byteSums & 3 * ONES_STEP_4 ) + ( ( byteSums >>> 2 ) & 3 * ONES_STEP_4 );
 			byteSums = ( byteSums + ( byteSums >>> 4 ) ) & 0x0f * ONES_STEP_8;
 			byteSums *= ONES_STEP_8;
-
 			// Phase 2: compare each byte sum with delta to obtain the relevant byte
 			final long rankStep8 = delta * ONES_STEP_8;
 			final long byteOffset = ( ( ( ( ( rankStep8 | MSBS_STEP_8 ) - byteSums ) & MSBS_STEP_8 ) >>> 7 ) * ONES_STEP_8 >>> 53 ) & ~0x7;

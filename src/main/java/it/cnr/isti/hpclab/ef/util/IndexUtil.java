@@ -37,7 +37,7 @@ public class IndexUtil
 
 		Properties properties = new Properties();
 
-		properties.setProperty("index.terrier.version", "4.1");
+		properties.setProperty("index.terrier.version", "5.0");
 		
 		properties.setProperty("num.Documents", Integer.toString(num_docs));
 		properties.setProperty("num.Terms",     Integer.toString(num_terms));
@@ -69,8 +69,10 @@ public class IndexUtil
 		properties.setProperty("index.document.parameter_values", "index");
 
 		properties.setProperty("index.inverted.class", 		      "it.cnr.isti.hpclab.ef.structures.EFInvertedIndex");
-		properties.setProperty("index.inverted.parameter_types",  "org.terrier.structures.IndexOnDisk,java.lang.String,org.terrier.structures.DocumentIndex");
-		properties.setProperty("index.inverted.parameter_values", "index,structureName,document");
+		properties.setProperty("index.inverted.parameter_types",  "org.terrier.structures.IndexOnDisk,org.terrier.structures.DocumentIndex");
+		properties.setProperty("index.inverted.parameter_values", "index,document");
+		
+		// properties.setProperty("index.has.blocks", "false");
 
 		properties.store(Files.writeFileStream(filename),"");
 	}
@@ -84,7 +86,7 @@ public class IndexUtil
 
 		Properties properties = new Properties();
 
-		properties.setProperty("index.terrier.version", "4.1");
+		properties.setProperty("index.terrier.version", "5.0");
 		
 		properties.setProperty("num.Documents", Integer.toString(num_docs));
 		properties.setProperty("num.Terms",     Integer.toString(num_terms));
@@ -117,8 +119,10 @@ public class IndexUtil
 		properties.setProperty("index.document.parameter_values", "index");
 
 		properties.setProperty("index.inverted.class", 		      "it.cnr.isti.hpclab.ef.structures.EFInvertedIndex");
-		properties.setProperty("index.inverted.parameter_types",  "org.terrier.structures.IndexOnDisk,java.lang.String,org.terrier.structures.DocumentIndex");
-		properties.setProperty("index.inverted.parameter_values", "index,structureName,document");
+		properties.setProperty("index.inverted.parameter_types",  "org.terrier.structures.IndexOnDisk,org.terrier.structures.DocumentIndex");
+		properties.setProperty("index.inverted.parameter_values", "index,document");
 
+		// properties.setProperty("index.has.blocks", "true");
+		
 		properties.store(Files.writeFileStream(filename),"");
 	}}

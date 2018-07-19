@@ -100,7 +100,7 @@ public class IndexReadingTest extends ApplicationSetupTest
 	@Test
 	public void nextIntoEverySkip() throws IOException
 	{
-		System.err.println("Skipping every " + skipSize + " postings");
+		// System.err.println("Skipping every " + skipSize + " postings");
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> succinctEntry;
@@ -123,14 +123,14 @@ public class IndexReadingTest extends ApplicationSetupTest
 			IterablePosting op = originalIndex.getInvertedIndex().getPostings(ble);
 			IterablePosting sp = succinctIndex.getInvertedIndex().getPostings(sle);
 			
-			int numSkips = 0;
+			// int numSkips = 0;
 			
 			int cnt = 0;
 			while (op.next() != IterablePosting.EOL) {
 				
 				if (++cnt == skipSize) {
 					cnt = 0;
-					numSkips++;
+					// numSkips++;
 					sp.next(op.getId());
 					assertTrue(sp.getId() != IterablePosting.EOL);
 					assertEquals(op.getId(), sp.getId());
@@ -139,8 +139,8 @@ public class IndexReadingTest extends ApplicationSetupTest
 				}			
 			}
 
-			if (numSkips > 0)
-				System.err.println("SKIP: " + numSkips);
+			// if (numSkips > 0)
+			//	System.err.println("SKIP: " + numSkips);
 		}
 	}
 	
@@ -148,7 +148,7 @@ public class IndexReadingTest extends ApplicationSetupTest
 	@Test
 	public void nextAfterEverySkip() throws IOException
 	{
-		System.err.println("Skipping after every " + skipSize + " postings");
+		// System.err.println("Skipping after every " + skipSize + " postings");
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> succinctEntry;
@@ -165,7 +165,7 @@ public class IndexReadingTest extends ApplicationSetupTest
 			ble = (BasicLexiconEntry) originalEntry.getValue();
 			sle = (EFLexiconEntry) succinctEntry.getValue();
 			
-			System.err.println(succinctEntry.getKey() + " has " + ble.getDocumentFrequency() + " postings");
+			// System.err.println(succinctEntry.getKey() + " has " + ble.getDocumentFrequency() + " postings");
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
@@ -182,7 +182,7 @@ public class IndexReadingTest extends ApplicationSetupTest
 					// numSkips++;
 					sp.next(op.getId() + 1);
 					op.next();
-					System.err.println(op.getId());
+					// System.err.println(op.getId());
 					assertEquals(op.getId(), sp.getId());
 					if (op.getId() != IterablePosting.EOL) {
 						assertEquals(op.getFrequency(), sp.getFrequency());

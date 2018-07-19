@@ -1,5 +1,8 @@
 package it.cnr.isti.hpclab.ef;
 
+/**
+ * An interface storing most string constants.
+ */
 public interface EliasFano 
 {
 	static final String DOCID_EXTENSION = ".docids";

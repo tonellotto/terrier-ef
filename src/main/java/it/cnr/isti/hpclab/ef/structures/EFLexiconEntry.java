@@ -15,7 +15,6 @@ import org.terrier.structures.seralization.FixedSizeWriteableFactory;
  * Based on the BasicLexiconEntry class in Terrier. 
  * Include offsets for docid and freq files compressed with Elias-Fano.  
  */
-
 public class EFLexiconEntry extends LexiconEntry implements BitIndexPointer
 {
 	private static final long serialVersionUID = 1L;

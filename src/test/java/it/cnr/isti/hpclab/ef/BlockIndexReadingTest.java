@@ -178,7 +178,7 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 	@Test
 	public void nextIntoEverySkip() throws IOException
 	{
-		System.err.println("Skipping every " + skipSize + " postings");
+		//System.err.println("Skipping every " + skipSize + " postings");
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> succinctEntry;
@@ -224,7 +224,7 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 	@Test
 	public void nextAfterEverySkip() throws IOException
 	{
-		System.err.println("Skipping after every " + skipSize + " postings");
+		//System.err.println("Skipping after every " + skipSize + " postings");
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> succinctEntry;
@@ -241,7 +241,7 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 			ble = (BasicLexiconEntry) originalEntry.getValue();
 			sle = (EFLexiconEntry) succinctEntry.getValue();
 			
-			System.err.println(succinctEntry.getKey() + " has " + ble.getDocumentFrequency() + " postings");
+			//System.err.println(succinctEntry.getKey() + " has " + ble.getDocumentFrequency() + " postings");
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
@@ -258,8 +258,8 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 					// numSkips++;
 					sp.next(op.getId() + 1);
 					op.next();
-					System.err.println(op.getId());
-					System.err.println(sp.getId());
+					//System.err.println(op.getId());
+					//System.err.println(sp.getId());
 					assertEquals(op.getId(), sp.getId());
 					if (op.getId() != IterablePosting.EOL) {
 						assertEquals(op.getFrequency(), sp.getFrequency());

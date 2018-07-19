@@ -31,6 +31,9 @@ import org.terrier.structures.seralization.FixedSizeTextFactory;
 
 import org.terrier.utility.TerrierTimer;
 
+/**
+ * This program converts an existing simple Terrier 5 index (with positions) into a Elias-Fano compressed Terrier 5 index.
+ */
 public class BlockGenerator 
 {
 	public static int LOG2QUANTUM = Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8"));

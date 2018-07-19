@@ -8,20 +8,6 @@
  * MG4J: Managing Gigabytes for Java (big)
  *
  * Copyright (C) 2012 Sebastiano Vigna 
- *
- *  This library is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU Lesser General Public License as published by the Free
- *  Software Foundation; either version 3 of the License, or (at your option)
- *  any later version.
- *
- *  This library is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
- *  for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
  */
 package it.cnr.isti.hpclab.ef.util;
 
@@ -91,7 +77,7 @@ public class DocidEncoder implements Closeable
 		 * a small fraction (8/quantum) for pointers. This will generate a much
 		 * larger cache than expected if quantum is very small.
 		 */
-		pointers  = new LongWordCache(Math.max(MIN_CACHE_SIZE, bufferSize >>> Math.max(3, log2Quantum - 3)), "pointers");
+		pointers   = new LongWordCache(Math.max(MIN_CACHE_SIZE, bufferSize >>> Math.max(3, log2Quantum - 3)), "pointers");
 		lower_bits = new LongWordCache(Math.max(MIN_CACHE_SIZE, bufferSize / 2), "lower");
 		upper_bits = new LongWordCache(Math.max(MIN_CACHE_SIZE, bufferSize / 2), "upper");
 	}
@@ -128,10 +114,7 @@ public class DocidEncoder implements Closeable
 	 * @param length the number of elements to encode
 	 * @param upperBound the upper bound on the last element to encode
 	 * @param log2Quantum the base 2 logarithm of the quantum used to compute skip (or forward) pointer
-	 */
-	
-	// strict = false
-	// indexzeroes = true
+	 */	
 	public void init(final long length, final long upper_bound, final int log2Quantum) 
 	{
 		if (upper_bound < 0)

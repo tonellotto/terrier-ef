@@ -8,20 +8,6 @@
  * MG4J: Managing Gigabytes for Java (big)
  *
  * Copyright (C) 2012 Sebastiano Vigna 
- *
- *  This library is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU Lesser General Public License as published by the Free
- *  Software Foundation; either version 3 of the License, or (at your option)
- *  any later version.
- *
- *  This library is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
- *  for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 package it.cnr.isti.hpclab.ef.util;
@@ -129,7 +115,10 @@ public class PositionReader
 		for (int bitCount; ( bitCount = Long.bitCount( window ) ) < delta; delta -= bitCount)
 			window = list.getLong( ++curr );
 
-		/* This appears to be faster than != 0 (WTF?!). Note that for delta == 1 the following code is a NOP. */
+		/* 
+		 * This appears to be faster than != 0.
+		 * Note that for delta == 1 the following code is a NOP. 
+		 */
 		if ( --delta > 0 ) {
 			// Phase 1: sums by byte
 			final long word = window;
@@ -138,7 +127,6 @@ public class PositionReader
 			byteSums = ( byteSums & 3 * ONES_STEP_4 ) + ( ( byteSums >>> 2 ) & 3 * ONES_STEP_4 );
 			byteSums = ( byteSums + ( byteSums >>> 4 ) ) & 0x0f * ONES_STEP_8;
 			byteSums *= ONES_STEP_8;
-
 			// Phase 2: compare each byte sum with k + 1 to obtain the relevant byte
 			final long residualPlusOneStep8 = ( delta + 1 ) * ONES_STEP_8;
 			final long byteOffset = Long.numberOfTrailingZeros( ( ( ( byteSums | MSBS_STEP_8 ) - residualPlusOneStep8 ) & MSBS_STEP_8 ) >>> 7 );

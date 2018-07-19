@@ -9,9 +9,13 @@ import it.unimi.dsi.fastutil.longs.LongBigList;
 import java.io.IOException;
 
 import org.terrier.structures.DocumentIndex;
+import org.terrier.structures.postings.BasicPostingImpl;
 import org.terrier.structures.postings.IterablePosting;
 import org.terrier.structures.postings.WritablePosting;
 
+/**
+ * Elias-Fano implementation of an iterable posting, i.e., a posting cursor over a posting list.
+ */
 public class EFBasicIterablePosting implements IterablePosting
 {
 	private LongBigList docidList;
@@ -25,19 +29,37 @@ public class EFBasicIterablePosting implements IterablePosting
 	protected long currentFrequency;
 	protected long N;
 	
+	/** 
+	 * Create an empty EFBasicIterablePosting.
+	 */
 	public EFBasicIterablePosting()
 	{	
 	}
 
-	public EFBasicIterablePosting(LongBigList _docidList, LongBigList _freqList, DocumentIndex doi, int numEntries, int upperBoundDocid, int upperBoundFreq, int log2Quantum, long docidsPosition, long freqsPosition)
+	/**
+	 * Create a EFBasicIterablePosting object.
+	 * 
+	 * @param _docidList the Elias-Fano compressed list view to access to read docids
+	 * @param _freqList the Elias-Fano compressed list view to access to read frequencies
+	 * @param doi the document index to use to read document lengths
+	 * @param numEntries number of postings in the posting list
+	 * @param upperBoundDocid upper bound on the docids
+	 * @param upperBoundFreq upper bound on the frequency
+	 * @param log2Quantum the quantum used to encode forward (skip) pointers
+	 * @param docidsPosition the initial bit offset in the docids file of this posting list
+	 * @param freqsPosition the initial bit offset in the freq file of this posting list
+	 */
+	public EFBasicIterablePosting(final LongBigList _docidList, final LongBigList _freqList, final DocumentIndex doi,
+								  final int numEntries, final int upperBoundDocid, final int upperBoundFreq, final int log2Quantum,
+								  final long docidsPosition, final long freqsPosition)
 	{
 		this.docidList = _docidList;
 		this.freqList = _freqList;
 		this.doi = doi;
 		this.N = upperBoundDocid;
 		
-		docidsLongWordBitReader = new LongWordBitReader( docidList, 0 );
-		docidsLongWordBitReader.position(docidsPosition);
+		this.docidsLongWordBitReader = new LongWordBitReader( docidList, 0 );
+		this.docidsLongWordBitReader.position(docidsPosition);
 		
 		// the number of lower bits for the EF encoding of a list of given length, upper bound and strictness.
 		int l = Utils.lowerBits( numEntries + 1, upperBoundDocid, false );
@@ -64,18 +86,21 @@ public class EFBasicIterablePosting implements IterablePosting
 		currentFrequency = 0;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public int getId() 
 	{
 		return (int) currentDocument;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getFrequency() 
 	{
 		return (int) currentFrequency;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getDocumentLength() 
 	{
@@ -86,6 +111,7 @@ public class EFBasicIterablePosting implements IterablePosting
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void setId(int id) 
 	{
@@ -93,17 +119,20 @@ public class EFBasicIterablePosting implements IterablePosting
 		
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public WritablePosting asWritablePosting() 
 	{
-		throw new RuntimeException();
+		return new BasicPostingImpl((int) currentDocument, (int) currentFrequency);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void close() throws IOException 
 	{
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int next() throws IOException 
 	{
@@ -119,6 +148,7 @@ public class EFBasicIterablePosting implements IterablePosting
 		return (int) currentDocument;	
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int next(int targetId) throws IOException 
 	{
@@ -137,12 +167,14 @@ public class EFBasicIterablePosting implements IterablePosting
 		return (int) currentDocument;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean endOfPostings() 
 	{
 		return (currentDocument == IterablePosting.END_OF_LIST);
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String toString()
 	{
@@ -153,16 +185,9 @@ public class EFBasicIterablePosting implements IterablePosting
 	 * Returns the position of the current docid w.r.t. the beginning of the list (indexed at 0).
 	 *  
 	 * @return The position of the current docid w.r.t. the beginning of the list.
-	 * 
-	 *  @throws IllegalStateException if this method is invoked  when the posting list has been fully traversed, i.e.,
-	 *  	the current document points to <code>IterablePosting.END_OF_LIST</code>.
 	 */
 	public long getCurrentDocidPosition()
 	{
-		/*
-		if (currentDocument == IterablePosting.END_OF_LIST )
-			throw new IllegalStateException("Can't invoke this method when the posting list has been fully traversed.");
-		*/
 		return docidReader.getCurrentPos() - 1;
 	}
 }

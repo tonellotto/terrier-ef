@@ -8,20 +8,6 @@
  * MG4J: Managing Gigabytes for Java (big)
  *
  * Copyright (C) 2012 Sebastiano Vigna 
- *
- *  This library is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU Lesser General Public License as published by the Free
- *  Software Foundation; either version 3 of the License, or (at your option)
- *  any later version.
- *
- *  This library is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
- *  for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, see <http://www.gnu.org/licenses/>.
- *
  */
 package it.cnr.isti.hpclab.ef.util;
 
@@ -131,8 +117,7 @@ public class SequenceEncoder implements Closeable
 	 * @param length the number of elements to encode
 	 * @param upperBound the upper bound on the last element to encode
 	 * @param strict if <code>true</code>  {@link #add(long)} does not accept zeroes.
-	 * @param indexZeroes whether we should index ones or zeroes. if true, skip pointers are used; otherwise,
-	 *                    forward pointers are used.
+	 * @param indexZeroes whether we should index ones or zeroes. if true, skip pointers are used; otherwise, forward pointers are used.
 	 * @param log2Quantum the base 2 logarithm of the quantum used to compute skip (or forward) pointer
 	 */
 	public void init(final long length, final long upperBound, final boolean strict, final boolean indexZeroes, final int log2Quantum) 

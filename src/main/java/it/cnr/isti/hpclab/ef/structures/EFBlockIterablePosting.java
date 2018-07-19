@@ -12,6 +12,10 @@ import it.cnr.isti.hpclab.ef.util.PositionReader;
 import it.cnr.isti.hpclab.ef.util.Utils;
 import it.unimi.dsi.fastutil.longs.LongBigList;
 
+/**
+ * Elias-Fano implementation of an block iterable posting, i.e., a posting cursor over a posting list with positional information stored in postings.
+ */
+
 public class EFBlockIterablePosting extends EFBasicIterablePosting implements BlockPosting
 {
 	private LongBigList posList;
@@ -22,15 +26,35 @@ public class EFBlockIterablePosting extends EFBasicIterablePosting implements Bl
 	private int[] currentPositions;
 	private boolean positionsDecoded;
 
+	/** 
+	 * Create an empty EFBlockIterablePosting.
+	 */
 	public EFBlockIterablePosting()
 	{	
 	}
 
-	public EFBlockIterablePosting(LongBigList _docidList, LongBigList _freqList, LongBigList _posList, 
-							    DocumentIndex doi, int numEntries, 
-							    int upperBoundDocid, int upperBoundFreq, long upperBoundPos,
-							    int log2Quantum, 
-							    long docidsPosition, long freqsPosition, long posPosition)
+	/**
+	 * Create a EFBlockIterablePosting object.
+	 * 
+	 * @param _docidList the Elias-Fano compressed list view to access to read docids
+	 * @param _freqList the Elias-Fano compressed list view to access to read frequencies
+	 * @param _posList the Elias-Fano compressed list view to access to read positional information
+	 * @param doi the document index to use to read document lengths
+	 * @param numEntries number of postings in the posting list
+	 * @param upperBoundDocid upper bound on the docids
+	 * @param upperBoundFreq upper bound on the frequency
+	 * @param upperBoundFreq upper bound on the positional information
+	 * @param log2Quantum the quantum used to encode forward (skip) pointers
+	 * @param docidsPosition the initial bit offset in the docids file of this posting list
+	 * @param freqsPosition the initial bit offset in the freq file of this posting list
+	 * @param posPosition the initial bit offset in the position file of this posting list
+	 */
+
+	public EFBlockIterablePosting(final LongBigList _docidList, final LongBigList _freqList, final LongBigList _posList, 
+								  final DocumentIndex doi, final int numEntries, 
+								  final int upperBoundDocid, final int upperBoundFreq, final long upperBoundPos,
+								  final int log2Quantum, 
+								  final long docidsPosition, final long freqsPosition, final long posPosition)
 	{
 		super(_docidList, _freqList, doi, numEntries, upperBoundDocid, upperBoundFreq, log2Quantum, docidsPosition, freqsPosition);
 		this.posList = _posList;
@@ -50,6 +74,7 @@ public class EFBlockIterablePosting extends EFBasicIterablePosting implements Bl
 		currentPositions = null;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public int[] getPositions()
 	{
@@ -65,6 +90,7 @@ public class EFBlockIterablePosting extends EFBasicIterablePosting implements Bl
 		return currentPositions;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public int next() throws IOException 
 	{
@@ -81,6 +107,7 @@ public class EFBlockIterablePosting extends EFBasicIterablePosting implements Bl
 		return (int) currentDocument;	
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int next(int targetId) throws IOException 
 	{
@@ -100,6 +127,7 @@ public class EFBlockIterablePosting extends EFBasicIterablePosting implements Bl
 		return (int) currentDocument;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString()
 	{

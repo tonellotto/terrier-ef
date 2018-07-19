@@ -12,8 +12,6 @@ Given a Terrier plain old index, the following code can be used to generate a ne
 
     mvn clean install
 
-Note that this package does not produce an *uberjar*.
-
 To convert an existing index:
 
     java -Xmx8G -ea -server -cp \

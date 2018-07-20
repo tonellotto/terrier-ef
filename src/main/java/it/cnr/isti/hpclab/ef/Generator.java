@@ -106,7 +106,7 @@ public class Generator
 		
 		if (srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() != dstIndex.getCollectionStatistics().getNumberOfUniqueTerms()) {
 			System.err.println("Original index has " + srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
-			System.err.println("Succinct index has " + dstIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
+			System.err.println("Elias-Fano index has " + dstIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
 			System.exit(-1);
 		}
 
@@ -121,14 +121,9 @@ public class Generator
 			
 			originalEntry = srcIndex.getLexicon().getLexiconEntry(termid);
 			efEntry       = dstIndex.getLexicon().getLexiconEntry(termid);
-			
-			// assertEquals(originalEntry.getKey(), succinctEntry.getKey());
-			//System.err.println(succinctEntry.getKey());
-			
+						
 			ble  = (BasicLexiconEntry) originalEntry.getValue();
 			efle = (EFLexiconEntry) efEntry.getValue();
-
-			// System.err.println("Checking term " + originalEntry.getKey() + " (" + originalEntry.getValue().getDocumentFrequency() + " entries)");
 
 			IterablePosting srcPosting = srcIndex.getInvertedIndex().getPostings(ble);
 			IterablePosting dstPosting = dstIndex.getInvertedIndex().getPostings(efle);
@@ -157,14 +152,6 @@ public class Generator
 	{
 		EFDocumentIndex.write((org.terrier.structures.DocumentIndex) srcIndex.getDocumentIndex(), path + File.separator + dstPrefix + ".sizes");
 	}
-
-	/*
-	private static void createMetaIndex(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 
-	{
-		Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".meta.zdata", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".meta.zdata");
-		Files.copyFile(srcIndex.getPath() + ApplicationSetup.FILE_SEPARATOR + srcIndex.getPrefix() + ".meta.idx", path + ApplicationSetup.FILE_SEPARATOR + dstPrefix + ".meta.idx");
-	}
-	*/
 
 	@SuppressWarnings("resource")
 	private static void createLexiconDocidsFreqs(final String path, final String dstPrefix, final IndexOnDisk srcIndex) throws IOException 

@@ -34,7 +34,7 @@ public class IndexUtil
 	public static int DEFAULT_MAX_TERM_LENGTH = ApplicationSetup.MAX_TERM_LENGTH;
 	
 	/**
-	 * This static method is used to generate a properties file for a succinct Terrier index including only "default" data structures.
+	 * This static method is used to generate a properties file for a Elias-Fano Terrier index including only "default" data structures.
 	 * <p>
 	 * This means that the only data structures available through the generate file will be the lexicon, the document index and the inverted index.
 	 * <p>

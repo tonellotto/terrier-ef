@@ -106,6 +106,8 @@ public class BasicCompressor
 			freqsOffset  += freqsAccumulator.dump(freqs);
 			local_termid += 1;
 			p.close();
+			
+			lee = lex_iter.hasNext() ? lex_iter.next() : null;
 		} 
 				
 		docidsAccumulator.close();

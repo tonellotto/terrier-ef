@@ -160,12 +160,12 @@ public class NewGenerator
 			NewGenerator generator = new NewGenerator(args);
 			
 			TermPartition[] partitions = generator.partition(num_threads);
-			Mapper reassigner = new Mapper(args);
+			Mapper mapper = new Mapper(args);
 			Sorter sorter = new Sorter();
 			//Reducer merger = new Reducer(args);
 
 			// First we perform reassignment in parallel
-			String[] tmp_prefixes = Arrays.stream(partitions).parallel().map(reassigner).sorted(sorter).toArray(String[]::new);
+			String[] tmp_prefixes = Arrays.stream(partitions).parallel().map(mapper).sorted(sorter).toArray(String[]::new);
 			// System.err.println(String.join(",", tmp_prefixes));
 			
 			// Then we perform merging sequentially in a PRECISE order (if the order is wrong, everything is wrong)

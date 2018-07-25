@@ -68,7 +68,7 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 	public static Collection<Object[]> skipSizeValues()
 	{
 		// return Arrays.asList(new Object[][] { {2, 2} });
-		return Arrays.asList(new Object[][] { {1,2}, {1,3}, {1,4}, {2,2}, {2,3}, {2,4}});
+		return Arrays.asList(new Object[][] { {1,2}, {1,3}, {1,4}, {2,2}, {2,3}, {2,4}, {3,2}, {3,3}, {3,4}});
 	}
 	
 	@Before 

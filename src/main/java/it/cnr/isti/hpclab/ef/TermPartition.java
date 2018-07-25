@@ -21,7 +21,7 @@ package it.cnr.isti.hpclab.ef;
 
 class TermPartition implements Comparable<TermPartition>
 {
-	public final int id;
+	private int id;
 	private String prefix;
 	public final int begin;
 	public final int end;
@@ -47,7 +47,17 @@ class TermPartition implements Comparable<TermPartition>
 	{
 		return this.prefix;
 	}
+
+	public void setId(final int id)
+	{
+		this.id = id;
+	}
 	
+	public int id()
+	{
+		return this.id;
+	}
+
 	public static TermPartition[] split(final int max, final int bins)
 	{
 		TermPartition[] res = new TermPartition[bins];

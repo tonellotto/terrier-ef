@@ -59,7 +59,7 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
 	public TermPartition apply(TermPartition t1, TermPartition t2) 
 	{
 		Index.setIndexLoadingProfileAsRetrieval(false);
-		String out_prefix = this.dst_index_prefix + "_merge";
+		String out_prefix = this.dst_index_prefix + "_merge_" + t1.id();
 		
 		try {
 			// Merge docids (low level)
@@ -136,6 +136,7 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
 
 		// Set correct prefix for next merging and return it
 		t1.setPrefix(out_prefix);
+		t1.setId(t2.id());
 		return t1;
 	}	
 	

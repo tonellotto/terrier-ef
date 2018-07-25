@@ -42,7 +42,7 @@ class CompressorMapper implements Function<TermPartition,TermPartition>
 	@Override
 	public TermPartition apply(TermPartition terms) 
 	{
-		String this_prefix = dst_index_prefix + "_partition_" + terms.id;
+		String this_prefix = dst_index_prefix + "_partition_" + terms.id();
 		terms.setPrefix(this_prefix);
 		if (!with_pos) {
 			BasicCompressor bc = new BasicCompressor(Index.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix);

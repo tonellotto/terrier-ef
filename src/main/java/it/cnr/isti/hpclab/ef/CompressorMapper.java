@@ -44,21 +44,15 @@ class CompressorMapper implements Function<TermPartition,TermPartition>
 	{
 		String this_prefix = dst_index_prefix + "_partition_" + terms.id();
 		terms.setPrefix(this_prefix);
-		if (!with_pos) {
-			BasicCompressor bc = new BasicCompressor(Index.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix);
-			try {
-				bc.compress(terms);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			BlockCompressor bc = new BlockCompressor(Index.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix);
-			try {
-				bc.compress(terms);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		Compressor bc = (!with_pos) 
+			? new BasicCompressor(Index.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix)
+			: new BlockCompressor(Index.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix);
+		try {
+			bc.compress(terms);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+
 		return terms;
 	}	
 }

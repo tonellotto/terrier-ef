@@ -50,7 +50,7 @@ import it.cnr.isti.hpclab.ef.util.SequenceEncoder;
  * @author Nicola Tonellotto
  *
  */
-public class BasicCompressor 
+public class BasicCompressor implements Compressor
 {
 	protected static final Logger LOGGER = LoggerFactory.getLogger(BasicCompressor.class);
 	protected static final int DEFAULT_CACHE_SIZE = 64 * 1024 * 1024;
@@ -86,6 +86,7 @@ public class BasicCompressor
 	}
 	
 	@SuppressWarnings("resource")
+	@Override
 	public void compress(final TermPartition terms) throws IOException
 	{
 		final int begin_term_id = terms.begin;
@@ -152,10 +153,5 @@ public class BasicCompressor
 		freqsAccumulator.close();
 		freqs.close();
 		los.close();
-	}
-	
-	private static boolean stop(final Entry<String, LexiconEntry> lee, final int end)
-	{
-		return (lee == null || lee.getValue().getTermId() >= end);
 	}
 }

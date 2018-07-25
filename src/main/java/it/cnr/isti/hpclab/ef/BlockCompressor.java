@@ -51,7 +51,7 @@ import it.cnr.isti.hpclab.ef.util.SequenceEncoder;
  * @author Nicola Tonellotto
  *
  */
-public class BlockCompressor 
+public class BlockCompressor implements Compressor
 {
 	protected static final Logger LOGGER = LoggerFactory.getLogger(BlockCompressor.class);
 	protected static final int DEFAULT_CACHE_SIZE = 64 * 1024 * 1024;
@@ -87,6 +87,7 @@ public class BlockCompressor
 	}
 	
 	@SuppressWarnings("resource")
+	@Override
 	public void compress(final TermPartition terms) throws IOException
 	{
 		final int begin_term_id = terms.begin;
@@ -187,10 +188,5 @@ public class BlockCompressor
 		posAccumulator.close();
 		pos.close();
 		los.close();
-	}
-	
-	private static boolean stop(final Entry<String, LexiconEntry> lee, final int end)
-	{
-		return (lee == null || lee.getValue().getTermId() >= end);
 	}
 }

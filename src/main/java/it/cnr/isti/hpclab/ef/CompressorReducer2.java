@@ -41,6 +41,7 @@ import it.cnr.isti.hpclab.ef.structures.EFBlockLexiconEntry;
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
 import it.cnr.isti.hpclab.ef.structures.FSOMapFileAppendLexiconOutputStream;
 
+@Deprecated
 public class CompressorReducer2 implements BinaryOperator<TermPartition> 
 {
 	private final String dst_index_path;

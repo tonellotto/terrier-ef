@@ -125,17 +125,20 @@ public class Generator
 			
 			TermPartition[] partitions = generator.partition(num_threads);
 			CompressorMapper mapper = new CompressorMapper(src_index_path, src_index_prefix, dst_index_path, dst_index_prefix, args.with_pos);
-			CompressorReducer merger = new CompressorReducer(dst_index_path, dst_index_prefix, args.with_pos);
+			CompressorReducer2 merger = new CompressorReducer2(dst_index_path, dst_index_prefix, args.with_pos);
 
 			// Arrays.stream(partitions).parallel().map(mapper).sorted().reduce(merger);
 			// First we perform reassignment in parallel
 			TermPartition[] tmp_partitions = Arrays.stream(partitions).parallel().map(mapper).sorted().toArray(TermPartition[]::new);
 			// System.err.println(String.join(",", Arrays.stream(tmp_partitions).map(x -> x.prefix()).toArray(String[]::new)));
 			
+			long compresstime = System.currentTimeMillis();
+			LOGGER.info("Parallel bitfile compression completed after " + (compresstime - starttime)/1000 + " seconds");
+			
 			// Then we perform merging sequentially in a PRECISE order (if the order is wrong, everything is wrong)
 			TermPartition last_partition = Arrays.stream(tmp_partitions).reduce(merger).get();
 			// System.err.println(last_partition.prefix());
-
+			LOGGER.info("Sequential mergeing completed after " + (System.currentTimeMillis() - compresstime)/1000 + " seconds");
 			
 			// Eventually, we rename the last merge
 			IndexUtil.renameIndex(args.path, last_partition.prefix(), dst_index_path, dst_index_prefix);

@@ -46,9 +46,6 @@ import it.cnr.isti.hpclab.ef.util.SequenceEncoder;
  * This is a Elias-Fano compressor focusing on lexicon and posting lists only. It compresses only a range of input termids.
  * All lexicon entries have offsets aligned to this portion of the whole index only, and the docis/freqs files are closed at the end, so such files are byte-aligned.
  * This must be taken into account when merging.
- * 
- * @author Nicola Tonellotto
- *
  */
 public class BasicCompressor implements Compressor
 {

@@ -36,7 +36,7 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	private static final long serialVersionUID = 1L;
 	
 	/** the offsets we need */
-	private long posOffset;
+	public long posOffset;
 
 	/** upper bound used in Elias-Fano */
 	private long sumsMaxPos = 0l;

@@ -52,8 +52,11 @@ import org.terrier.utility.TerrierTimer;
 
 /**
  * This program converts an existing simple Terrier 5 index (with positions) into a Elias-Fano compressed Terrier 5 index.
+ * 
+ * @deprecated  Since the release of Terrier 5, replaced by {@link it.cnr.isti.hpclab.ef.Generator#main()}
  */
-public class BlockGenerator 
+@Deprecated
+public class OldBlockGenerator 
 {
 	public static int LOG2QUANTUM = Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8"));
 	private static ByteOrder BYTEORDER = ByteOrder.nativeOrder();
@@ -69,7 +72,7 @@ public class BlockGenerator
 		Index.setIndexLoadingProfileAsRetrieval(false);
 		
 		if (args.length != 2) {
-			System.err.println("Usage: java " + BlockGenerator.class.getName() + " <index.path> <src.index.prefix>");
+			System.err.println("Usage: java " + OldBlockGenerator.class.getName() + " <index.path> <src.index.prefix>");
 			System.exit(-1);
 		}
 

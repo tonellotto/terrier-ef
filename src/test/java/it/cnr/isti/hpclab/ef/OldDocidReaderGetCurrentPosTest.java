@@ -42,15 +42,16 @@ import org.terrier.structures.postings.IterablePosting;
 import it.cnr.isti.hpclab.ef.structures.EFBasicIterablePosting;
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
 
+@Deprecated
 @RunWith(value = Parameterized.class)
-public class DocidReaderGetCurrentPosTest extends ApplicationSetupTest
+public class OldDocidReaderGetCurrentPosTest extends ApplicationSetupTest
 {
 	protected IndexOnDisk originalIndex = null;
-	protected IndexOnDisk succinctIndex = null;
+	protected IndexOnDisk efIndex = null;
 	
 	private int skipSize;
 	
-	public DocidReaderGetCurrentPosTest(int skipSize)
+	public OldDocidReaderGetCurrentPosTest(int skipSize)
 	{
 		this.skipSize = skipSize;
 	}
@@ -71,24 +72,24 @@ public class DocidReaderGetCurrentPosTest extends ApplicationSetupTest
 		String args[] = new String[2];
 		args[0] = originalIndex.getPath();
 		args[1] = originalIndex.getPrefix();
-		Generator.LOG2QUANTUM = 3;
-		Generator.main(args);
+		OldGenerator.LOG2QUANTUM = 3;
+		OldGenerator.main(args);
 		
-		succinctIndex = Index.createIndex(args[0], args[1] + EliasFano.USUAL_EXTENSION);
-		// System.out.println(succinctIndex.getIndexProperty("log2Quantum", ""));
+		efIndex = Index.createIndex(args[0], args[1] + EliasFano.USUAL_EXTENSION);
+		// System.out.println(efIndex.getIndexProperty("log2Quantum", ""));
 	}
 	
 	@After 
 	public void deleteIndex() throws IOException
 	{
 		originalIndex.close();
-		succinctIndex.close();
+		efIndex.close();
 	} 
 
 	@Test
 	public void testGetCurrentPos() throws IOException
 	{
-		Iterator<Entry<String, LexiconEntry>> lin = succinctIndex.getLexicon().iterator();
+		Iterator<Entry<String, LexiconEntry>> lin = efIndex.getLexicon().iterator();
 		
         Map.Entry<String, LexiconEntry> le = null;
         EFLexiconEntry le_in = null;
@@ -100,7 +101,7 @@ public class DocidReaderGetCurrentPosTest extends ApplicationSetupTest
         	le_in = (EFLexiconEntry) le.getValue();
         	if (le_in.getDocumentFrequency() >= 1) {
             	docids = new int[le_in.getDocumentFrequency()];
-            	EFBasicIterablePosting p = (EFBasicIterablePosting) succinctIndex.getInvertedIndex().getPostings(le_in);
+            	EFBasicIterablePosting p = (EFBasicIterablePosting) efIndex.getInvertedIndex().getPostings(le_in);
             	// First, we read all docids in an array
             	int pos = 0;
             	while (p.next() != IterablePosting.END_OF_LIST) {
@@ -109,7 +110,7 @@ public class DocidReaderGetCurrentPosTest extends ApplicationSetupTest
             	p.close();
             	
             	// Second, we jump over the posting list and check
-            	p = (EFBasicIterablePosting) succinctIndex.getInvertedIndex().getPostings(le_in);
+            	p = (EFBasicIterablePosting) efIndex.getInvertedIndex().getPostings(le_in);
             	
             	for (int i = 0; i < docids.length; i += skipSize) {
             		p.next(docids[i]);

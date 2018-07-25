@@ -22,7 +22,6 @@ package it.cnr.isti.hpclab.ef;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,30 +39,27 @@ import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.postings.IterablePosting;
 
-import it.cnr.isti.hpclab.ef.EliasFano;
-import it.cnr.isti.hpclab.ef.Generator;
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
 
+@Deprecated
 @RunWith(value = Parameterized.class)
-public class IndexReadingTest extends ApplicationSetupTest
+public class OldIndexReadingTest extends ApplicationSetupTest
 {
 	protected IndexOnDisk originalIndex = null;
 	protected IndexOnDisk efIndex = null;
 	
-	private int parallelism;
 	private int skipSize;
 	
-	public IndexReadingTest(int parallelism, int skipSize)
+	public OldIndexReadingTest(int skipSize)
 	{
-		this.parallelism = parallelism;
 		this.skipSize = skipSize;
 	}
 	
 	@Parameters
-	public static Collection<Object[]> getParameters()
+	public static Collection<Object[]> skipSizeValues()
 	{
-		// return Arrays.asList(new Object[][] { {2, 2} });
-		return Arrays.asList(new Object[][] { {1,2}, {1,3}, {1,4}, {2,2}, {2,3}, {2,4}});
+		//return Arrays.asList(new Object[][] { {2} });
+		return Arrays.asList(new Object[][] { {2}, {3}, {4} });
 	}
 	
 	@Before 
@@ -72,26 +68,27 @@ public class IndexReadingTest extends ApplicationSetupTest
 		super.doShakespeareIndexing();
 		originalIndex = Index.createIndex();
 		
-		String args[] = {"-path", originalIndex.getPath(), "-prefix", originalIndex.getPrefix() + ".ef", "-index", originalIndex.getPath() + File.separator + originalIndex.getPrefix() + ".properties", "-p", Integer.toString(parallelism)};
-
-		System.setProperty(EliasFano.LOG2QUANTUM, "3");
-
-		Generator.main(args);
+		String args[] = new String[2];
+		args[0] = originalIndex.getPath();
+		args[1] = originalIndex.getPrefix();
+		OldGenerator.LOG2QUANTUM = 3;
+		OldGenerator.main(args);
 		
-		efIndex = Index.createIndex(args[1], args[3]);
+		efIndex = Index.createIndex(args[0], args[1] + EliasFano.USUAL_EXTENSION);
+		// System.out.println(efIndex.getIndexProperty("log2Quantum", ""));
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testRandomPostingLists() throws IOException
 	{
-		it.cnr.isti.hpclab.ef.OldGenerator.randomSanityCheck(originalIndex, efIndex);
+		OldGenerator.randomSanityCheck(originalIndex, efIndex);
 	}
-
+	
 	@Test 
 	public void testPostingLists() throws IOException
 	{
 		assertEquals(originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(), efIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+		
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
@@ -216,8 +213,7 @@ public class IndexReadingTest extends ApplicationSetupTest
 		}
 	}
 	
-	@After 
-	public void deleteIndex() throws IOException
+	@After public void deleteIndex() throws IOException
 	{
 		originalIndex.close();
 		efIndex.close();

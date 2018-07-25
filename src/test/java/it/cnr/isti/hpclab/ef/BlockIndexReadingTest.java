@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,26 +44,31 @@ import org.terrier.structures.postings.bit.BlockIterablePosting;
 import org.terrier.utility.ApplicationSetup;
 
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
+import it.cnr.isti.hpclab.ef.EliasFano;
+import it.cnr.isti.hpclab.ef.Generator;
 import it.cnr.isti.hpclab.ef.structures.EFBlockIterablePosting;
 
+@SuppressWarnings("deprecation")
 @RunWith(value = Parameterized.class)
 public class BlockIndexReadingTest extends ApplicationSetupTest
 {
 	protected IndexOnDisk originalIndex = null;
-	protected IndexOnDisk succinctIndex = null;
+	protected IndexOnDisk efIndex = null;
 	
+	private int parallelism;
 	private int skipSize;
 	
-	public BlockIndexReadingTest(int skipSize)
+	public BlockIndexReadingTest(int parallelism, int skipSize)
 	{
+		this.parallelism = parallelism;
 		this.skipSize = skipSize;
 	}
 	
 	@Parameters
 	public static Collection<Object[]> skipSizeValues()
 	{
-		return Arrays.asList(new Object[][] { {2} });
-		// return Arrays.asList(new Object[][] { {2}, {3}, {4} });
+		// return Arrays.asList(new Object[][] { {2, 2} });
+		return Arrays.asList(new Object[][] { {1,2}, {1,3}, {1,4}, {2,2}, {2,3}, {2,4}});
 	}
 	
 	@Before 
@@ -73,45 +79,45 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 		super.doShakespeareIndexing();
 		originalIndex = Index.createIndex();
 		
-		String args[] = new String[2];
-		args[0] = originalIndex.getPath();
-		args[1] = originalIndex.getPrefix();
-		BlockGenerator.LOG2QUANTUM = 3;
-		BlockGenerator.main(args);
+		String args[] = {"-path", originalIndex.getPath(), "-prefix", originalIndex.getPrefix() + ".ef", "-index", originalIndex.getPath() + File.separator + originalIndex.getPrefix() + ".properties", "-p", Integer.toString(parallelism), "-b"};
+
+		System.setProperty(EliasFano.LOG2QUANTUM, "3");
+
+		Generator.main(args);
 		
-		succinctIndex = Index.createIndex(args[0], args[1] + EliasFano.USUAL_EXTENSION);
+		efIndex = Index.createIndex(args[1], args[3]);
 	}
 	
 	@Test
 	public void testRandomPostingLists() throws IOException
 	{
-		BlockGenerator.randomSanityCheck(originalIndex, succinctIndex);
+		it.cnr.isti.hpclab.ef.OldBlockGenerator.randomSanityCheck(originalIndex, efIndex);
 	}
 	
 	@Test 
 	public void testPostingLists() throws IOException
 	{
-		assertEquals(originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(), succinctIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+		assertEquals(originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(), efIndex.getCollectionStatistics().getNumberOfUniqueTerms());
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
-		Map.Entry<String, LexiconEntry> succinctEntry;
+		Map.Entry<String, LexiconEntry> efEntry;
 		
 		BasicLexiconEntry ble;
 		EFLexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
-			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
+			efEntry = efIndex.getLexicon().getIthLexiconEntry(i);
 			
-			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
+			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
 			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) succinctEntry.getValue();
+			sle = (EFLexiconEntry) efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
 			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFBlockIterablePosting sp = (EFBlockIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
+			EFBlockIterablePosting sp = (EFBlockIterablePosting) efIndex.getInvertedIndex().getPostings(sle);
 			
 			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
 				assertEquals(op.getId(), sp.getId());
@@ -125,27 +131,27 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 	@Test 
 	public void testPostingListsLazyPositionsRead() throws IOException
 	{
-		assertEquals(originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(), succinctIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+		assertEquals(originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(), efIndex.getCollectionStatistics().getNumberOfUniqueTerms());
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
-		Map.Entry<String, LexiconEntry> succinctEntry;
+		Map.Entry<String, LexiconEntry> efEntry;
 		
 		BasicLexiconEntry ble;
 		EFLexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
-			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
+			efEntry = efIndex.getLexicon().getIthLexiconEntry(i);
 			
-			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
+			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
 			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) succinctEntry.getValue();
+			sle = (EFLexiconEntry) efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
 			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFBlockIterablePosting sp = (EFBlockIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
+			EFBlockIterablePosting sp = (EFBlockIterablePosting) efIndex.getInvertedIndex().getPostings(sle);
 			
 			int cnt = 0;
 			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
@@ -161,27 +167,27 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 	@Test 
 	public void testPostingListsRepeatPositionsRead() throws IOException
 	{
-		assertEquals(originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(), succinctIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+		assertEquals(originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(), efIndex.getCollectionStatistics().getNumberOfUniqueTerms());
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
-		Map.Entry<String, LexiconEntry> succinctEntry;
+		Map.Entry<String, LexiconEntry> efEntry;
 		
 		BasicLexiconEntry ble;
 		EFLexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
-			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
+			efEntry = efIndex.getLexicon().getIthLexiconEntry(i);
 			
-			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
+			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
 			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) succinctEntry.getValue();
+			sle = (EFLexiconEntry) efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
 			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFBlockIterablePosting sp = (EFBlockIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
+			EFBlockIterablePosting sp = (EFBlockIterablePosting) efIndex.getInvertedIndex().getPostings(sle);
 			
 			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
 				assertEquals(op.getId(), sp.getId());
@@ -199,25 +205,25 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 		//System.err.println("Skipping every " + skipSize + " postings");
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
-		Map.Entry<String, LexiconEntry> succinctEntry;
+		Map.Entry<String, LexiconEntry> efEntry;
 		
 		BasicLexiconEntry ble;
 		EFLexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
-			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
+			efEntry = efIndex.getLexicon().getIthLexiconEntry(i);
 			
-			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
-			//System.err.println(succinctEntry.getKey());
+			assertEquals(originalEntry.getKey(), efEntry.getKey());
+			//System.err.println(efEntry.getKey());
 			
 			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) succinctEntry.getValue();
+			sle = (EFLexiconEntry) efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
 			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFBlockIterablePosting sp = (EFBlockIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
+			EFBlockIterablePosting sp = (EFBlockIterablePosting) efIndex.getInvertedIndex().getPostings(sle);
 			
 //			int numSkips = 0;
 			
@@ -245,26 +251,26 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 		//System.err.println("Skipping after every " + skipSize + " postings");
 		
 		Map.Entry<String, LexiconEntry> originalEntry;
-		Map.Entry<String, LexiconEntry> succinctEntry;
+		Map.Entry<String, LexiconEntry> efEntry;
 		
 		BasicLexiconEntry ble;
 		EFLexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
-			succinctEntry = succinctIndex.getLexicon().getIthLexiconEntry(i);
+			efEntry = efIndex.getLexicon().getIthLexiconEntry(i);
 			
-			assertEquals(originalEntry.getKey(), succinctEntry.getKey());
+			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
 			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) succinctEntry.getValue();
+			sle = (EFLexiconEntry) efEntry.getValue();
 			
-			//System.err.println(succinctEntry.getKey() + " has " + ble.getDocumentFrequency() + " postings");
+			//System.err.println(efEntry.getKey() + " has " + ble.getDocumentFrequency() + " postings");
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
 			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFBlockIterablePosting sp = (EFBlockIterablePosting) succinctIndex.getInvertedIndex().getPostings(sle);
+			EFBlockIterablePosting sp = (EFBlockIterablePosting) efIndex.getInvertedIndex().getPostings(sle);
 			
 			// int numSkips = 0;
 			
@@ -297,6 +303,6 @@ public class BlockIndexReadingTest extends ApplicationSetupTest
 	@After public void deleteIndex() throws IOException
 	{
 		originalIndex.close();
-		succinctIndex.close();
+		efIndex.close();
 	} 
 }

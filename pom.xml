@@ -141,6 +141,24 @@
         		</executions>
       		</plugin>
 
+			<plugin>
+        		<groupId>org.codehaus.mojo</groupId>
+        		<artifactId>appassembler-maven-plugin</artifactId>
+        		<version>1.10</version>
+        		<configuration>
+        			<assembleDirectory>${project.build.directory}</assembleDirectory>
+          			<extraJvmArguments>-Xms1G -Xmx50G -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit</extraJvmArguments>
+          			<platforms>unix</platforms>
+          			<projectArtifactFirstInClassPath>true</projectArtifactFirstInClassPath>
+          			<programs>
+            			<program>
+              				<mainClass>it.cnr.isti.hpclab.ef.Generator</mainClass>
+              				<name>ef-convert</name>
+            			</program>
+	          		</programs>
+    	    	</configuration>
+      		</plugin>
+      		
     	</plugins>
 
   	</build>

@@ -162,7 +162,7 @@ public class Generator
 			dst_index.close();
 			src_index.close();
 			
-			LOGGER.info("Parallel docid reassignment completed after " + (System.currentTimeMillis() - starttime)/1000 + " seconds, using "  + num_threads + " threads");
+			LOGGER.info("Parallel Elias-Fano compression completed after " + (System.currentTimeMillis() - starttime)/1000 + " seconds, using "  + num_threads + " threads");
 			LOGGER.info("Final index is at " + args.path + " with prefix " + args.prefix);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

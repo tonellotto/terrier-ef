@@ -125,7 +125,7 @@ public class Generator
 			
 			TermPartition[] partitions = generator.partition(num_threads);
 			CompressorMapper mapper = new CompressorMapper(src_index_path, src_index_prefix, dst_index_path, dst_index_prefix, args.with_pos);
-			CompressorReducer2 merger = new CompressorReducer2(dst_index_path, dst_index_prefix, args.with_pos);
+			CompressorReducer3 merger = new CompressorReducer3(dst_index_path, dst_index_prefix, args.with_pos);
 
 			// Arrays.stream(partitions).parallel().map(mapper).sorted().reduce(merger);
 			// First we perform reassignment in parallel

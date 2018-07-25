@@ -138,7 +138,9 @@ public class Generator
 			// Then we perform merging sequentially in a PRECISE order (if the order is wrong, everything is wrong)
 			TermPartition last_partition = Arrays.stream(tmp_partitions).reduce(merger).get();
 			// System.err.println(last_partition.prefix());
-			LOGGER.info("Sequential mergeing completed after " + (System.currentTimeMillis() - compresstime)/1000 + " seconds");
+			
+			long mergetime = System.currentTimeMillis();
+			LOGGER.info("Sequential merging completed after " + (mergetime - compresstime)/1000 + " seconds");
 			
 			// Eventually, we rename the last merge
 			IndexUtil.renameIndex(args.path, last_partition.prefix(), dst_index_path, dst_index_prefix);
@@ -159,13 +161,19 @@ public class Generator
 			// IndexUtil.copyStructure(src_index, dst_index, "document", "document");
 			IndexUtil.copyStructure(src_index, dst_index, "meta", "meta");
 
+			long copytime = System.currentTimeMillis();
+			LOGGER.info("Copying other index structures completed after " + (copytime - mergetime)/1000 + " seconds");
+			
 			writeProperties(src_index, dst_index, args.with_pos);
 			LexiconBuilder.optimise(dst_index, "lexicon");
+
+			long opttime = System.currentTimeMillis();
+			LOGGER.info("Lexicon optimization completed after " + (opttime - copytime)/1000 + " seconds");
 
 			dst_index.close();
 			src_index.close();
 			
-			LOGGER.info("Parallel Elias-Fano compression completed after " + (System.currentTimeMillis() - starttime)/1000 + " seconds, using "  + num_threads + " threads");
+			LOGGER.info("Parallel Elias-Fano compression completed after " + (opttime - starttime)/1000 + " seconds, using "  + num_threads + " threads");
 			LOGGER.info("Final index is at " + args.path + " with prefix " + args.prefix);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

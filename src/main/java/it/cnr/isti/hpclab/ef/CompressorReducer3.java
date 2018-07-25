@@ -143,9 +143,7 @@ public class CompressorReducer3 implements BinaryOperator<TermPartition>
 	        }
 	    }
 	    
-		Files.move(in_file_1,
-				   out_file);
-
+		Files.move(in_file_1, out_file);
 	    Files.delete(in_file_2);
 	    return offset;
 	}

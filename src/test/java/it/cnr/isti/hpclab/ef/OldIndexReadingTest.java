@@ -33,13 +33,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.terrier.structures.BasicLexiconEntry;
 import org.terrier.structures.Index;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.postings.IterablePosting;
-
-import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
 
 @Deprecated
 @RunWith(value = Parameterized.class)
@@ -92,8 +89,8 @@ public class OldIndexReadingTest extends ApplicationSetupTest
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
-		BasicLexiconEntry ble;
-		EFLexiconEntry sle;
+		LexiconEntry ble;
+		LexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
@@ -101,8 +98,8 @@ public class OldIndexReadingTest extends ApplicationSetupTest
 			
 			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) efEntry.getValue();
+			ble = originalEntry.getValue();
+			sle = efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
@@ -125,8 +122,8 @@ public class OldIndexReadingTest extends ApplicationSetupTest
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
-		BasicLexiconEntry ble;
-		EFLexiconEntry sle;
+		LexiconEntry ble;
+		LexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
@@ -135,8 +132,8 @@ public class OldIndexReadingTest extends ApplicationSetupTest
 			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			//System.err.println(efEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) efEntry.getValue();
+			ble = originalEntry.getValue();
+			sle = efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
@@ -173,8 +170,8 @@ public class OldIndexReadingTest extends ApplicationSetupTest
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
-		BasicLexiconEntry ble;
-		EFLexiconEntry sle;
+		LexiconEntry ble;
+		LexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
@@ -182,8 +179,8 @@ public class OldIndexReadingTest extends ApplicationSetupTest
 			
 			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) efEntry.getValue();
+			ble = originalEntry.getValue();
+			sle = efEntry.getValue();
 			
 			// System.err.println(efEntry.getKey() + " has " + ble.getDocumentFrequency() + " postings");
 			

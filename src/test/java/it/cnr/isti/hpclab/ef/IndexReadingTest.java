@@ -128,8 +128,8 @@ public class IndexReadingTest extends ApplicationSetupTest
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
-		BasicLexiconEntry ble;
-		EFLexiconEntry sle;
+		LexiconEntry ble;
+		LexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
@@ -138,8 +138,8 @@ public class IndexReadingTest extends ApplicationSetupTest
 			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			//System.err.println(efEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) efEntry.getValue();
+			ble = originalEntry.getValue();
+			sle = efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
@@ -176,8 +176,8 @@ public class IndexReadingTest extends ApplicationSetupTest
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
-		BasicLexiconEntry ble;
-		EFLexiconEntry sle;
+		LexiconEntry ble;
+		LexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
@@ -185,8 +185,8 @@ public class IndexReadingTest extends ApplicationSetupTest
 			
 			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) efEntry.getValue();
+			ble = originalEntry.getValue();
+			sle = efEntry.getValue();
 			
 			// System.err.println(efEntry.getKey() + " has " + ble.getDocumentFrequency() + " postings");
 			

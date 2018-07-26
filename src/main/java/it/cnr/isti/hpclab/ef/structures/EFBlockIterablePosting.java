@@ -24,7 +24,9 @@ import java.util.Arrays;
 
 import org.terrier.structures.DocumentIndex;
 import org.terrier.structures.postings.BlockPosting;
+import org.terrier.structures.postings.BlockPostingImpl;
 import org.terrier.structures.postings.IterablePosting;
+import org.terrier.structures.postings.WritablePosting;
 
 import it.cnr.isti.hpclab.ef.util.LongWordBitReader;
 import it.cnr.isti.hpclab.ef.util.PositionReader;
@@ -151,5 +153,11 @@ public class EFBlockIterablePosting extends EFBasicIterablePosting implements Bl
 	public String toString()
 	{
 		return super.toString() + "[" + Arrays.toString(currentPositions) + "]";
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public WritablePosting asWritablePosting() {
+		return new BlockPostingImpl(this.getId(), this.getFrequency(), this.getPositions());
 	}
 }

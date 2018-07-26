@@ -60,6 +60,14 @@
     		<version>5.0</version>
 		</dependency>
 
+		<!-- the following dependency should be remove when the submitted bug on MultiDocumentFileCollection and TRECCollection misplacement is resolved -->
+    	<dependency>
+    		<groupId>org.terrier</groupId>
+    		<artifactId>terrier-batch-retrieval</artifactId>
+    		<version>5.0</version>
+    		<scope>test</scope>
+		</dependency>
+
     	<dependency>
       		<groupId>args4j</groupId>
       		<artifactId>args4j</artifactId>

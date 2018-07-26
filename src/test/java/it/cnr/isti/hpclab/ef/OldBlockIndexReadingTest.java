@@ -19,9 +19,9 @@
  */
 package it.cnr.isti.hpclab.ef;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertArrayEquals;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,16 +34,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.terrier.structures.BasicLexiconEntry;
 import org.terrier.structures.Index;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.LexiconEntry;
+import org.terrier.structures.postings.BlockPosting;
 import org.terrier.structures.postings.IterablePosting;
-import org.terrier.structures.postings.bit.BlockIterablePosting;
 import org.terrier.utility.ApplicationSetup;
-
-import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
-import it.cnr.isti.hpclab.ef.structures.EFBlockIterablePosting;
 
 @Deprecated
 @RunWith(value = Parameterized.class)
@@ -97,8 +93,8 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
-		BasicLexiconEntry ble;
-		EFLexiconEntry sle;
+		LexiconEntry ble;
+		LexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
@@ -106,19 +102,21 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 			
 			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) efEntry.getValue();
+			ble = originalEntry.getValue();
+			sle = efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
-			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFBlockIterablePosting sp = (EFBlockIterablePosting) efIndex.getInvertedIndex().getPostings(sle);
+			IterablePosting op =originalIndex.getInvertedIndex().getPostings(ble);
+			IterablePosting sp = efIndex.getInvertedIndex().getPostings(sle);
+			BlockPosting bop = (BlockPosting) op;
+			BlockPosting bsp = (BlockPosting) sp;
 			
 			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
 				assertEquals(op.getId(), sp.getId());
 				assertEquals(op.getFrequency(), sp.getFrequency());
 				assertEquals(op.getDocumentLength(), sp.getDocumentLength());
-				assertArrayEquals(op.getPositions(), sp.getPositions());
+				assertArrayEquals(bop.getPositions(), bsp.getPositions());
 			}
 		}
 	}
@@ -131,8 +129,8 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
-		BasicLexiconEntry ble;
-		EFLexiconEntry sle;
+		LexiconEntry ble;
+		LexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
@@ -140,13 +138,15 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 			
 			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) efEntry.getValue();
+			ble = originalEntry.getValue();
+			sle = efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
-			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFBlockIterablePosting sp = (EFBlockIterablePosting) efIndex.getInvertedIndex().getPostings(sle);
+			IterablePosting op =originalIndex.getInvertedIndex().getPostings(ble);
+			IterablePosting sp = efIndex.getInvertedIndex().getPostings(sle);
+			BlockPosting bop = (BlockPosting) op;
+			BlockPosting bsp = (BlockPosting) sp;
 			
 			int cnt = 0;
 			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
@@ -154,7 +154,7 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 				assertEquals(op.getFrequency(), sp.getFrequency());
 				assertEquals(op.getDocumentLength(), sp.getDocumentLength());
 				if (cnt++ % 2 == 0)
-					assertArrayEquals(op.getPositions(), sp.getPositions());
+					assertArrayEquals(bop.getPositions(), bsp.getPositions());
 			}
 		}
 	}
@@ -167,8 +167,8 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
-		BasicLexiconEntry ble;
-		EFLexiconEntry sle;
+		LexiconEntry ble;
+		LexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
@@ -176,20 +176,22 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 			
 			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) efEntry.getValue();
+			ble = originalEntry.getValue();
+			sle = efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
-			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFBlockIterablePosting sp = (EFBlockIterablePosting) efIndex.getInvertedIndex().getPostings(sle);
+			IterablePosting op =originalIndex.getInvertedIndex().getPostings(ble);
+			IterablePosting sp = efIndex.getInvertedIndex().getPostings(sle);
+			BlockPosting bop = (BlockPosting) op;
+			BlockPosting bsp = (BlockPosting) sp;
 			
 			while (op.next() != IterablePosting.EOL && sp.next() != IterablePosting.EOL) {
 				assertEquals(op.getId(), sp.getId());
 				assertEquals(op.getFrequency(), sp.getFrequency());
 				assertEquals(op.getDocumentLength(), sp.getDocumentLength());
-				assertArrayEquals(op.getPositions(), sp.getPositions());
-				assertArrayEquals(op.getPositions(), sp.getPositions());
+				assertArrayEquals(bop.getPositions(), bsp.getPositions());
+				assertArrayEquals(bop.getPositions(), bsp.getPositions());
 			}
 		}
 	}
@@ -202,8 +204,8 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
-		BasicLexiconEntry ble;
-		EFLexiconEntry sle;
+		LexiconEntry ble;
+		LexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
@@ -212,13 +214,15 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			//System.err.println(efEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) efEntry.getValue();
+			ble = originalEntry.getValue();
+			sle = efEntry.getValue();
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
-			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFBlockIterablePosting sp = (EFBlockIterablePosting) efIndex.getInvertedIndex().getPostings(sle);
+			IterablePosting op =originalIndex.getInvertedIndex().getPostings(ble);
+			IterablePosting sp = efIndex.getInvertedIndex().getPostings(sle);
+			BlockPosting bop = (BlockPosting) op;
+			BlockPosting bsp = (BlockPosting) sp;
 			
 //			int numSkips = 0;
 			
@@ -233,7 +237,7 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 					assertEquals(op.getId(), sp.getId());
 					assertEquals(op.getFrequency(), sp.getFrequency());
 					assertEquals(op.getDocumentLength(), sp.getDocumentLength());
-					assertArrayEquals(op.getPositions(), sp.getPositions());
+					assertArrayEquals(bop.getPositions(), bsp.getPositions());
 				}			
 			}
 		}
@@ -248,8 +252,8 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
 		
-		BasicLexiconEntry ble;
-		EFLexiconEntry sle;
+		LexiconEntry ble;
+		LexiconEntry sle;
 		
 		for (int i = 0; i < originalIndex.getCollectionStatistics().getNumberOfUniqueTerms(); i++) {
 			originalEntry = originalIndex.getLexicon().getIthLexiconEntry(i);
@@ -257,15 +261,17 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 			
 			assertEquals(originalEntry.getKey(), efEntry.getKey());
 			
-			ble = (BasicLexiconEntry) originalEntry.getValue();
-			sle = (EFLexiconEntry) efEntry.getValue();
+			ble = originalEntry.getValue();
+			sle = efEntry.getValue();
 			
 			//System.err.println(efEntry.getKey() + " has " + ble.getDocumentFrequency() + " postings");
 			
 			assertEquals(ble.getDocumentFrequency(), sle.getDocumentFrequency());
 			
-			BlockIterablePosting op = (BlockIterablePosting) originalIndex.getInvertedIndex().getPostings(ble);
-			EFBlockIterablePosting sp = (EFBlockIterablePosting) efIndex.getInvertedIndex().getPostings(sle);
+			IterablePosting op =originalIndex.getInvertedIndex().getPostings(ble);
+			IterablePosting sp = efIndex.getInvertedIndex().getPostings(sle);
+			BlockPosting bop = (BlockPosting) op;
+			BlockPosting bsp = (BlockPosting) sp;
 			
 			// int numSkips = 0;
 			
@@ -283,7 +289,7 @@ public class OldBlockIndexReadingTest extends ApplicationSetupTest
 					if (op.getId() != IterablePosting.EOL) {
 						assertEquals(op.getFrequency(), sp.getFrequency());
 						assertEquals(op.getDocumentLength(), sp.getDocumentLength());
-						assertArrayEquals(op.getPositions(), sp.getPositions());
+						assertArrayEquals(bop.getPositions(), bsp.getPositions());
 
 					}
 				}			

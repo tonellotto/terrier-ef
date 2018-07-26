@@ -30,17 +30,17 @@ Terrier 5.0 is required
 
 This package plugs the encoding-decoding procedures for quasi-succinct indexes implemented by MG4J into the Terrier index data structures.
 
-Given a Terrier plain old index, the following stages can be used to generate a new quasi-succinct index compatible with Terrier 5 APIs.
+Given a Terrier plain old index, the following steps can be used to generate a new quasi-succinct index compatible with Terrier 5 APIs.
 
-1. If not already available, e.g. from Maven Central, you should download and install terrier-eliasfano
+If not already available, e.g. from Maven Central, you should download and install terrier-eliasfano
 
 	mvn clean install
 
-2. Tell Terrier that you wish to add a plugin, by appending the following to your terrier.properties file in your Terrier distribution:
+Tell Terrier that you wish to add a plugin, by appending the following to your terrier.properties file in your Terrier distribution:
 
     terrier.mvn.coords=it.cnr.isti.hpclab:terrier-eliasfano:1.5
 	
-3. Then, to convert an existing index:
+Then, to convert an existing index:
 
 	bin/terrier ef-recompress /path/to/new/index cw09b    
 

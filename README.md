@@ -38,7 +38,7 @@ Given a Terrier plain old index, the following stages can be used to generate a 
 
 2. Tell Terrier that you wish to add a plugin, by appending the following to your terrier.properties file in your Terrier distribution:
 
-	terrier.mvn.coords=it.cnr.isti.hpclab:terrier-eliasfano:1.5
+    terrier.mvn.coords=it.cnr.isti.hpclab:terrier-eliasfano:1.5
 	
 3. Then, to convert an existing index:
 
@@ -46,7 +46,7 @@ Given a Terrier plain old index, the following stages can be used to generate a 
 
 The output quasi-succinct index will have the prefix `cw09b`. You can change the source index using the `-I` option, e.g.
 
-	bin/terrier ef-recompress -I /path/to/old/index/data.properties /path/to/new/index cw09b
+    bin/terrier ef-recompress -I /path/to/old/index/data.properties /path/to/new/index cw09b
 
 The degree of parallelism and whether block positions should be compressed are varied using the `-p` and `-b` options, respectively. You can view the help information for ef-recompress:
 

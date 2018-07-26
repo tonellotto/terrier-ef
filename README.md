@@ -34,7 +34,7 @@ Given a Terrier plain old index, the following stages can be used to generate a 
 
 1. If not already available, e.g. from Maven Central, you should download and install terrier-eliasfano
 
-    mvn clean install
+	mvn clean install
 
 2. Tell Terrier that you wish to add a plugin, by appending the following to your terrier.properties file in your Terrier distribution:
 
@@ -42,7 +42,7 @@ Given a Terrier plain old index, the following stages can be used to generate a 
 	
 3. Then, to convert an existing index:
 
-    bin/terrier ef-recompress /path/to/new/index cw09b    
+	bin/terrier ef-recompress /path/to/new/index cw09b    
 
 The output quasi-succinct index will have the prefix `cw09b`. You can change the source index using the `-I` option, e.g.
 

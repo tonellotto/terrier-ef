@@ -82,6 +82,7 @@ public class BlockIterablePosting extends BasicIterablePosting implements BlockP
 		} else {
 			id += bitFileReader.readGamma();
 			tf = bitFileReader.readUnary();
+			numEntries--;
 			//TODO: this has a memory allocation for every posting in the posting list. can we reuse an array?
 			positions = new int[bitFileReader.readUnary() -1];
 			if (positions.length == 0)
@@ -89,8 +90,6 @@ public class BlockIterablePosting extends BasicIterablePosting implements BlockP
 			positions[0] = bitFileReader.readGamma() -1;
 			for(int i=1;i<positions.length;i++)
 				positions[i] = positions[i-1] + bitFileReader.readGamma();
-
-			numEntries--;
 		}
 		return id;
 	}

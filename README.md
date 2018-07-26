@@ -22,18 +22,41 @@ This package provides Elias-Fano compression for docids, frequencies and positio
 
 This package is [free software](http://www.gnu.org/philosophy/free-sw.html) distributed under the [GNU Lesser General Public License](http://www.gnu.org/copyleft/lesser.html).
 
-## Elias-Fano Inverted Index (TO BE UPDATED)
+## Pre-requisites
+
+Terrier 5.0 is required
+
+## Generating an Elias-Fano Inverted Index
 
 This package plugs the encoding-decoding procedures for quasi-succinct indexes implemented by MG4J into the Terrier index data structures.
 
-Given a Terrier plain old index, the following code can be used to generate a new quasi-succinct index compatible with Terrier 5 APIs:
+Given a Terrier plain old index, the following stages can be used to generate a new quasi-succinct index compatible with Terrier 5 APIs.
+
+1. If not already available, e.g. from Maven Central, you should download and install terrier-eliasfano
 
     mvn clean install
 
-To convert an existing index:
+2. Tell Terrier that you wish to add a plugin, by appending the following to your terrier.properties file in your Terrier distribution:
 
-    java -Xmx8G -ea -server -cp \
-        indexer/target/terrier-eliasfano-indexer-2.0-jar-with-dependencies.jar \
-        it.cnr.isti.hpclab.ef.Generator /Users/khast/index-java cw09b    
+	terrier.mvn.coords=it.cnr.isti.hpclab:terrier-eliasfano:1.5
+	
+3. Then, to convert an existing index:
 
-The output quasi-succinct index will have the prefix `cw09b.ef`.
+    bin/terrier ef-recompress /path/to/new/index cw09b    
+
+The output quasi-succinct index will have the prefix `cw09b`. You can change the source index using the `-I` option, e.g.
+
+	bin/terrier ef-recompress -I /path/to/old/index/data.properties /path/to/new/index cw09b
+
+The degree of parallelism and whether block positions should be compressed are varied using the `-p` and `-b` options, respectively. You can view the help information for ef-recompress:
+
+	bin/terrier help ef-recompress
+	
+## Notes
+
+- supports (block) positions
+- does not support indices using fields
+	
+## Credits
+
+Developed by Nicola Tonellotto, ISTI-CNR.

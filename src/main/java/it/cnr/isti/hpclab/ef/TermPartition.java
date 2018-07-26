@@ -19,7 +19,7 @@
  */
 package it.cnr.isti.hpclab.ef;
 
-class TermPartition implements Comparable<TermPartition>
+public class TermPartition implements Comparable<TermPartition>
 {
 	private int id;
 	private String prefix;

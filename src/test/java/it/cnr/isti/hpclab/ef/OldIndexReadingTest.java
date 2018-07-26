@@ -40,7 +40,7 @@ import org.terrier.structures.postings.IterablePosting;
 
 @Deprecated
 @RunWith(value = Parameterized.class)
-public class OldIndexReadingTest extends ApplicationSetupTest
+public class OldIndexReadingTest extends EFSetupTest
 {
 	protected IndexOnDisk originalIndex = null;
 	protected IndexOnDisk efIndex = null;

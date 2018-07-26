@@ -44,7 +44,7 @@ import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
 
 @Deprecated
 @RunWith(value = Parameterized.class)
-public class OldDocidReaderGetCurrentPosTest extends ApplicationSetupTest
+public class OldDocidReaderGetCurrentPosTest extends EFSetupTest
 {
 	protected IndexOnDisk originalIndex = null;
 	protected IndexOnDisk efIndex = null;

@@ -45,7 +45,7 @@ import it.cnr.isti.hpclab.ef.Generator;
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
 
 @RunWith(value = Parameterized.class)
-public class IndexReadingTest extends ApplicationSetupTest
+public class IndexReadingTest extends EFSetupTest
 {
 	protected IndexOnDisk originalIndex = null;
 	protected IndexOnDisk efIndex = null;

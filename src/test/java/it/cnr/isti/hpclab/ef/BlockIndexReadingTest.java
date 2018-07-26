@@ -50,7 +50,7 @@ import it.cnr.isti.hpclab.ef.structures.EFBlockIterablePosting;
 
 @SuppressWarnings("deprecation")
 @RunWith(value = Parameterized.class)
-public class BlockIndexReadingTest extends ApplicationSetupTest
+public class BlockIndexReadingTest extends EFSetupTest
 {
 	protected IndexOnDisk originalIndex = null;
 	protected IndexOnDisk efIndex = null;

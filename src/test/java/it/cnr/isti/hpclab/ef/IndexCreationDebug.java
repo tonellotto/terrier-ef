@@ -29,7 +29,7 @@ import org.terrier.structures.Lexicon;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.postings.IterablePosting;
 
-public class IndexCreationDebug extends ApplicationSetupTest
+public class IndexCreationDebug extends EFSetupTest
 {
 	private Index index = null;
 	

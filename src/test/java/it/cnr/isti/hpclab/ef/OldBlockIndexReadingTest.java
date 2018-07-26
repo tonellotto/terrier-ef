@@ -43,7 +43,7 @@ import org.terrier.utility.ApplicationSetup;
 
 @Deprecated
 @RunWith(value = Parameterized.class)
-public class OldBlockIndexReadingTest extends ApplicationSetupTest
+public class OldBlockIndexReadingTest extends EFSetupTest
 {
 	protected IndexOnDisk originalIndex = null;
 	protected IndexOnDisk efIndex = null;

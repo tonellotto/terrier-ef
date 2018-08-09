@@ -89,8 +89,8 @@ Prefix of the output Terrier index. If an index with the given prefix already ex
 Path of the existing Terrier index. The parameter will be split automatically into a Terrier path and prefix:
 
 ```
-    path = FilenameUtils.getFullPath(index);
-    prefix = FilenameUtils.getBaseName(index);
+path = FilenameUtils.getFullPath(index);
+prefix = FilenameUtils.getBaseName(index);
 ```
 
 ```

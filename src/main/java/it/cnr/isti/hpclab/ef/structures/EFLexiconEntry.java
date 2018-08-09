@@ -251,4 +251,14 @@ public class EFLexiconEntry extends LexiconEntry implements BitIndexPointer
 	{
 		this.maxtf = max;
 	}
+
+	//@Override
+	public void setFrequency(int F) {
+		this.TF = F;
+	}
+
+	//@Override
+	public void setDocumentFrequency(int nt) {
+		this.n_t = nt;
+	}
 }

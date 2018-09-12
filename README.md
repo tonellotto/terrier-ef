@@ -1,6 +1,6 @@
 # Elias-Fano Compression in Terrier 5
 
-This package provides Elias-Fano compression for docids, frequencies and positions in Terrier 5. At its core, it is a refactoring of the Elias-Fano compression included in the [MG4J](http://mg4j.di.unimi.it) free full-text search engine for large document collections written in Java, and described in the [paper](https://dl.acm.org/citation.cfm?id=2433409):
+This package provides Elias-Fano compression for docids, frequencies and positions in Terrier 5. At its core ([](src/main/java/it/cnr/isti/hpclab/ef)), it leverages the Elias-Fano compression included in the [MG4J](http://mg4j.di.unimi.it) free full-text search engine for large document collections written in Java, and described in the [paper](https://dl.acm.org/citation.cfm?id=2433409):
 
 	@inproceedings{Vigna:2013:QI:2433396.2433409,
  		author = {Vigna, Sebastiano},
@@ -39,10 +39,10 @@ If not already available, e.g. from Maven Central, you should git clone and inst
 Tell Terrier that you wish to add a plugin, by appending the following to your terrier.properties file in your Terrier distribution:
 
     terrier.mvn.coords=it.cnr.isti.hpclab:terrier-eliasfano:1.5
-	
+
 Then, to convert an existing index:
 
-	bin/terrier ef-recompress /path/to/new/index cw09b    
+	bin/terrier ef-recompress /path/to/new/index cw09b
 
 The output quasi-succinct index will have the prefix `cw09b`. You can change the source index using the `-I` option, e.g.,
 
@@ -51,7 +51,7 @@ The output quasi-succinct index will have the prefix `cw09b`. You can change the
 The degree of parallelism and whether block positions should be compressed are varied using the `-p` and `-b` options, respectively. You can view the help information for ef-recompress:
 
 	bin/terrier help ef-recompress
-	
+
 ## Generating an Elias-Fano Inverted Index using scripts
 
 This package plugs the encoding-decoding procedures for quasi-succinct indexes implemented by MG4J into the Terrier index data structures.
@@ -64,7 +64,7 @@ If not already available, e.g. from Maven Central, you should git clone and inst
 
 Then, to convert an existing index:
 
-	./target/bin/ef-convert -index /path/to/old/index/cw09b.properties -path /path/to/new/index/ -prefix cw09b.ef   
+	./target/bin/ef-convert -index /path/to/old/index/cw09b.properties -path /path/to/new/index/ -prefix cw09b.ef
 
 The input index has the prefix `cw09b`. The output quasi-succinct index will have the prefix `cw09b.ef`.
 
@@ -104,13 +104,15 @@ Compress positions with Elias-Fano. Default: false
 ```
 
 Number of threads to use. Anyway the maximum value will be the number of available cores. Default: 1.
+
 **Multi-threaded compressions is experimental -- caution advised due to threads competing for available memory!**
-	
+
 ## Notes
 
 - supports (block) positions
 - does not support indices using fields
-	
+
 ## Credits
 
 Developed by Nicola Tonellotto, ISTI-CNR.
+Contributions by Craig Macdonald, University of Glasgow, and Matteo Catena, ISTI-CNR.

@@ -102,8 +102,7 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		IterablePosting rtr = null;
 		if (hasPositions()) {
 			long posOffset  = ((EFBlockLexiconEntry)pointer).getPosOffset();
-			long sumsMaxPos = ((EFBlockLexiconEntry)pointer).getSumsMaxPos();
-			rtr = new EFBlockIterablePosting(docidsList, freqsList, posList, doi, df, N, F, sumsMaxPos, log2Quantum, docidOffset, freqOffset, posOffset);
+			rtr = new EFBlockIterablePosting(docidsList, freqsList, posList, doi, df, N, F, log2Quantum, docidOffset, freqOffset, posOffset);
 		} else {
 			rtr = new EFBasicIterablePosting(docidsList, freqsList, doi, df, N, F, log2Quantum, docidOffset, freqOffset);
 		}

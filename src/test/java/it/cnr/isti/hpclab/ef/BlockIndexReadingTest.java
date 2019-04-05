@@ -355,7 +355,7 @@ public class BlockIndexReadingTest extends EFSetupTest
 //					System.err.println("src " + srcPositions[j] + "\tdst " + dstPositions[j]);
 					if (srcPositions[j] != dstPositions[j]) {
 						System.err.println("Something went wrong in random sanity check...");
-						System.exit(-1);
+						throw new IllegalStateException();
 					}
 				}
 			}

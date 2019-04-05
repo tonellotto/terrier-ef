@@ -37,9 +37,6 @@ import org.terrier.structures.postings.WritablePosting;
  */
 public class EFBasicIterablePosting implements IterablePosting
 {
-	private LongBigList docidList;
-	private LongBigList freqList;
-	private LongWordBitReader docidsLongWordBitReader;
 	private DocumentIndex doi;
 	
 	protected DocidReader docidReader = null;
@@ -68,17 +65,13 @@ public class EFBasicIterablePosting implements IterablePosting
 	 * @param docidsPosition the initial bit offset in the docids file of this posting list
 	 * @param freqsPosition the initial bit offset in the freq file of this posting list
 	 */
-	public EFBasicIterablePosting(final LongBigList _docidList, final LongBigList _freqList, final DocumentIndex doi,
+	public EFBasicIterablePosting(final LongBigList docidList, final LongBigList freqList, final DocumentIndex doi,
 								  final int numEntries, final int upperBoundDocid, final int upperBoundFreq, final int log2Quantum,
 								  final long docidsPosition, final long freqsPosition)
 	{
-		this.docidList = _docidList;
-		this.freqList = _freqList;
 		this.doi = doi;
 		this.N = upperBoundDocid;
 		
-		this.docidsLongWordBitReader = new LongWordBitReader( docidList, 0 );
-		this.docidsLongWordBitReader.position(docidsPosition);
 		
 		// the number of lower bits for the EF encoding of a list of given length, upper bound and strictness.
 		int l = Utils.lowerBits( numEntries + 1, upperBoundDocid, false );
@@ -92,8 +85,7 @@ public class EFBasicIterablePosting implements IterablePosting
 		// Reader of elements of size l
 		LongWordBitReader lowerBits = new LongWordBitReader( docidList, l );
 
-		// Where to start reading the skip pointers
-		long skipPointersStart = docidsLongWordBitReader.position();
+		long skipPointersStart = docidsPosition;
 		// Where to start reading the lower bits array
 		long lowerBitsStart = skipPointersStart + pointerSize * numberOfPointers;
 		lowerBits.position( lowerBitsStart ); 						
@@ -126,7 +118,7 @@ public class EFBasicIterablePosting implements IterablePosting
 		try {
 			return doi.getDocumentLength((int) currentDocument);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new IllegalStateException(e);
 		}
 	}
 
@@ -134,7 +126,7 @@ public class EFBasicIterablePosting implements IterablePosting
 	@Override
 	public void setId(int id) 
 	{
-		throw new RuntimeException();
+		throw new UnsupportedOperationException();
 		
 	}
 

@@ -51,6 +51,8 @@ public class Generator
 {
 	protected static Logger LOGGER = LoggerFactory.getLogger(Generator.class);
 	
+	private final int num_terms;
+	
 	public static class Command extends CLIParsedCLITool
 	{
 		@Override
@@ -124,8 +126,6 @@ public class Generator
 
 	}
 	
-	
-	
 	public static void main(String[] argv)
 	{
 		Args args = new Args();
@@ -140,7 +140,8 @@ public class Generator
 		process(args);
 	}
 	
-	public static int process(Args args) {
+	public static int process(Args args) 
+	{
 		IndexOnDisk.setIndexLoadingProfileAsRetrieval(false);
 		
 		
@@ -193,7 +194,7 @@ public class Generator
 			dst_index.close();
 			dst_index = Index.createIndex(dst_index_path, dst_index_prefix);
 			if (Index.getLastIndexLoadError() != null) {
-				throw new RuntimeException("Error loading index: " + Index.getLastIndexLoadError());
+				throw new IllegalArgumentException("Error loading index: " + Index.getLastIndexLoadError());
 			}
 			
 			EFDocumentIndex.write((org.terrier.structures.DocumentIndex) src_index.getDocumentIndex(), dst_index_path + File.separator + dst_index_prefix + ".sizes");
@@ -289,8 +290,6 @@ public class Generator
 		
 	}
 	
-	private final int num_terms;
-
 	public Generator(final String src_index_path, final String src_index_prefix, final String dst_index_path, final String dst_index_prefix) throws Exception 
 	{	
 		// Load input index

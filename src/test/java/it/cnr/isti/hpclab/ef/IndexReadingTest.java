@@ -256,7 +256,7 @@ public class IndexReadingTest extends EFSetupTest
 			while (srcPosting.next() != IterablePosting.END_OF_LIST && dstPosting.next() != IterablePosting.END_OF_LIST) {
 				if ((srcPosting.getId() != dstPosting.getId()) || (srcPosting.getFrequency() != dstPosting.getFrequency())) {
 					System.err.println("Something went wrong in random sanity check...");
-					System.exit(-1);
+					throw new IllegalStateException();
 				}
 			}
 		}

@@ -138,7 +138,8 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
 		final long offset = Files.size(in_file_1);
 	    try (FileChannel out = FileChannel.open(in_file_1, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
 	        try (FileChannel in = FileChannel.open(in_file_2, StandardOpenOption.READ)) {
-	    	    for (long p = 0, l = in.size(); p < l; )
+	        	long l = in.size();
+	    	    for (long p = 0; p < l; )
 	    	    	p += in.transferTo(p, l - p, out);
 	        }
 	    }
@@ -147,4 +148,4 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
 	    Files.delete(in_file_2);
 	    return offset;
 	}
-};
+}

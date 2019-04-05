@@ -39,8 +39,6 @@ import it.unimi.dsi.fastutil.longs.LongBigList;
 
 public class EFBlockIterablePosting extends EFBasicIterablePosting implements BlockPosting
 {
-	private LongBigList posList;
-
 	private LongWordBitReader posLongWordBitReader;
 	private PositionReader posReader = null;
 	
@@ -64,21 +62,18 @@ public class EFBlockIterablePosting extends EFBasicIterablePosting implements Bl
 	 * @param numEntries number of postings in the posting list
 	 * @param upperBoundDocid upper bound on the docids
 	 * @param upperBoundFreq upper bound on the frequency
-	 * @param upperBoundFreq upper bound on the positional information
 	 * @param log2Quantum the quantum used to encode forward (skip) pointers
 	 * @param docidsPosition the initial bit offset in the docids file of this posting list
 	 * @param freqsPosition the initial bit offset in the freq file of this posting list
 	 * @param posPosition the initial bit offset in the position file of this posting list
 	 */
-
-	public EFBlockIterablePosting(final LongBigList _docidList, final LongBigList _freqList, final LongBigList _posList, 
+	public EFBlockIterablePosting(final LongBigList docidList, final LongBigList freqList, final LongBigList posList, 
 								  final DocumentIndex doi, final int numEntries, 
-								  final int upperBoundDocid, final int upperBoundFreq, final long upperBoundPos,
+								  final int upperBoundDocid, final int upperBoundFreq,
 								  final int log2Quantum, 
 								  final long docidsPosition, final long freqsPosition, final long posPosition)
 	{
-		super(_docidList, _freqList, doi, numEntries, upperBoundDocid, upperBoundFreq, log2Quantum, docidsPosition, freqsPosition);
-		this.posList = _posList;
+		super(docidList, freqList, doi, numEntries, upperBoundDocid, upperBoundFreq, log2Quantum, docidsPosition, freqsPosition);
 		
 		posLongWordBitReader = new LongWordBitReader( posList, 0 );
 		posLongWordBitReader.position(posPosition);

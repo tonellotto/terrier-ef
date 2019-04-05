@@ -1,6 +1,6 @@
 # Elias-Fano Compression in Terrier 5
 
-[![Build Status](https://travis-ci.org/tonellotto/terrier-ef.svg?branch=1.5.0)](https://travis-ci.org/tonellotto/terrier-ef)
+[![Build Status](https://travis-ci.org/tonellotto/terrier-ef.svg?branch=1.5.1)](https://travis-ci.org/tonellotto/terrier-ef)
 
 This package provides Elias-Fano compression for docids, frequencies and positions in Terrier 5. At its core, it is a refactoring of the Elias-Fano compression included in the [MG4J](http://mg4j.di.unimi.it) free full-text search engine for large document collections written in Java, and described in the [paper](https://dl.acm.org/citation.cfm?id=2433409):
 
@@ -25,7 +25,7 @@ This package is [free software](http://www.gnu.org/philosophy/free-sw.html) dist
 
 ## Pre-requisites
 
-Terrier 5.0 is required.
+None.
 
 ## Generating an Elias-Fano Inverted Index using CLITools
 
@@ -75,7 +75,6 @@ The `ef-convert` tool accepts the following options.
 
 Path of the directory that will hold the output Terrier index.
 
-
     -prefix [String] (required)
 
 Prefix of the output Terrier index. If an index with the given prefix already exists, the execution will be aborted.
@@ -96,8 +95,8 @@ Number of threads to use. Anyway the maximum value will be the number of availab
 
 ## Notes
 
-- supports (block) positions
-- does not support indices using fields
+  - supports (block) positions
+  - does not support indices using fields
 
 ## Credits
 

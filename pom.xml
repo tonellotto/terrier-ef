@@ -51,21 +51,13 @@
     <dependency>
       <groupId>org.terrier</groupId>
       <artifactId>terrier-core</artifactId>
-      <version>5.0</version>
+      <version>5.1</version>
     </dependency>
 
     <dependency>
       <groupId>org.terrier</groupId>
       <artifactId>terrier-batch-indexers</artifactId>
-      <version>5.0</version>
-    </dependency>
-
-    <!-- the following dependency should be remove when the submitted bug on MultiDocumentFileCollection and TRECCollection misplacement is resolved -->
-    <dependency>
-      <groupId>org.terrier</groupId>
-      <artifactId>terrier-batch-retrieval</artifactId>
-      <version>5.0</version>
-      <scope>test</scope>
+      <version>5.1</version>
     </dependency>
 
     <dependency>
@@ -74,18 +66,6 @@
       <version>2.33</version>
       <type>jar</type>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.5</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>1.6.4</version>
     </dependency>
 
   </dependencies>

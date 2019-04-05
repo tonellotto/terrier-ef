@@ -238,8 +238,7 @@ public class Generator
 				"index.meta.parameter_types",
 				"index.meta.parameter_values",
 				"index.meta.reverse-key-names",
-				"index.meta.value-lengths",
-				"termpipelines"} ) 
+				"index.meta.value-lengths"} ) 
 		{
 			dst_index.setIndexProperty(property, src_index.getIndexProperty(property, null));
 		}

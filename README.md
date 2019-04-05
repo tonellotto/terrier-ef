@@ -2,24 +2,23 @@
 
 [![Build Status](https://travis-ci.org/tonellotto/terrier-ef.svg?branch=1.5.0)](https://travis-ci.org/tonellotto/terrier-ef)
 
-This package provides Elias-Fano compression for docids, frequencies and positions in Terrier 5. At its core ([here](src/main/java/it/cnr/isti/hpclab/ef/util)), it leverages the Elias-Fano compression included in the [MG4J](http://mg4j.di.unimi.it) free full-text search engine for large document collections written in Java, and described in the [paper](https://dl.acm.org/citation.cfm?id=2433409):
+This package provides Elias-Fano compression for docids, frequencies and positions in Terrier 5. At its core, it is a refactoring of the Elias-Fano compression included in the [MG4J](http://mg4j.di.unimi.it) free full-text search engine for large document collections written in Java, and described in the [paper](https://dl.acm.org/citation.cfm?id=2433409):
 
 	@inproceedings{Vigna:2013:QI:2433396.2433409,
- 		author = {Vigna, Sebastiano},
- 		title = {Quasi-succinct Indices},
- 		booktitle = {Proceedings of the Sixth ACM International Conference on Web Search and Data Mining},
- 		series = {WSDM '13},
- 		year = {2013},
- 		isbn = {978-1-4503-1869-3},
- 		location = {Rome, Italy},
- 		pages = {83--92},
- 		numpages = {10},
- 		url = {http://doi.acm.org/10.1145/2433396.2433409},
- 		doi = {10.1145/2433396.2433409},
- 		acmid = {2433409},
- 		publisher = {ACM},
- 		address = {New York, NY, USA},
- 		keywords = {compressed indices, succinct data structures},
+		author = {Vigna, Sebastiano},
+		title = {Quasi-succinct Indices},
+		booktitle = {Proceedings of the Sixth ACM International Conference on Web Search and Data Mining},
+		series = {WSDM '13},
+		year = {2013},
+		isbn = {978-1-4503-1869-3},
+		location = {Rome, Italy},
+		pages = {83--92},
+		numpages = {10},
+		doi = {10.1145/2433396.2433409},
+		acmid = {2433409},
+		publisher = {ACM},
+		address = {New York, NY, USA},
+		keywords = {compressed indices, succinct data structures},
 	}
 
 This package is [free software](http://www.gnu.org/philosophy/free-sw.html) distributed under the [GNU Lesser General Public License](http://www.gnu.org/copyleft/lesser.html).
@@ -70,40 +69,26 @@ Then, to convert an existing index:
 
 The input index has the prefix `cw09b`. The output quasi-succinct index will have the prefix `cw09b.ef`.
 
-The `ef-convert` tools accepts the following options.
+The `ef-convert` tool accepts the following options.
 
-```
--path [String] (required)
-```
+    -path [String] (required)
 
 Path of the directory that will hold the output Terrier index.
 
-```
--prefix [String] (required)
-```
+
+    -prefix [String] (required)
 
 Prefix of the output Terrier index. If an index with the given prefix already exists, the execution will be aborted.
 
-```
--index [String] (required)
-```
+    -index [String] (required)
 
-Path of the existing Terrier index. The parameter will be split automatically into a Terrier path and prefix:
+Fully qualified filename of one of the files of a existing Terrier index. The parameter will be split automatically into a Terrier path and prefix.
 
-```
-path = FilenameUtils.getFullPath(index);
-prefix = FilenameUtils.getBaseName(index);
-```
-
-```
--b (optional)
-```
+    -b (optional)
 
 Compress positions with Elias-Fano. Default: false
 
-```
--p [Number] (optional)
-```
+    -p [Number] (optional)
 
 Number of threads to use. Anyway the maximum value will be the number of available cores. Default: 1.
 
@@ -116,5 +101,4 @@ Number of threads to use. Anyway the maximum value will be the number of availab
 
 ## Credits
 
-Developed by Nicola Tonellotto, ISTI-CNR.
-Contributions by Craig Macdonald, University of Glasgow, and Matteo Catena, ISTI-CNR.
+Developed by Nicola Tonellotto, ISTI-CNR. Contributions by Craig Macdonald, University of Glasgow, and Matteo Catena, ISTI-CNR.

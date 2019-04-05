@@ -76,7 +76,7 @@ public class EFDocumentIndex implements DocumentIndex
 	@Override
 	public DocumentIndexEntry getDocumentEntry(final int docid) throws IOException 
 	{
-		throw new RuntimeException("Shold not be invoked");
+		throw new UnsupportedOperationException("Shold not be invoked");
 	}
 
 	/** {@inheritDoc} */

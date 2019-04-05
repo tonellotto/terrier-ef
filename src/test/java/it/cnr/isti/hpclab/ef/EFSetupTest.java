@@ -56,10 +56,6 @@ public class EFSetupTest
 	protected String terrierHome;
 	protected String terrierEtc;
 	
-	public EFSetupTest() 
-	{
-	}
-	
 	@Before
 	public void makeEnvironment() throws Exception
 	{
@@ -101,11 +97,11 @@ public class EFSetupTest
 		assertTrue(Files.delete(terrierEtc + "/terrier.properties"));
 		assertTrue(Files.rename(terrierEtc+ "/terrier.properties.test", terrierEtc + "/terrier.properties"));		
 		
-		org.terrier.utility.ApplicationSetup.bootstrapInitialisation();
+		ApplicationSetup.bootstrapInitialisation();
 
-		assertEquals(terrierHome, org.terrier.utility.ApplicationSetup.TERRIER_HOME);
-		assertEquals(terrierEtc,  org.terrier.utility.ApplicationSetup.TERRIER_ETC);
-		assertEquals(terrierEtc,  org.terrier.utility.ApplicationSetup.TERRIER_INDEX_PATH);
+		assertEquals(terrierHome, ApplicationSetup.TERRIER_HOME);
+		assertEquals(terrierEtc,  ApplicationSetup.TERRIER_ETC);
+		assertEquals(terrierEtc,  ApplicationSetup.TERRIER_INDEX_PATH);
 		
 		ApplicationSetup.setProperty("stopwords.filename", System.getProperty("user.dir") + "/src/test/resources/stopword-list.txt");
 		ApplicationSetup.setProperty("termpipelines", "Stopwords,PorterStemmer");

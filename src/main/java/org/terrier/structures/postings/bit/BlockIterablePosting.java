@@ -53,7 +53,7 @@ import org.terrier.utility.ArrayUtils;
 public class BlockIterablePosting extends BasicIterablePosting implements BlockPosting
 {
 	private static final long serialVersionUID = 1L;
-	int[] positions;
+	private int[] positions;
 	/**
 	 * Constructs an instance of the BlockIterablePosting.
 	 */

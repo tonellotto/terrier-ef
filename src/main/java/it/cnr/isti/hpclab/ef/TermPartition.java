@@ -85,9 +85,12 @@ public class TermPartition implements Comparable<TermPartition>
 		if (getClass() != obj.getClass())
 			return false;
 		TermPartition other = (TermPartition) obj;
+		/*
 		if (id != other.id)
 			return false;
 		return true;
+		*/
+		return id == other.id;
 	}
 
 	@Override

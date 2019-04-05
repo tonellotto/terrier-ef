@@ -87,7 +87,7 @@ public class PositionReader
 		this.pointerSize = pointerSize;
 
 		skipPointers = new LongWordBitReader( list, pointerSize );
-		lowerBits = new LongWordBitReader( list, l );;
+		lowerBits = new LongWordBitReader( list, l );
 		lowerBitsStart = skipPointersStart + pointerSize * numberOfPointers;
 		lowerBits.position( lowerBitsStart );
 		upperBitsStart = lowerBitsStart + l * occurrency;

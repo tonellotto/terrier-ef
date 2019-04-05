@@ -109,7 +109,9 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		return rtr;
 	}
 	
-	/** {@inheritDoc} */
+	/** 
+	 * Nothing to close.
+	 */
 	@Override
 	public void close()
 	{

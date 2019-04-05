@@ -230,13 +230,13 @@ public class EFLexiconEntry extends LexiconEntry implements BitIndexPointer
 	}
 	
 	// Bunch of unnecessary methods related to the original Terrier inverted file format
-	@Override public long getOffset() 								  { throw new RuntimeException("Should not be invoked"); }
-	@Override public byte getOffsetBits() 							  { throw new RuntimeException("Should not be invoked"); }
-	@Override public void setOffset(long bytes, byte bits) 			  { throw new RuntimeException("Should not be invoked"); }
-	@Override public void setOffset(BitFilePosition pos) 			  { throw new RuntimeException("Should not be invoked"); }
-	@Override public void setBitIndexPointer(BitIndexPointer pointer) { throw new RuntimeException("Should not be invoked"); }
-	@Override public void setFileNumber(byte fileId) 				  { throw new RuntimeException("Should not be invoked"); }
-	@Override public byte getFileNumber() 							  { throw new RuntimeException("Should not be invoked"); }
+	@Override public long getOffset() 								  { throw new UnsupportedOperationException("Should not be invoked"); }
+	@Override public byte getOffsetBits() 							  { throw new UnsupportedOperationException("Should not be invoked"); }
+	@Override public void setOffset(long bytes, byte bits) 			  { throw new UnsupportedOperationException("Should not be invoked"); }
+	@Override public void setOffset(BitFilePosition pos) 			  { throw new UnsupportedOperationException("Should not be invoked"); }
+	@Override public void setBitIndexPointer(BitIndexPointer pointer) { throw new UnsupportedOperationException("Should not be invoked"); }
+	@Override public void setFileNumber(byte fileId) 				  { throw new UnsupportedOperationException("Should not be invoked"); }
+	@Override public byte getFileNumber() 							  { throw new UnsupportedOperationException("Should not be invoked"); }
 
 	/** {@inheritDoc} */
 	@Override

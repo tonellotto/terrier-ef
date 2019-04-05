@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Random;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,6 +40,7 @@ import org.terrier.structures.BasicLexiconEntry;
 import org.terrier.structures.Index;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.LexiconEntry;
+import org.terrier.structures.postings.BlockPosting;
 import org.terrier.structures.postings.IterablePosting;
 import org.terrier.structures.postings.bit.BlockIterablePosting;
 import org.terrier.utility.ApplicationSetup;
@@ -48,7 +50,6 @@ import it.cnr.isti.hpclab.ef.EliasFano;
 import it.cnr.isti.hpclab.ef.Generator;
 import it.cnr.isti.hpclab.ef.structures.EFBlockIterablePosting;
 
-@SuppressWarnings("deprecation")
 @RunWith(value = Parameterized.class)
 public class BlockIndexReadingTest extends EFSetupTest
 {
@@ -91,7 +92,7 @@ public class BlockIndexReadingTest extends EFSetupTest
 	@Test
 	public void testRandomPostingLists() throws IOException
 	{
-		it.cnr.isti.hpclab.ef.OldBlockGenerator.randomSanityCheck(originalIndex, efIndex);
+		randomSanityCheck(originalIndex, efIndex);
 	}
 	
 	@Test 
@@ -304,5 +305,61 @@ public class BlockIndexReadingTest extends EFSetupTest
 	{
 		originalIndex.close();
 		efIndex.close();
-	} 
+	}
+	
+	public static void randomSanityCheck(IndexOnDisk srcIndex, IndexOnDisk dstIndex) throws IOException 
+	{
+		Random rnd = new Random(System.currentTimeMillis());
+		int numSamples = 50 + 1 + rnd.nextInt(50);
+		System.err.println("Randomly checking " + numSamples + " terms and posting list for sanity check");
+		
+		if (srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() != dstIndex.getCollectionStatistics().getNumberOfUniqueTerms()) {
+			System.err.println("Original  index has " + srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
+			System.err.println("EliasFano index has " + dstIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
+			System.exit(-1);
+		}
+
+		Map.Entry<String, LexiconEntry> originalEntry;
+		Map.Entry<String, LexiconEntry> efEntry;
+		
+		BasicLexiconEntry ble;
+		EFLexiconEntry efle;
+
+		for (int i = 0; i < numSamples; i++) {
+			int termid = rnd.nextInt(dstIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+			
+			originalEntry = srcIndex.getLexicon().getLexiconEntry(termid);
+			efEntry       = dstIndex.getLexicon().getLexiconEntry(termid);
+						
+			ble  = (BasicLexiconEntry) originalEntry.getValue();
+			efle = (EFLexiconEntry) efEntry.getValue();
+
+			System.err.println("Checking term " + originalEntry.getKey() + " (" + originalEntry.getValue().getDocumentFrequency() + " entries), termid " + termid + " Tot pos " + originalEntry.getValue().getFrequency());
+			IterablePosting srcPosting = srcIndex.getInvertedIndex().getPostings(ble);
+			EFBlockIterablePosting dstPosting = (EFBlockIterablePosting) dstIndex.getInvertedIndex().getPostings(efle);
+						
+			while (srcPosting.next() != IterablePosting.END_OF_LIST && dstPosting.next() != IterablePosting.END_OF_LIST) {
+				if ((srcPosting.getId() != dstPosting.getId()) || (srcPosting.getFrequency() != dstPosting.getFrequency())) {
+					System.err.println("Something went wrong in random sanity check...");
+					System.exit(-1);
+				}
+				int[] srcPositions = ((BlockPosting)srcPosting).getPositions();
+				int[] dstPositions = dstPosting.getPositions();
+				
+				if (srcPositions.length != dstPositions.length) {
+					System.err.println("Something went wrong in random sanity check...");
+					System.exit(-1);
+				}
+
+				for (int j = 0; j < srcPositions.length; ++j) {
+//					System.err.println("src " + srcPositions[j] + "\tdst " + dstPositions[j]);
+					if (srcPositions[j] != dstPositions[j]) {
+						System.err.println("Something went wrong in random sanity check...");
+						System.exit(-1);
+					}
+				}
+			}
+		}
+	}
+
 }

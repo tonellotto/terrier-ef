@@ -164,7 +164,7 @@ public class Generator
 			
 			TermPartition[] partitions = generator.partition(num_threads);
 			CompressorMapper mapper = new CompressorMapper(src_index_path, src_index_prefix, dst_index_path, dst_index_prefix, args.with_pos);
-			CompressorReducer3 merger = new CompressorReducer3(dst_index_path, dst_index_prefix, args.with_pos);
+			CompressorReducer merger = new CompressorReducer(dst_index_path, dst_index_prefix, args.with_pos);
 
 			// Arrays.stream(partitions).parallel().map(mapper).sorted().reduce(merger);
 			// First we perform reassignment in parallel
@@ -296,7 +296,7 @@ public class Generator
 		// Load input index
 		IndexOnDisk src_index = Index.createIndex(src_index_path, src_index_prefix);
 		if (Index.getLastIndexLoadError() != null) {
-			throw new RuntimeException("Error loading index: " + Index.getLastIndexLoadError());
+			throw new IllegalArgumentException("Error loading index: " + Index.getLastIndexLoadError());
 		}
 		this.num_terms = src_index.getCollectionStatistics().getNumberOfUniqueTerms();
 		src_index.close();

@@ -31,18 +31,16 @@ import java.util.Map.Entry;
 import java.util.function.BinaryOperator;
 
 import org.terrier.structures.FSOMapFileLexicon;
-import org.terrier.structures.FSOMapFileLexiconOutputStream;
 import org.terrier.structures.Index;
 import org.terrier.structures.LexiconEntry;
-import org.terrier.structures.LexiconOutputStream;
 import org.terrier.structures.collections.FSOrderedMapFile;
 import org.terrier.structures.seralization.FixedSizeTextFactory;
 
 import it.cnr.isti.hpclab.ef.util.IndexUtil;
 import it.cnr.isti.hpclab.ef.structures.EFBlockLexiconEntry;
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
+import it.cnr.isti.hpclab.ef.structures.FSOMapFileAppendLexiconOutputStream;
 
-@Deprecated
 public class CompressorReducer implements BinaryOperator<TermPartition> 
 {
 	private final String dst_index_path;
@@ -79,28 +77,17 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
 						out_prefix  + EliasFano.POS_EXTENSION)
 				: 0;
 
-			// Merge lexicons (recomputing offsets)
-			LexiconOutputStream<String> los = new FSOMapFileLexiconOutputStream(dst_index_path + File.separator + out_prefix + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
-
+			// Merge lexicons (inplace t1 merge with t2 while recomputing offsets)
+			FSOMapFileAppendLexiconOutputStream los1 = new FSOMapFileAppendLexiconOutputStream(this.dst_index_path + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
+											  							   			   		   new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
+											  							   			   		   (!with_pos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory());
+			final int num_terms_1 = (int) (Files.size(Paths.get(dst_index_path + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION)) / los1.getEntrySize());
+			
 			Iterator<Entry<String, LexiconEntry>> lex_iter = null; 
 			Entry<String, LexiconEntry> lee = null;
 			FSOMapFileLexicon lex = null;
 			
-			lex = new FSOMapFileLexicon("lexicon", dst_index_path, t1.prefix(), 
-					new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
-					(!with_pos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory(),
-		    		"aligned", "default", "file");
-			lex_iter = lex.iterator();
-			
-			int num_terms = 0;
-			while (lex_iter.hasNext()) {
-				lee = lex_iter.next();
-				los.writeNextEntry(lee.getKey(), lee.getValue());
-				num_terms++;
-			}
-			
-			lex.close();
-			Files.delete(Paths.get(dst_index_path, t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
+//			Files.delete(Paths.get(dst_index_path, t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
 			
 			lex = new FSOMapFileLexicon("lexicon", dst_index_path, t2.prefix(), 
 					new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
@@ -115,23 +102,24 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
 					le.docidOffset += Byte.SIZE * docid_offset;
 					le.freqOffset  += Byte.SIZE * freq_offset;
 					le.posOffset   += Byte.SIZE * pos_offset;
-					le.termId += num_terms;
-					los.writeNextEntry(lee.getKey(), le);
+					le.termId += num_terms_1;
+					los1.writeNextEntry(lee.getKey(), le);
 				} else {
 					EFLexiconEntry le = (EFLexiconEntry) lee.getValue();
 					le.docidOffset += Byte.SIZE * docid_offset;
 					le.freqOffset  += Byte.SIZE * freq_offset;
-					le.termId += num_terms;
-					los.writeNextEntry(lee.getKey(), le);
+					le.termId += num_terms_1;
+					los1.writeNextEntry(lee.getKey(), le);
 				}
 			}
 			
 			lex.close();
-			Files.delete(Paths.get(dst_index_path, t2.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
+			los1.close();
 			
-			los.close();
+			Files.move(Paths.get(this.dst_index_path, t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION),
+					   Paths.get(this.dst_index_path, out_prefix  + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
+			Files.delete(Paths.get(dst_index_path, t2.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -148,18 +136,14 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
 		Path out_file  = Paths.get(this.dst_index_path + File.separator + out_prefix);
 
 		final long offset = Files.size(in_file_1);
-	    try (FileChannel out = FileChannel.open(out_file, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
-	        try (FileChannel in = FileChannel.open(in_file_1, StandardOpenOption.READ)) {
-	    	    for (long p = 0, l = in.size(); p < l; )
-	    	    	p += in.transferTo(p, l - p, out);
-	        }
+	    try (FileChannel out = FileChannel.open(in_file_1, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
 	        try (FileChannel in = FileChannel.open(in_file_2, StandardOpenOption.READ)) {
 	    	    for (long p = 0, l = in.size(); p < l; )
 	    	    	p += in.transferTo(p, l - p, out);
 	        }
 	    }
 	    
-	    Files.delete(in_file_1);
+		Files.move(in_file_1, out_file);
 	    Files.delete(in_file_2);
 	    return offset;
 	}

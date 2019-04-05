@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Random;
 
 import org.junit.After;
 import org.junit.Before;
@@ -81,11 +82,10 @@ public class IndexReadingTest extends EFSetupTest
 		efIndex = Index.createIndex(args[1], args[3]);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testRandomPostingLists() throws IOException
 	{
-		it.cnr.isti.hpclab.ef.OldGenerator.randomSanityCheck(originalIndex, efIndex);
+		randomSanityCheck(originalIndex, efIndex);
 	}
 
 	@Test 
@@ -222,4 +222,44 @@ public class IndexReadingTest extends EFSetupTest
 		originalIndex.close();
 		efIndex.close();
 	} 
+	
+	public static void randomSanityCheck(IndexOnDisk srcIndex, IndexOnDisk dstIndex) throws IOException 
+	{
+		Random rnd = new Random(System.currentTimeMillis());
+		int numSamples = 50 + 1 + rnd.nextInt(50);
+		System.err.println("Randomly checking " + numSamples + " terms and posting list for sanity check");
+		
+		if (srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() != dstIndex.getCollectionStatistics().getNumberOfUniqueTerms()) {
+			System.err.println("Original index has " + srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
+			System.err.println("Elias-Fano index has " + dstIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
+			System.exit(-1);
+		}
+
+		Map.Entry<String, LexiconEntry> originalEntry;
+		Map.Entry<String, LexiconEntry> efEntry;
+		
+		BasicLexiconEntry ble;
+		EFLexiconEntry efle;
+
+		for (int i = 0; i < numSamples; i++) {
+			int termid = rnd.nextInt(dstIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+			
+			originalEntry = srcIndex.getLexicon().getLexiconEntry(termid);
+			efEntry       = dstIndex.getLexicon().getLexiconEntry(termid);
+						
+			ble  = (BasicLexiconEntry) originalEntry.getValue();
+			efle = (EFLexiconEntry) efEntry.getValue();
+
+			IterablePosting srcPosting = srcIndex.getInvertedIndex().getPostings(ble);
+			IterablePosting dstPosting = dstIndex.getInvertedIndex().getPostings(efle);
+						
+			while (srcPosting.next() != IterablePosting.END_OF_LIST && dstPosting.next() != IterablePosting.END_OF_LIST) {
+				if ((srcPosting.getId() != dstPosting.getId()) || (srcPosting.getFrequency() != dstPosting.getFrequency())) {
+					System.err.println("Something went wrong in random sanity check...");
+					System.exit(-1);
+				}
+			}
+		}
+	}
+	
 }

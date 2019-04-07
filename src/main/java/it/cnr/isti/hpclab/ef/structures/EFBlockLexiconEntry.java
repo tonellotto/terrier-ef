@@ -37,9 +37,6 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	
 	/** the offsets we need */
 	public long posOffset;
-
-	/** upper bound used in Elias-Fano */
-	private long sumsMaxPos = 0l;
 	
 	/** 
 	 * Factory for creating EFBlockLexiconEntry objects
@@ -50,7 +47,7 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 		@Override
 		public int getSize() 
 		{
-			return super.getSize() + 2 * Long.BYTES;
+			return super.getSize() + 1 * Long.BYTES;
 		}
 		
 		/** {@inheritDoc} */
@@ -77,13 +74,11 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	 * @param docidOffset the bit offset of the posting list in the docid file
 	 * @param freqOffset the bit offset of the posting list in the freq file
 	 * @param posOffset the bit offset of the posting list in the positions file
-	 * @param sumsMaxPos upper bound used in Elias-Fano
 	 */
-	public EFBlockLexiconEntry(int tid, int n_t, int TF, long docidOffset, long freqOffset, long posOffset, long sumsMaxPos) 
+	public EFBlockLexiconEntry(int tid, int n_t, int TF, long docidOffset, long freqOffset, long posOffset) 
 	{
 		super(tid, n_t, TF, Integer.MAX_VALUE, docidOffset, freqOffset);
 		this.posOffset = posOffset;
-		this.sumsMaxPos = sumsMaxPos;
 	}
 	
 	/** 
@@ -98,11 +93,10 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	 * @param posOffset the bit offset of the posting list in the positions file
 	 * @param sumsMaxPos upper bound used in Elias-Fano
 	 */
-	public EFBlockLexiconEntry(int tid, int n_t, int TF, int maxtf, long docidOffset, long freqOffset, long posOffset, long sumsMaxPos) 
+	public EFBlockLexiconEntry(int tid, int n_t, int TF, int maxtf, long docidOffset, long freqOffset, long posOffset) 
 	{
 		super(tid, n_t, TF, maxtf, docidOffset, freqOffset);
 		this.posOffset = posOffset;
-		this.sumsMaxPos = sumsMaxPos;
 	}
 
 	/** {@inheritDoc} */
@@ -111,7 +105,6 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	{
 		super.readFields(in);
 		this.posOffset = in.readLong();
-		this.sumsMaxPos = in.readLong();
 	}
 	
 	/** {@inheritDoc} */
@@ -120,14 +113,13 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	{
 		super.write(out);
 		out.writeLong(this.posOffset);
-		out.writeLong(this.sumsMaxPos);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String toString()
 	{
-		return super.toString() + " [sumsMaxPos = " +  this.sumsMaxPos + " pos @ " + this.posOffset + "]";
+		return super.toString() + " [pos @ " + this.posOffset + "]";
 	}
 	
 	/**
@@ -137,14 +129,5 @@ public class EFBlockLexiconEntry extends EFLexiconEntry
 	public long getPosOffset() 
 	{
 		return this.posOffset;
-	}
-
-	/**
-	 * Return upper bound used in Elias-Fano
-	 * @return upper bound used in Elias-Fano
-	 */
-	public long getSumsMaxPos()
-	{
-		return this.sumsMaxPos;
 	}
 }

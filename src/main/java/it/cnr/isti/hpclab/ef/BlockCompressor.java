@@ -149,7 +149,7 @@ public class BlockCompressor implements Compressor
 			if (occurrency != le.getFrequency())
 				throw new IllegalStateException("Lexicon term occurencies (" + le.getFrequency() + ") different form positions-counted occurrencies (" + occurrency + ")");
 
-			los.writeNextEntry(lee.getKey(), new EFBlockLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset, posOffset, sumMaxPos));
+			los.writeNextEntry(lee.getKey(), new EFBlockLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset, posOffset));
 			// After computing sumMaxPos, we re-scan the posting list to encode the positions
 			posAccumulator.init(le.getFrequency(), le.getDocumentFrequency() + sumMaxPos, true, false, LOG2QUANTUM );
 			

@@ -95,8 +95,8 @@ Number of threads to use. Anyway the maximum value will be the number of availab
 
 ## Notes
 
-- supports (block) positions
-- does not support indices using fields
+-   supports (block) positions
+-   does not support indices using fields
 
 ## Credits
 

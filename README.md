@@ -1,5 +1,6 @@
 # Elias-Fano Compression in Terrier 5
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/96040a26dd8c40feb88311a363c747ad)](https://app.codacy.com/app/tonellotto/terrier-ef?utm_source=github.com&utm_medium=referral&utm_content=tonellotto/terrier-ef&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/tonellotto/terrier-ef.svg?branch=1.5.1)](https://travis-ci.org/tonellotto/terrier-ef)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/46373cfd8bdd4ef6904f715e6882e8d1)](https://www.codacy.com/app/tonellotto/terrier-ef?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tonellotto/terrier-ef&amp;utm_campaign=Badge_Grade)
 

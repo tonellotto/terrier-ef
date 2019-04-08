@@ -1,5 +1,6 @@
 # Elias-Fano Compression in Terrier 5
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/96040a26dd8c40feb88311a363c747ad)](https://app.codacy.com/app/tonellotto/terrier-ef?utm_source=github.com&utm_medium=referral&utm_content=tonellotto/terrier-ef&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/tonellotto/terrier-ef.svg?branch=1.5.1)](https://travis-ci.org/tonellotto/terrier-ef)
 
 This package provides Elias-Fano compression for docids, frequencies and positions in Terrier 5. At its core, it is a refactoring of the Elias-Fano compression included in the [MG4J](http://mg4j.di.unimi.it) free full-text search engine for large document collections written in Java, and described in the [paper](https://dl.acm.org/citation.cfm?id=2433409):

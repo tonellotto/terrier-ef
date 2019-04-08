@@ -82,7 +82,7 @@ public class IndexReadingTest extends EFSetupTest
 		efIndex = Index.createIndex(args[1], args[3]);
 	}
 	
-	@Test
+	@Test(expected = Test.None.class /* no exception expected */)
 	public void testRandomPostingLists() throws IOException
 	{
 		randomSanityCheck(originalIndex, efIndex);
@@ -229,11 +229,17 @@ public class IndexReadingTest extends EFSetupTest
 		int numSamples = 50 + 1 + rnd.nextInt(50);
 		System.err.println("Randomly checking " + numSamples + " terms and posting list for sanity check");
 		
+		assertEquals("Original index has " + srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms\n" + 
+					 "Elias-Fano index has " + dstIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms", 
+					 srcIndex.getCollectionStatistics().getNumberOfUniqueTerms(), dstIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+		/*
 		if (srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() != dstIndex.getCollectionStatistics().getNumberOfUniqueTerms()) {
 			System.err.println("Original index has " + srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
 			System.err.println("Elias-Fano index has " + dstIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
+			
 			System.exit(-1);
 		}
+		*/
 
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;
@@ -254,10 +260,14 @@ public class IndexReadingTest extends EFSetupTest
 			IterablePosting dstPosting = dstIndex.getInvertedIndex().getPostings(efle);
 						
 			while (srcPosting.next() != IterablePosting.END_OF_LIST && dstPosting.next() != IterablePosting.END_OF_LIST) {
+				/*
 				if ((srcPosting.getId() != dstPosting.getId()) || (srcPosting.getFrequency() != dstPosting.getFrequency())) {
 					System.err.println("Something went wrong in random sanity check...");
 					throw new IllegalStateException();
 				}
+				*/
+				assertEquals("Something went wrong in random sanity check...", srcPosting.getId(), dstPosting.getId());
+				assertEquals("Something went wrong in random sanity check...", srcPosting.getFrequency(), dstPosting.getFrequency());
 			}
 		}
 	}

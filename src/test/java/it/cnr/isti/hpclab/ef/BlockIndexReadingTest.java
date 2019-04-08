@@ -89,7 +89,7 @@ public class BlockIndexReadingTest extends EFSetupTest
 		efIndex = Index.createIndex(args[1], args[3]);
 	}
 	
-	@Test
+	@Test(expected = Test.None.class /* no exception expected */)
 	public void testRandomPostingLists() throws IOException
 	{
 		randomSanityCheck(originalIndex, efIndex);
@@ -339,24 +339,36 @@ public class BlockIndexReadingTest extends EFSetupTest
 			EFBlockIterablePosting dstPosting = (EFBlockIterablePosting) dstIndex.getInvertedIndex().getPostings(efle);
 						
 			while (srcPosting.next() != IterablePosting.END_OF_LIST && dstPosting.next() != IterablePosting.END_OF_LIST) {
+				/*
 				if ((srcPosting.getId() != dstPosting.getId()) || (srcPosting.getFrequency() != dstPosting.getFrequency())) {
 					System.err.println("Something went wrong in random sanity check...");
 					System.exit(-1);
 				}
+				*/
+				assertEquals("Something went wrong in random sanity check...", srcPosting.getId(), dstPosting.getId());
+				assertEquals("Something went wrong in random sanity check...", srcPosting.getFrequency(), dstPosting.getFrequency());
+				
 				int[] srcPositions = ((BlockPosting)srcPosting).getPositions();
 				int[] dstPositions = dstPosting.getPositions();
 				
+				/*
 				if (srcPositions.length != dstPositions.length) {
 					System.err.println("Something went wrong in random sanity check...");
-					System.exit(-1);
+					throw new IllegalStateException();
 				}
-
+				*/
+				
+				assertEquals("Something went wrong in random sanity check...", srcPositions.length, dstPositions.length);
+				
 				for (int j = 0; j < srcPositions.length; ++j) {
 //					System.err.println("src " + srcPositions[j] + "\tdst " + dstPositions[j]);
+					/*
 					if (srcPositions[j] != dstPositions[j]) {
 						System.err.println("Something went wrong in random sanity check...");
 						throw new IllegalStateException();
 					}
+					*/
+					assertEquals("Something went wrong in random sanity check...", srcPositions[j], dstPositions[j]);
 				}
 			}
 		}

@@ -115,7 +115,7 @@ public class EFSetupTest
 		if (fs != null)
 			for(File f : fs)
 				f.delete();
-		org.terrier.utility.ApplicationSetup.clearAllProperties();
+		ApplicationSetup.clearAllProperties();
 	}
 
 	

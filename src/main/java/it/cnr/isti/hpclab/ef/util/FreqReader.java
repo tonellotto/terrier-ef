@@ -79,9 +79,9 @@ public class FreqReader
 
 	public FreqReader(final LongBigList list, final long position, final long frequency, final long occurrency, final int log2Quantum) 
 	{
-		this.l = Utils.lowerBits(frequency, occurrency, true);
-		this.pointerSize = Utils.pointerSize(frequency,	occurrency, true, false);
-		numberOfPointers = Utils.numberOfPointers(frequency, -1, log2Quantum, true, false);
+		this.l = EFUtils.lowerBits(frequency, occurrency, true);
+		this.pointerSize = EFUtils.pointerSize(frequency,	occurrency, true, false);
+		numberOfPointers = EFUtils.numberOfPointers(frequency, -1, log2Quantum, true, false);
 
 		skipPointers = new LongWordBitReader(list, pointerSize);
 		lowerBits = new LongWordBitReader(list, l);

@@ -157,9 +157,9 @@ public class DocidEncoder implements Closeable
 
 		final long corrected_length = length + 1; // The length including the final terminator
 		
-		l = Utils.lowerBits(corrected_length, upper_bound, false);
-		pointer_size = Utils.pointerSize(corrected_length, upper_bound, false, true);
-		expected_number_of_pointers = Utils.numberOfPointers(corrected_length, upper_bound, log2Quantum, false, true);
+		l = EFUtils.lowerBits(corrected_length, upper_bound, false);
+		pointer_size = EFUtils.pointerSize(corrected_length, upper_bound, false, true);
+		expected_number_of_pointers = EFUtils.numberOfPointers(corrected_length, upper_bound, log2Quantum, false, true);
 		
 		lowerBitsMask = (1L << l) - 1;
 	}

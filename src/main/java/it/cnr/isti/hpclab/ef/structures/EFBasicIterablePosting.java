@@ -22,7 +22,7 @@ package it.cnr.isti.hpclab.ef.structures;
 import it.cnr.isti.hpclab.ef.util.DocidReader;
 import it.cnr.isti.hpclab.ef.util.FreqReader;
 import it.cnr.isti.hpclab.ef.util.LongWordBitReader;
-import it.cnr.isti.hpclab.ef.util.Utils;
+import it.cnr.isti.hpclab.ef.util.EFUtils;
 import it.unimi.dsi.fastutil.longs.LongBigList;
 
 import java.io.IOException;
@@ -74,11 +74,11 @@ public class EFBasicIterablePosting implements IterablePosting
 		
 		
 		// the number of lower bits for the EF encoding of a list of given length, upper bound and strictness.
-		int l = Utils.lowerBits( numEntries + 1, upperBoundDocid, false );
+		int l = EFUtils.lowerBits( numEntries + 1, upperBoundDocid, false );
 		// the size in bits of forward or skip pointers to the EF encoding of a list of given length, upper bound and strictness.
-		int pointerSize = Utils.pointerSize( numEntries + 1, upperBoundDocid, false, true );
+		int pointerSize = EFUtils.pointerSize( numEntries + 1, upperBoundDocid, false, true );
 		// the number of skip pointers to the EF encoding of a list of given length, upper bound and strictness.
-		long numberOfPointers = Utils.numberOfPointers( numEntries + 1, upperBoundDocid, log2Quantum, false, true );
+		long numberOfPointers = EFUtils.numberOfPointers( numEntries + 1, upperBoundDocid, log2Quantum, false, true );
 
 		// Reader of elements of size pointerSize
 		LongWordBitReader skipPointers = new LongWordBitReader( docidList, pointerSize );
@@ -137,7 +137,7 @@ public class EFBasicIterablePosting implements IterablePosting
 		return new BasicPostingImpl((int) currentDocument, (int) currentFrequency);
 	}
 
-	/** {@inheritDoc} */
+	/** Do nothing */
 	@Override
 	public void close() throws IOException 
 	{

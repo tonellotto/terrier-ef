@@ -160,12 +160,12 @@ public class SequenceEncoder implements Closeable
 		currentLength = 0;
 		lastOnePosition = -1;
 
-		l = Utils.lowerBits(correctedLength, upperBound, strict);
+		l = EFUtils.lowerBits(correctedLength, upperBound, strict);
 
 		lowerBitsMask = (1L << l) - 1;
 
-		pointerSize = Utils.pointerSize(correctedLength, upperBound, strict, indexZeroes);
-		expectedNumberOfPointers = Utils.numberOfPointers(correctedLength, upperBound, log2Quantum, strict, indexZeroes);
+		pointerSize = EFUtils.pointerSize(correctedLength, upperBound, strict, indexZeroes);
+		expectedNumberOfPointers = EFUtils.numberOfPointers(correctedLength, upperBound, log2Quantum, strict, indexZeroes);
 	}
 
 	/**

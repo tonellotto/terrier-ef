@@ -33,7 +33,7 @@ package it.cnr.isti.hpclab.ef.util;
 
 import it.unimi.dsi.bits.Fast;
 
-public class Utils 
+public class EFUtils 
 {
 	/** 
 	 * Returns the number of lower bits for the Elias&ndash;Fano encoding of a list of given length, upper bound and strictness.

@@ -30,7 +30,7 @@ import org.terrier.structures.postings.WritablePosting;
 
 import it.cnr.isti.hpclab.ef.util.LongWordBitReader;
 import it.cnr.isti.hpclab.ef.util.PositionReader;
-import it.cnr.isti.hpclab.ef.util.Utils;
+import it.cnr.isti.hpclab.ef.util.EFUtils;
 import it.unimi.dsi.fastutil.longs.LongBigList;
 
 /**
@@ -39,7 +39,6 @@ import it.unimi.dsi.fastutil.longs.LongBigList;
 
 public class EFBlockIterablePosting extends EFBasicIterablePosting implements BlockPosting
 {
-	private LongWordBitReader posLongWordBitReader;
 	private PositionReader posReader = null;
 	
 	private int[] currentPositions;
@@ -75,13 +74,13 @@ public class EFBlockIterablePosting extends EFBasicIterablePosting implements Bl
 	{
 		super(docidList, freqList, doi, numEntries, upperBoundDocid, upperBoundFreq, log2Quantum, docidsPosition, freqsPosition);
 		
-		posLongWordBitReader = new LongWordBitReader( posList, 0 );
+		LongWordBitReader posLongWordBitReader = new LongWordBitReader( posList, 0 );
 		posLongWordBitReader.position(posPosition);
 				
 		// the number of lower bits for the EF encoding of a list of given length, upper bound and strictness.
 		int l = (int) posLongWordBitReader.readGamma();
 		// the number of skip pointers to the EF encoding of a list of given length, upper bound and strictness.
-		long numberOfPointers = Utils.numberOfPointers( upperBoundFreq, -1, log2Quantum, true, false );
+		long numberOfPointers = EFUtils.numberOfPointers( upperBoundFreq, -1, log2Quantum, true, false );
 		// the size in bits of forward or skip pointers to the EF encoding of a list of given length, upper bound and strictness.
 		int pointerSize = (numberOfPointers == 0 ? -1 : (int) posLongWordBitReader.readNonZeroGamma());
 		

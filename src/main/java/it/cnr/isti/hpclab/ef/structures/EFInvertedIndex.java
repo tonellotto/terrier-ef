@@ -67,12 +67,12 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 
 		String byteOrderString = index.getIndexProperty(EliasFano.BYTEORDER, "");
 		ByteOrder byteOrder;
-		if (byteOrderString.equals("LITTLE_ENDIAN"))
+		if ("LITTLE_ENDIAN".equals(byteOrderString))
 			byteOrder = ByteOrder.LITTLE_ENDIAN;
-		else if (byteOrderString.equals("BIG_ENDIAN"))
+		else if ("BIG_ENDIAN".equals(byteOrderString))
 			byteOrder = ByteOrder.BIG_ENDIAN;
 		else
-			throw new RuntimeException();
+			throw new IllegalStateException();
 
 		docidsList  = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.DOCID_EXTENSION ).getChannel(), byteOrder, MapMode.READ_ONLY );
 		freqsList   = ByteBufferLongBigList.map( new FileInputStream( index.getPath() + File.separator + index.getPrefix() + EliasFano.FREQ_EXTENSION  ).getChannel(), byteOrder, MapMode.READ_ONLY );

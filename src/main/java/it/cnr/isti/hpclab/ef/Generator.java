@@ -187,7 +187,7 @@ public class Generator
 			
 			IndexOnDisk src_index = Index.createIndex(src_index_path, src_index_prefix);
 			if (Index.getLastIndexLoadError() != null) {
-				throw new RuntimeException("Error loading index: " + Index.getLastIndexLoadError());
+				throw new IllegalArgumentException("Error loading index: " + Index.getLastIndexLoadError());
 			}
 			
 			IndexOnDisk dst_index = Index.createNewIndex(dst_index_path, dst_index_prefix);
@@ -306,7 +306,7 @@ public class Generator
 			LOGGER.info("Index directory " + dst_index_path + " does not exist. It is being created.");
 			Files.createDirectories(Paths.get(dst_index_path));
 		} else if (Files.exists(Paths.get(dst_index_path + File.separator + dst_index_prefix + ".properties"))) {
-			throw new RuntimeException("Index directory " + dst_index_path + " already contains an index with prefix " + dst_index_prefix);
+			throw new IllegalArgumentException("Index directory " + dst_index_path + " already contains an index with prefix " + dst_index_prefix);
 		}		
 	}
 

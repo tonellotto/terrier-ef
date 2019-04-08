@@ -137,10 +137,11 @@ public class EFBasicIterablePosting implements IterablePosting
 		return new BasicPostingImpl((int) currentDocument, (int) currentFrequency);
 	}
 
-	/** Do nothing */
+	/** Empty method, do nothing */
 	@Override
 	public void close() throws IOException 
 	{
+		// do nothing
 	}
 
 	/** {@inheritDoc} */

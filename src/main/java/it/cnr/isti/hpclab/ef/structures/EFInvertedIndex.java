@@ -97,7 +97,7 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		
 		// Sanity check
 		if (log2Quantum == 0)
-			throw new RuntimeException();
+			throw new IllegalStateException();
 		
 		IterablePosting rtr = null;
 		if (hasPositions()) {
@@ -109,12 +109,11 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		return rtr;
 	}
 	
-	/** 
-	 * Nothing to close.
-	 */
+	/**  Empty method, nothing to close. */
 	@Override
 	public void close()
 	{
+		// do nothing
 	}
 
 	/**

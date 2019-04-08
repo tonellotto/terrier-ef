@@ -313,11 +313,17 @@ public class BlockIndexReadingTest extends EFSetupTest
 		int numSamples = 50 + 1 + rnd.nextInt(50);
 		System.err.println("Randomly checking " + numSamples + " terms and posting list for sanity check");
 		
+		assertEquals("Original index has " + srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms\n" + 
+					 "Elias-Fano index has " + dstIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms", 
+				     srcIndex.getCollectionStatistics().getNumberOfUniqueTerms(), dstIndex.getCollectionStatistics().getNumberOfUniqueTerms());
+
+		/*
 		if (srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() != dstIndex.getCollectionStatistics().getNumberOfUniqueTerms()) {
 			System.err.println("Original  index has " + srcIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
 			System.err.println("EliasFano index has " + dstIndex.getCollectionStatistics().getNumberOfUniqueTerms() + " unique terms");
 			System.exit(-1);
 		}
+		*/
 
 		Map.Entry<String, LexiconEntry> originalEntry;
 		Map.Entry<String, LexiconEntry> efEntry;

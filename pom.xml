@@ -157,6 +157,15 @@
             </program>
           </programs>
         </configuration>
+        <executions>
+            <execution>
+                <id>assemble</id>
+                <goals>
+                    <goal>assemble</goal>
+                </goals>
+            </execution>
+        </executions>
+        
       </plugin>
 
     </plugins>

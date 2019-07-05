@@ -43,21 +43,21 @@ public class DirectIndexWriter
 	public static final int ENTRY_SIZE = Long.BYTES + Long.BYTES + Integer.BYTES;
 
 	// writers
-    final DataOutputStream  dos;			
-	final LongWordBitWriter termids;
-	final LongWordBitWriter freqs;
+	protected final DataOutputStream  dos;			
+	protected final LongWordBitWriter termids;
+	protected final LongWordBitWriter freqs;
 
 	// upper bounds to use
-	final int upperBoundTermids;
-	final DocumentIndex doi;
+	protected final int upperBoundTermids;
+	protected final DocumentIndex doi;
 
 	// The sequence encoder to generate posting lists (termids)
-	final SequenceEncoder termidsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
+	protected final SequenceEncoder termidsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
 	// The sequence encoder to generate posting lists (freqs)
-	final SequenceEncoder freqsAccumulator   = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
+	protected final SequenceEncoder freqsAccumulator   = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
 
-	long termidsOffset = 0;
-	long freqsOffset = 0;
+	protected long termidsOffset = 0;
+	protected long freqsOffset = 0;
 
 
 	@SuppressWarnings("resource")

@@ -47,7 +47,8 @@ public class EFInvertedIndexIteratorTest extends EFSetupTest
 		assertNotNull(iter1);
 		assertNotNull(iter2);
 		
-		IterablePosting p1, p2;
+		IterablePosting p1;
+		IterablePosting p2;
 		while (iter1.hasNext() && iter2.hasNext()) {
 			p1 = iter1.next();
 			p2 = iter2.next();

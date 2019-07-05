@@ -49,7 +49,8 @@ public class EFLexiconIteratorTest extends EFSetupTest
 		assertNotNull(iter1);
 		assertNotNull(iter2);
 		
-		Map.Entry<String, LexiconEntry> e1, e2;
+		Map.Entry<String, LexiconEntry> e1;
+		Map.Entry<String, LexiconEntry> e2;
 		while (iter1.hasNext() && iter2.hasNext()) {
 			e1 = iter1.next();
 			e2 = iter2.next();

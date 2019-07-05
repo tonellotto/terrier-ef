@@ -15,7 +15,7 @@ import org.terrier.structures.Pointer;
  */
 public class EFDocumentIndexEntry extends DocumentIndexEntry
 {
-	final int docid;
+	protected final int docid;
 	
 	public EFDocumentIndexEntry(int docid) 
 	{

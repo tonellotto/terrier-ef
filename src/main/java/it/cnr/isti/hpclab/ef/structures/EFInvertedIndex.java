@@ -210,9 +210,10 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 		}
 
 		@Override
-		public void skip(int numEntries) throws IOException 
+		public void skip(final int numEntries) throws IOException 
 		{
-			while (numEntries-- > 0 && lexIter.hasNext())
+			int n = numEntries;
+			while (n-- > 0 && lexIter.hasNext())
 				lexIter.next();
 		}
 	}

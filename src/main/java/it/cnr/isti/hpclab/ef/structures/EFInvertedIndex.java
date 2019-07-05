@@ -1,7 +1,7 @@
 /*
  * Elias-Fano compression for Terrier 5
  *
- * Copyright (C) 2018-2018 Nicola Tonellotto 
+ * Copyright (C) 2018-2020 Nicola Tonellotto 
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -27,13 +27,18 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.Map;
 import java.io.FileInputStream;
 
 import org.terrier.structures.BitIndexPointer;
 import org.terrier.structures.DocumentIndex;
+import org.terrier.structures.FSOMapFileLexicon.MapFileLexiconIterator;
 import org.terrier.structures.IndexOnDisk;
+import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.Pointer;
 import org.terrier.structures.PostingIndex;
+import org.terrier.structures.PostingIndexInputStream;
+import org.terrier.structures.Skipable;
 import org.terrier.structures.postings.IterablePosting;
 
 /**
@@ -123,5 +128,92 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer>
 	public boolean hasPositions()
 	{
 		 return "true".equals(index.getIndexProperty(EliasFano.HAS_POSITIONS, "false"));
+	}
+	
+	public static class InputIterator implements PostingIndexInputStream, Skipable
+	{
+		private final MapFileLexiconIterator lexIter;
+		private final EFInvertedIndex invIndex;
+		private LexiconEntry currentPointer;
+		private int entriesSkipped;
+		
+		public InputIterator(final IndexOnDisk index)
+		{
+			lexIter = (MapFileLexiconIterator) index.getIndexStructureInputStream("lexicon");
+			invIndex = (EFInvertedIndex) index.getInvertedIndex();
+		}
+		
+		@Override
+		public void close() throws IOException 
+		{
+			lexIter.close();
+			invIndex.close();
+		}
+
+		@Override
+		public boolean hasNext() 
+		{
+			return lexIter.hasNext();
+		}
+
+		@Override
+		public IterablePosting next() 
+		{
+			try {
+				Map.Entry<String, LexiconEntry> e = null;
+				entriesSkipped = 0;
+				while (lexIter.hasNext()) {
+					e = lexIter.next();
+				 	if (e.getValue().getNumberOfEntries() != 0) 
+				 		break;
+				 	entriesSkipped++;
+			    }
+				if (e == null)
+					return null;
+				currentPointer = e.getValue();
+				return invIndex.getPostings(currentPointer);
+			} catch (IOException e1) {
+				return null;
+			}
+		}
+
+		@Override
+		public IterablePosting getNextPostings() throws IOException 
+		{
+			return next();
+		}
+
+		@Override
+		public int getNumberOfCurrentPostings() 
+		{
+			if (currentPointer == null)
+				return 0;
+			return currentPointer.getNumberOfEntries();
+		}
+
+		@Override
+		public Pointer getCurrentPointer() 
+		{
+			return (Pointer) currentPointer;
+		}
+
+		@Override
+		public int getEntriesSkipped() 
+		{
+			return entriesSkipped;
+		}
+
+		@Override
+		public void print() 
+		{
+			throw new UnsupportedOperationException("Shold not be invoked");
+		}
+
+		@Override
+		public void skip(int numEntries) throws IOException 
+		{
+			while (numEntries-- > 0 && lexIter.hasNext())
+				lexIter.next();
+		}
 	}
 }

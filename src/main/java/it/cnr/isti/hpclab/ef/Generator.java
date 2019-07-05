@@ -1,7 +1,7 @@
 /*
  * Elias-Fano compression for Terrier 5
  *
- * Copyright (C) 2018-2018 Nicola Tonellotto 
+ * Copyright (C) 2018-2020 Nicola Tonellotto 
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -123,7 +123,6 @@ public class Generator
 	    
 	    @Option(name = "-b", required = false, usage = "Compress positions with Elias-Fano")
 	    public boolean with_pos = false;
-
 	}
 	
 	public static void main(String[] argv)
@@ -263,6 +262,10 @@ public class Generator
 		dst_index.setIndexProperty("index.lexicon.parameter_types",  "java.lang.String,org.terrier.structures.IndexOnDisk");
 		dst_index.setIndexProperty("index.lexicon.parameter_values", "structureName,index");
 
+		dst_index.setIndexProperty("index.lexicon-inputstream.class",		     "org.terrier.structures.FSOMapFileLexicon$MapFileLexiconIterator");
+		dst_index.setIndexProperty("index.lexicon-inputstream.parameter_types",  "java.lang.String,org.terrier.structures.IndexOnDisk");
+		dst_index.setIndexProperty("index.lexicon-inputstream.parameter_values", "structureName,index");
+				
 		dst_index.setIndexProperty("index.lexicon-keyfactory.class",            "org.terrier.structures.seralization.FixedSizeTextFactory");
 		dst_index.setIndexProperty("index.lexicon-keyfactory.parameter_types",  "java.lang.String");
 		dst_index.setIndexProperty("index.lexicon-keyfactory.parameter_values", "${max.term.length}");
@@ -278,9 +281,17 @@ public class Generator
 		dst_index.setIndexProperty("index.document.parameter_types",  "org.terrier.structures.IndexOnDisk");
 		dst_index.setIndexProperty("index.document.parameter_values", "index");
 
+		dst_index.setIndexProperty("index.document-inputstream.class",            "it.cnr.isti.hpclab.ef.structures.EFDocumentIndex$InputIterator");
+		dst_index.setIndexProperty("index.document-inputstream.parameter_types",  "org.terrier.structures.IndexOnDisk");
+		dst_index.setIndexProperty("index.document-inputstream.parameter_values", "index");
+		
 		dst_index.setIndexProperty("index.inverted.class", 		      "it.cnr.isti.hpclab.ef.structures.EFInvertedIndex");
 		dst_index.setIndexProperty("index.inverted.parameter_types",  "org.terrier.structures.IndexOnDisk,org.terrier.structures.DocumentIndex");
 		dst_index.setIndexProperty("index.inverted.parameter_values", "index,document");
+		
+		dst_index.setIndexProperty("index.inverted-inputstream.class", 		      "it.cnr.isti.hpclab.ef.structures.EFInvertedIndex$InputIterator");
+		dst_index.setIndexProperty("index.inverted-inputstream.parameter_types",  "org.terrier.structures.IndexOnDisk");
+		dst_index.setIndexProperty("index.inverted-inputstream.parameter_values", "index");
 		
 		if (with_pos) {
 			dst_index.setIndexProperty(EliasFano.HAS_POSITIONS, "true");

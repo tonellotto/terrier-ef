@@ -68,6 +68,12 @@
       <scope>compile</scope>
     </dependency>
 
+    <dependency>
+      <groupId>me.tongfei</groupId>
+      <artifactId>progressbar</artifactId>
+      <version>0.7.4</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -155,6 +161,10 @@
               <mainClass>it.cnr.isti.hpclab.ef.Generator</mainClass>
               <name>ef-convert</name>
             </program>
+            <program>
+              <mainClass>it.cnr.isti.hpclab.ef.Invert2Direct</mainClass>
+              <name>ef-inv2dir</name>
+            </program>
           </programs>
         </configuration>
         <executions>
@@ -165,7 +175,6 @@
                 </goals>
             </execution>
         </executions>
-        
       </plugin>
 
     </plugins>

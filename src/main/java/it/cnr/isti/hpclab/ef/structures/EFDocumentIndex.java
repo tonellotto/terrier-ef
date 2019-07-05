@@ -1,7 +1,7 @@
 /*
  * Elias-Fano compression for Terrier 5
  *
- * Copyright (C) 2018-2018 Nicola Tonellotto 
+ * Copyright (C) 2018-2020 Nicola Tonellotto 
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -23,17 +23,23 @@ import it.cnr.isti.hpclab.ef.EliasFano;
 import it.unimi.dsi.io.InputBitStream;
 import it.unimi.dsi.io.OutputBitStream;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.apache.log4j.Logger;
+import org.terrier.structures.BitFilePosition;
+import org.terrier.structures.BitIndexPointer;
 import org.terrier.structures.DocumentIndex;
 import org.terrier.structures.DocumentIndexEntry;
 import org.terrier.structures.Index;
 //import org.terrier.structures.FSADocumentIndex;
 import org.terrier.structures.IndexOnDisk;
+import org.terrier.structures.Pointer;
 
 /**
  * New implementation of the default Terrier document index.
@@ -76,7 +82,7 @@ public class EFDocumentIndex implements DocumentIndex
 	@Override
 	public DocumentIndexEntry getDocumentEntry(final int docid) throws IOException 
 	{
-		throw new UnsupportedOperationException("Shold not be invoked");
+		return new EFDocumentIndexEntry(docid);
 	}
 
 	/** {@inheritDoc} */
@@ -119,5 +125,130 @@ public class EFDocumentIndex implements DocumentIndex
 				System.out.println(di.getDocumentLength(i));
 			}
 		}
+	}
+	
+	public static class Entry extends DocumentIndexEntry
+	{
+		private final int doc_len;
+		
+		public Entry(final int dl)
+		{
+			this.doc_len = dl;
+		}
+		
+		@Override
+		public void setBitIndexPointer(BitIndexPointer pointer) 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		@Override
+		public void setOffset(BitFilePosition pos) 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		@Override
+		public void readFields(DataInput arg0) throws IOException 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		@Override
+		public void write(DataOutput arg0) throws IOException 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");	
+		}
+
+		@Override
+		public void setNumberOfEntries(int n) 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		@Override
+		public String pointerToString() 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		@Override
+		public void setPointer(Pointer p) 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+			
+		public int getDocumentLength()
+		{
+			return doc_len;
+		}
+
+		public void setDocumentLength(int l)
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+		
+		public int getNumberOfEntries() 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		public byte getOffsetBits() 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		public long getOffset() 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		public byte getFileNumber() 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		public void setFileNumber(byte fileId)
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		public void setOffset(long _bytes, byte _bits) 
+		{
+			throw new UnsupportedOperationException("Should not be invoked");
+		}
+
+		public String toString()
+		{
+			return Integer.toString(doc_len);
+		}
+	}
+	
+	public static class InputIterator implements Iterator<DocumentIndexEntry>
+	{
+		final private DocumentIndex doi;
+		private int docid;
+		
+		public InputIterator(final IndexOnDisk index)
+		{
+			this.doi = index.getDocumentIndex();
+			this.docid = 0;
+		}
+		
+		@Override
+		public boolean hasNext() 
+		{
+			return docid < doi.getNumberOfDocuments();
+		}
+
+		@Override
+		public DocumentIndexEntry next() 
+		{
+			try {
+				return new EFDocumentIndex.Entry(doi.getDocumentLength(docid++));
+			} catch (IOException e) {
+				throw new IllegalStateException("We should not be here or move beyond the end of the document index iterator");
+			}
+		}	
 	}
 }

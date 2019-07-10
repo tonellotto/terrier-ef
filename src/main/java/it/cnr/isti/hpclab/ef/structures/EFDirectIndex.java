@@ -98,7 +98,7 @@ public class EFDirectIndex implements PostingIndex<Pointer>
 
 		long termidOffset = raf.readLong();
 		long freqOffset   = raf.readLong();
-		int pl_size 	  = raf.readInt();
+		int  pl_size 	  = raf.readInt();
 		
 		IterablePosting rtr = null;
 		//if (hasPositions()) {

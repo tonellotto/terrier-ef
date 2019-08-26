@@ -42,7 +42,7 @@ import java.nio.channels.WritableByteChannel;
 import it.unimi.dsi.bits.Fast;
 
 /**
- * This class implements a bit-oriented output stream implemented through long integers. 
+ * This class implements a bit-oriented output stream implemented through longs. 
  */
 public final class LongWordBitWriter 
 {

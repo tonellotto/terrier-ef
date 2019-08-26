@@ -54,16 +54,18 @@ public final class LongWordBitReader
 	public LongWordBitReader(final LongBigList list, final int l) 
 	{
 		assert l < Long.SIZE;
+		
 		this.list = list;
 		this.l = l;
 		this.longSizeMinusl = Long.SIZE - l;
-		mask = (1L << l) - 1;
-		curr = -1;
+		this.mask = (1L << l) - 1;
+		this.curr = -1;
 	}
 
 	public LongWordBitReader position(final long position) 
 	{
-		buffer = list.getLong(curr = position / Long.SIZE);
+		curr = position / Long.SIZE;
+		buffer = list.getLong(curr);
 		final int bitPosition = (int) (position % Long.SIZE);
 		buffer >>>= bitPosition;
 		filled = Long.SIZE - bitPosition;

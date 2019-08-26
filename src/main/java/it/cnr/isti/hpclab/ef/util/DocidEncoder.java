@@ -145,7 +145,6 @@ public class DocidEncoder implements Closeable
 		
 		this.log2_quantum = log2Quantum;
 		this.quantum     = 1L << log2Quantum;
-		this.length      = length;
 
 		pointers.clear();
 		lower_bits.clear();

@@ -65,7 +65,7 @@ public class EFUtils
 	public static int pointerSize(final long length, final long upperBound, final boolean strict, final boolean indexZeroes) 
 	{
 		// Note that if we index ones it might happen that a pointer points just after the end of the bit stream.
-		return Math.max(  0, Fast.ceilLog2( length + ( ( upperBound - ( strict ? length : 0 ) ) >>> lowerBits( length, upperBound, strict ) ) + ( indexZeroes ? 0 : 1 ) ) );
+		return Math.max(0, Fast.ceilLog2( length + ( ( upperBound - ( strict ? length : 0 ) ) >>> lowerBits( length, upperBound, strict ) ) + ( indexZeroes ? 0 : 1 ) ) );
 	}
 
 	/** 

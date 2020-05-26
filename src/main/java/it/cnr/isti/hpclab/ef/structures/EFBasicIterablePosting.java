@@ -17,12 +17,13 @@
  *  along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 package it.cnr.isti.hpclab.ef.structures;
 
 import it.cnr.isti.hpclab.ef.util.DocidReader;
+import it.cnr.isti.hpclab.ef.util.EFUtils;
 import it.cnr.isti.hpclab.ef.util.FreqReader;
 import it.cnr.isti.hpclab.ef.util.LongWordBitReader;
-import it.cnr.isti.hpclab.ef.util.EFUtils;
 import it.unimi.dsi.fastutil.longs.LongBigList;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ import org.terrier.structures.postings.WritablePosting;
 public class EFBasicIterablePosting implements IterablePosting
 {
 	private DocumentIndex doi;
-	
+
 	protected DocidReader docidReader = null;
 	protected FreqReader freqReader = null;
 	protected long currentDocument;
@@ -49,7 +50,7 @@ public class EFBasicIterablePosting implements IterablePosting
 	 * Create an empty EFBasicIterablePosting.
 	 */
 	public EFBasicIterablePosting()
-	{	
+	{
 	}
 
 	/**
@@ -74,95 +75,92 @@ public class EFBasicIterablePosting implements IterablePosting
 		
 		
 		// the number of lower bits for the EF encoding of a list of given length, upper bound and strictness.
-		int l = EFUtils.lowerBits( numEntries + 1, upperBoundDocid, false );
-		// the size in bits of forward or skip pointers to the EF encoding of a list of given length, upper bound and strictness.
-		int pointerSize = EFUtils.pointerSize( numEntries + 1, upperBoundDocid, false, true );
-		// the number of skip pointers to the EF encoding of a list of given length, upper bound and strictness.
-		long numberOfPointers = EFUtils.numberOfPointers( numEntries + 1, upperBoundDocid, log2Quantum, false, true );
+		final int l = EFUtils.lowerBits(numEntries + 1, upperBoundDocid, false);
+		// the size in bits of forward or skip pointers to the EF encoding of a list of
+		// given length, upper bound and strictness.
+		final int pointerSize = EFUtils.pointerSize(numEntries + 1, upperBoundDocid, false, true);
+		// the number of skip pointers to the EF encoding of a list of given length,
+		// upper bound and strictness.
+		final long numberOfPointers = EFUtils.numberOfPointers(numEntries + 1, upperBoundDocid, log2Quantum, false,
+				true);
 
 		// Reader of elements of size pointerSize
-		LongWordBitReader skipPointers = new LongWordBitReader( docidList, pointerSize );
+		final LongWordBitReader skipPointers = new LongWordBitReader(docidList, pointerSize);
 		// Reader of elements of size l
-		LongWordBitReader lowerBits = new LongWordBitReader( docidList, l );
+		final LongWordBitReader lowerBits = new LongWordBitReader(docidList, l);
 
-		long skipPointersStart = docidsPosition;
+		final long skipPointersStart = docidsPosition;
 		// Where to start reading the lower bits array
-		long lowerBitsStart = skipPointersStart + pointerSize * numberOfPointers;
-		lowerBits.position( lowerBitsStart ); 						
-				
-		this.docidReader = new DocidReader( docidList, lowerBits, lowerBitsStart, l, skipPointers, skipPointersStart, numberOfPointers, pointerSize, numEntries, log2Quantum );
+		final long lowerBitsStart = skipPointersStart + pointerSize * numberOfPointers;
+		lowerBits.position(lowerBitsStart);
+
+		this.docidReader = new DocidReader(docidList, lowerBits, lowerBitsStart, l, skipPointers, skipPointersStart,
+				numberOfPointers, pointerSize, numEntries, log2Quantum);
 		currentDocument = -2;
-		
-		this.freqReader = new FreqReader( freqList, freqsPosition, numEntries, upperBoundFreq, log2Quantum );
+
+		this.freqReader = new FreqReader(freqList, freqsPosition, numEntries, upperBoundFreq, log2Quantum);
 		currentFrequency = 0;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
-	public int getId() 
-	{
+	public int getId() {
 		return (int) currentDocument;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public int getFrequency() 
-	{
+	public int getFrequency() {
 		return (int) currentFrequency;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public int getDocumentLength() 
-	{
+	public int getDocumentLength() {
 		try {
 			return doi.getDocumentLength((int) currentDocument);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new IllegalStateException(e);
 		}
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void setId(int id) 
-	{
+	public void setId(final int id) {
 		throw new UnsupportedOperationException();
-		
+
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public WritablePosting asWritablePosting() 
-	{
+	public WritablePosting asWritablePosting() {
 		return new BasicPostingImpl((int) currentDocument, (int) currentFrequency);
 	}
 
 	/** Empty method, do nothing */
 	@Override
-	public void close() throws IOException 
-	{
+	public void close() throws IOException {
 		// do nothing
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public int next() throws IOException 
-	{
-		if ( currentDocument == IterablePosting.END_OF_LIST ) 
+	public int next() throws IOException {
+		if (currentDocument == IterablePosting.END_OF_LIST)
 			return IterablePosting.END_OF_LIST;
 
-		if ( ( currentDocument = docidReader.getNextPrefixSum() ) >= N ) {
+		if ((currentDocument = docidReader.getNextPrefixSum()) >= N) {
 			currentDocument = IterablePosting.END_OF_LIST;
 		} else {
-			currentFrequency = freqReader.getLong( docidReader.currentIndex - 1 );
+			currentFrequency = freqReader.getLong(docidReader.currentIndex - 1);
 		}
-		
-		return (int) currentDocument;	
+
+		return (int) currentDocument;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public int next(int targetId) throws IOException 
+	public int next(final int targetId) throws IOException 
 	{
 		if ( targetId >= N ) 
 			return (int) (currentDocument = IterablePosting.END_OF_LIST);

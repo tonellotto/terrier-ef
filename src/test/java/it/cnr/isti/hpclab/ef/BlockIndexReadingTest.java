@@ -46,8 +46,6 @@ import org.terrier.structures.postings.bit.BlockIterablePosting;
 import org.terrier.utility.ApplicationSetup;
 
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
-import it.cnr.isti.hpclab.ef.EliasFano;
-import it.cnr.isti.hpclab.ef.Generator;
 import it.cnr.isti.hpclab.ef.structures.EFBlockIterablePosting;
 
 @RunWith(value = Parameterized.class)

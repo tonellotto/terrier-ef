@@ -48,142 +48,140 @@ import it.cnr.isti.hpclab.ef.util.SequenceEncoder;
  * All lexicon entries have offsets aligned to this portion of the whole index only, and the docis/freqs/pos files are closed at the end, so such files are byte-aligned.
  * This must be taken into account when merging.
  */
-public class BlockCompressor implements Compressor
+public class BlockCompressor extends Compressor
 {
-	protected static final Logger LOGGER = LoggerFactory.getLogger(BlockCompressor.class);
-	protected static final int DEFAULT_CACHE_SIZE = 64 * 1024 * 1024;
+    protected static final Logger LOGGER = LoggerFactory.getLogger(BlockCompressor.class);
+    protected static final int DEFAULT_CACHE_SIZE = 64 * 1024 * 1024;
 
-	protected int LOG2QUANTUM;
-	
-	protected final String dst_index_path;
-	protected final String dst_index_prefix;
-	
-	protected final Index src_index;
-	protected final int num_docs;
+    protected int LOG2QUANTUM;
+    
+    protected final String dst_index_path;
+    protected final String dst_index_prefix;
+    
+    protected final Index src_index;
+    protected final int num_docs;
 
-	public BlockCompressor(final Index src_index, final String dst_index_path, final String dst_index_prefix)
-	{
-		this(src_index, dst_index_path, dst_index_prefix, Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8")));
-	}
-	
-	public BlockCompressor(final Index src_index, final String dst_index_path, final String dst_index_prefix, final int log2quantum)
-	{
-		this.dst_index_path = dst_index_path;
-		this.dst_index_prefix = dst_index_prefix;
-		
-		if (Index.existsIndex(dst_index_path, dst_index_prefix)) {
-			LOGGER.error("Cannot compress index while an index already exists at " + dst_index_path + ", " + dst_index_prefix);
-			this.src_index = null;
-			this.num_docs = 0;
-			return;
-		}		
-		this.src_index = src_index;		
-		this.num_docs = src_index.getCollectionStatistics().getNumberOfDocuments();
-		
-		this.LOG2QUANTUM = log2quantum;
-	}
-	
-	@SuppressWarnings("resource")
-	@Override
-	public void compress(final TermPartition terms) throws IOException
-	{
-		final int begin_term_id = terms.begin;
-		final int end_term_id = terms.end;
-		
-		if (begin_term_id >= end_term_id || begin_term_id < 0 || end_term_id > src_index.getCollectionStatistics().getNumberOfUniqueTerms()) {
-			LOGGER.error("Something wrong with termids, begin = " + begin_term_id + ", end = " + end_term_id);
-			return;
-		}
+    public BlockCompressor(final Index src_index, final String dst_index_path, final String dst_index_prefix)
+    {
+        this(src_index, dst_index_path, dst_index_prefix, Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8")));
+    }
+    
+    public BlockCompressor(final Index src_index, final String dst_index_path, final String dst_index_prefix, final int log2quantum)
+    {
+        this.dst_index_path = dst_index_path;
+        this.dst_index_prefix = dst_index_prefix;
+        
+        if (Index.existsIndex(dst_index_path, dst_index_prefix)) {
+            LOGGER.error("Cannot compress index while an index already exists at " + dst_index_path + ", " + dst_index_prefix);
+            this.src_index = null;
+            this.num_docs = 0;
+            return;
+        }        
+        this.src_index = src_index;        
+        this.num_docs = src_index.getCollectionStatistics().getNumberOfDocuments();
+        
+        this.LOG2QUANTUM = log2quantum;
+    }
+    
+    @SuppressWarnings("resource")
+    @Override
+    public void compress(final TermPartition terms) throws IOException
+    {
+        // final int begin_term_pos = terms.begin();
+        // final int end_term_pos = terms.end();
+        
+        if (terms.begin() >= terms.end() || terms.begin() < 0 || terms.end() > src_index.getCollectionStatistics().getNumberOfUniqueTerms()) {
+            LOGGER.error("Something wrong with term positions, begin = " + terms.begin() + ", end = " + terms.end());
+            return;
+        }
 
-		// opening src index lexicon iterator and moving to the begin termid
-		Iterator<Entry<String, LexiconEntry>> lex_iter = src_index.getLexicon().iterator();
-		Entry<String, LexiconEntry> lee = null;
-		while (lex_iter.hasNext()) {
-			lee = lex_iter.next();
-			if (lee.getValue().getTermId() == begin_term_id)
-				break;
-		}
+        // opening src index lexicon iterator and moving to the begin termid
+        Iterator<Entry<String, LexiconEntry>> lex_iter = src_index.getLexicon().iterator();
+        Entry<String, LexiconEntry> lee = null;
+        for (int pos = -1; pos < terms.begin(); pos++)
+            lee = lex_iter.next();
 
-		// writers
-		LexiconOutputStream<String> los    = new FSOMapFileLexiconOutputStream(         dst_index_path + File.separator + terms.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
-		LongWordBitWriter           docids = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.DOCID_EXTENSION).getChannel(), ByteOrder.nativeOrder());
-		LongWordBitWriter           freqs  = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.FREQ_EXTENSION).getChannel(), ByteOrder.nativeOrder());
-		LongWordBitWriter           pos    = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.POS_EXTENSION).getChannel(), ByteOrder.nativeOrder());
-		
-		// The sequence encoder to generate posting lists (docids)
-		SequenceEncoder docidsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
-		// The sequence encoder to generate posting lists (freqs)
-		SequenceEncoder freqsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
-		// The sequence encoder to generate posting lists (positions)
-		SequenceEncoder posAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
-				
-		long docidsOffset = 0;
-		long freqsOffset = 0;
-		long posOffset = 0;
-		
-		LexiconEntry le = null;
-		IterablePosting p = null;
-		
-		int local_termid = 0;
-		
-		while (!stop(lee, end_term_id)) {
-			le = lee.getValue();
-			p = src_index.getInvertedIndex().getPostings((BitIndexPointer)le);
-			
-			docidsAccumulator.init( le.getDocumentFrequency(), num_docs, false, true, LOG2QUANTUM );
-			freqsAccumulator.init(  le.getDocumentFrequency(), le.getFrequency(), true, false, LOG2QUANTUM );
-			
-			long sumMaxPos = 0; // in the first pass, we need to compute the upper bound to encode positions
-			long occurrency = 0; // Do not trust le.getFrequency() because of block max limit!
-			
-			long lastDocid = 0;
-			while (p.next() != IterablePosting.END_OF_LIST) {
-				docidsAccumulator.add( p.getId() - lastDocid );
-				lastDocid = p.getId();
-				freqsAccumulator.add(p.getFrequency());
-				sumMaxPos += ((BlockPosting)p).getPositions()[((BlockPosting)p).getPositions().length - 1];
-				occurrency += ((BlockPosting)p).getPositions().length;
-			}
-			p.close();
-			
-			if (occurrency != le.getFrequency())
-				throw new IllegalStateException("Lexicon term occurencies (" + le.getFrequency() + ") different form positions-counted occurrencies (" + occurrency + ")");
+        // writers
+        LexiconOutputStream<String> los    = new FSOMapFileLexiconOutputStream(         dst_index_path + File.separator + terms.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
+        LongWordBitWriter           docids = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.DOCID_EXTENSION).getChannel(), ByteOrder.nativeOrder());
+        LongWordBitWriter           freqs  = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.FREQ_EXTENSION).getChannel(), ByteOrder.nativeOrder());
+        LongWordBitWriter           pos    = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.POS_EXTENSION).getChannel(), ByteOrder.nativeOrder());
+        
+        // The sequence encoder to generate posting lists (docids)
+        SequenceEncoder docidsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
+        // The sequence encoder to generate posting lists (freqs)
+        SequenceEncoder freqsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
+        // The sequence encoder to generate posting lists (positions)
+        SequenceEncoder posAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
+                
+        long docidsOffset = 0;
+        long freqsOffset = 0;
+        long posOffset = 0;
+        
+        LexiconEntry le = null;
+        IterablePosting p = null;
+        
+        int local_termid = 0;
+        
+        while (!stop(lee, terms.end() - terms.begin())) {
+            le = lee.getValue();
+            p = src_index.getInvertedIndex().getPostings((BitIndexPointer)le);
+            
+            docidsAccumulator.init( le.getDocumentFrequency(), num_docs, false, true, LOG2QUANTUM );
+            freqsAccumulator.init(  le.getDocumentFrequency(), le.getFrequency(), true, false, LOG2QUANTUM );
+            
+            long sumMaxPos = 0; // in the first pass, we need to compute the upper bound to encode positions
+            long occurrency = 0; // Do not trust le.getFrequency() because of block max limit!
+            
+            long lastDocid = 0;
+            while (p.next() != IterablePosting.END_OF_LIST) {
+                docidsAccumulator.add( p.getId() - lastDocid );
+                lastDocid = p.getId();
+                freqsAccumulator.add(p.getFrequency());
+                sumMaxPos += ((BlockPosting)p).getPositions()[((BlockPosting)p).getPositions().length - 1];
+                occurrency += ((BlockPosting)p).getPositions().length;
+            }
+            p.close();
+            
+            if (occurrency != le.getFrequency())
+                throw new IllegalStateException("Lexicon term occurencies (" + le.getFrequency() + ") different form positions-counted occurrencies (" + occurrency + ")");
 
-			los.writeNextEntry(lee.getKey(), new EFBlockLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset, posOffset));
-			// After computing sumMaxPos, we re-scan the posting list to encode the positions
-			posAccumulator.init(le.getFrequency(), le.getDocumentFrequency() + sumMaxPos, true, false, LOG2QUANTUM );
-			
-			p = src_index.getInvertedIndex().getPostings((BitIndexPointer)le);
-			
-			int[] positions = null;
-			while (p.next() != IterablePosting.END_OF_LIST) {
-				positions = ((BlockPosting)p).getPositions();
-				posAccumulator.add(1 + positions[0]);
-				for (int i = 1; i < positions.length; i++)
-					posAccumulator.add(positions[i] - positions[i-1]);
-			}
-			p.close();
-			
-			docidsOffset += docidsAccumulator.dump(docids);		
-			freqsOffset  += freqsAccumulator.dump(freqs);
-			
-			// Firstly we write decoding limits info
-			posOffset += pos.writeGamma(posAccumulator.lowerBits());
-			posOffset += posAccumulator.numberOfPointers() == 0 ? 0 : pos.writeNonZeroGamma( posAccumulator.pointerSize() );
-			// Secondly we dump the EF representation of the position encoding
-			posOffset += posAccumulator.dump(pos);
+            los.writeNextEntry(lee.getKey(), new EFBlockLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset, posOffset));
+            // After computing sumMaxPos, we re-scan the posting list to encode the positions
+            posAccumulator.init(le.getFrequency(), le.getDocumentFrequency() + sumMaxPos, true, false, LOG2QUANTUM );
+            
+            p = src_index.getInvertedIndex().getPostings((BitIndexPointer)le);
+            
+            int[] positions = null;
+            while (p.next() != IterablePosting.END_OF_LIST) {
+                positions = ((BlockPosting)p).getPositions();
+                posAccumulator.add(1 + positions[0]);
+                for (int i = 1; i < positions.length; i++)
+                    posAccumulator.add(positions[i] - positions[i-1]);
+            }
+            p.close();
+            
+            docidsOffset += docidsAccumulator.dump(docids);        
+            freqsOffset  += freqsAccumulator.dump(freqs);
+            
+            // Firstly we write decoding limits info
+            posOffset += pos.writeGamma(posAccumulator.lowerBits());
+            posOffset += posAccumulator.numberOfPointers() == 0 ? 0 : pos.writeNonZeroGamma( posAccumulator.pointerSize() );
+            // Secondly we dump the EF representation of the position encoding
+            posOffset += posAccumulator.dump(pos);
 
-			local_termid += 1;
-		
-			lee = lex_iter.hasNext() ? lex_iter.next() : null;
-		} 
-				
-		docidsAccumulator.close();
-		docids.close();
-		freqsAccumulator.close();
-		freqs.close();
-		posAccumulator.close();
-		pos.close();
-		los.close();
-	}
+            local_termid += 1;
+        
+            lee = lex_iter.hasNext() ? lex_iter.next() : null;
+            super.cnt++;
+        } 
+                
+        docidsAccumulator.close();
+        docids.close();
+        freqsAccumulator.close();
+        freqs.close();
+        posAccumulator.close();
+        pos.close();
+        los.close();
+    }
 }

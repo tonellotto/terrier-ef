@@ -74,7 +74,6 @@ public class EFInvertedIndexIteratorTest extends EFSetupTest
 			assertTrue(actual.next() == IterablePosting.EOL);
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }

@@ -7,7 +7,7 @@ import org.terrier.structures.LexiconEntry;
 
 public abstract class Compressor 
 {
-    protected int cnt = 0;
+    protected int written_terms = 0;
     
     abstract void compress(final TermPartition terms) throws IOException;
     
@@ -20,7 +20,7 @@ public abstract class Compressor
     
     final boolean stop(final Entry<String, LexiconEntry> lee, final int len)
     {
-        return (lee == null || cnt >= len);
+        return (lee == null || written_terms >= len);
     }
 
 }

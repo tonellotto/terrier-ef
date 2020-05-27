@@ -81,7 +81,7 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
             FSOMapFileAppendLexiconOutputStream los1 = new FSOMapFileAppendLexiconOutputStream(this.dst_index_path + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
                                                                                                        new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
                                                                                                        (!with_pos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory());
-            final int num_terms_1 = (int) (Files.size(Paths.get(dst_index_path + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION)) / los1.getEntrySize());
+            // final int num_terms_1 = (int) (Files.size(Paths.get(dst_index_path + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION)) / los1.getEntrySize());
             
             Iterator<Entry<String, LexiconEntry>> lex_iter = null; 
             Entry<String, LexiconEntry> lee = null;
@@ -102,13 +102,13 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
                     le.docidOffset += Byte.SIZE * docid_offset;
                     le.freqOffset  += Byte.SIZE * freq_offset;
                     le.posOffset   += Byte.SIZE * pos_offset;
-                    le.termId += num_terms_1;
+                    // le.termId += num_terms_1;
                     los1.writeNextEntry(lee.getKey(), le);
                 } else {
                     EFLexiconEntry le = (EFLexiconEntry) lee.getValue();
                     le.docidOffset += Byte.SIZE * docid_offset;
                     le.freqOffset  += Byte.SIZE * freq_offset;
-                    le.termId += num_terms_1;
+                    // le.termId += num_terms_1;
                     los1.writeNextEntry(lee.getKey(), le);
                 }
             }

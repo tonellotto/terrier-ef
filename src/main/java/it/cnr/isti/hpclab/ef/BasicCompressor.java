@@ -116,13 +116,14 @@ public class BasicCompressor extends Compressor
         LexiconEntry le = null;
         IterablePosting p = null;
         
-        int local_termid = 0;
+        // int local_termid = 0;
         
         while (!stop(lee, terms.end() - terms.begin())) {
             le = lee.getValue();
             p = src_index.getInvertedIndex().getPostings((BitIndexPointer)lee.getValue());
             
-            los.writeNextEntry(lee.getKey(), new EFLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset));
+            // los.writeNextEntry(lee.getKey(), new EFLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset));
+            los.writeNextEntry(lee.getKey(), new EFLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset));
 
             docidsAccumulator.init( le.getDocumentFrequency(), num_docs, false, true, LOG2QUANTUM );
             freqsAccumulator.init(  le.getDocumentFrequency(), le.getFrequency(), true, false, LOG2QUANTUM );
@@ -136,11 +137,11 @@ public class BasicCompressor extends Compressor
                         
             docidsOffset += docidsAccumulator.dump(docids);
             freqsOffset  += freqsAccumulator.dump(freqs);
-            local_termid += 1;
+            // local_termid += 1;
             p.close();
             
             lee = lex_iter.hasNext() ? lex_iter.next() : null;
-            super.cnt++;
+            super.written_terms++;
         } 
                 
         docidsAccumulator.close();

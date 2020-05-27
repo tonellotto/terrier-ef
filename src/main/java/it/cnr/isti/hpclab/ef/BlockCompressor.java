@@ -121,7 +121,7 @@ public class BlockCompressor extends Compressor
         LexiconEntry le = null;
         IterablePosting p = null;
         
-        int local_termid = 0;
+        // int local_termid = 0;
         
         while (!stop(lee, terms.end() - terms.begin())) {
             le = lee.getValue();
@@ -146,7 +146,8 @@ public class BlockCompressor extends Compressor
             if (occurrency != le.getFrequency())
                 throw new IllegalStateException("Lexicon term occurencies (" + le.getFrequency() + ") different form positions-counted occurrencies (" + occurrency + ")");
 
-            los.writeNextEntry(lee.getKey(), new EFBlockLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset, posOffset));
+            // los.writeNextEntry(lee.getKey(), new EFBlockLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset, posOffset));
+            los.writeNextEntry(lee.getKey(), new EFBlockLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset, posOffset));
             // After computing sumMaxPos, we re-scan the posting list to encode the positions
             posAccumulator.init(le.getFrequency(), le.getDocumentFrequency() + sumMaxPos, true, false, LOG2QUANTUM );
             
@@ -161,7 +162,7 @@ public class BlockCompressor extends Compressor
             }
             p.close();
             
-            docidsOffset += docidsAccumulator.dump(docids);        
+            docidsOffset += docidsAccumulator.dump(docids);
             freqsOffset  += freqsAccumulator.dump(freqs);
             
             // Firstly we write decoding limits info
@@ -170,10 +171,10 @@ public class BlockCompressor extends Compressor
             // Secondly we dump the EF representation of the position encoding
             posOffset += posAccumulator.dump(pos);
 
-            local_termid += 1;
+            // local_termid += 1;
         
             lee = lex_iter.hasNext() ? lex_iter.next() : null;
-            super.cnt++;
+            super.written_terms++;
         } 
                 
         docidsAccumulator.close();

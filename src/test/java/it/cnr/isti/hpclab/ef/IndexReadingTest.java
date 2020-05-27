@@ -61,8 +61,8 @@ public class IndexReadingTest extends EFSetupTest
     @Parameters
     public static Collection<Object[]> getParameters()
     {
-        return Arrays.asList(new Object[][] { {3, 2} });
-        // return Arrays.asList(new Object[][] { {1,2}, {1,3}, {1,4}, {2,2}, {2,3}, {2,4}, {3,2}, {3,3}, {3,4}});
+        // return Arrays.asList(new Object[][] { {3, 2} });
+        return Arrays.asList(new Object[][] { {1,2}, {1,3}, {1,4}, {2,2}, {2,3}, {2,4}, {3,2}, {3,3}, {3,4}});
     }
     
     @Before 

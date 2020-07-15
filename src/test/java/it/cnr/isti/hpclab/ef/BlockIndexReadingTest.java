@@ -76,7 +76,7 @@ public class BlockIndexReadingTest extends EFSetupTest
 		ApplicationSetup.BLOCK_INDEXING = true;
 		// ApplicationSetup.MAX_BLOCKS = 2;
 		super.doShakespeareIndexing();
-		originalIndex = Index.createIndex();
+		originalIndex = IndexOnDisk.createIndex();
 		
 		String args[] = {"-path", originalIndex.getPath(), "-prefix", originalIndex.getPrefix() + ".ef", "-index", originalIndex.getPath() + File.separator + originalIndex.getPrefix() + ".properties", "-p", Integer.toString(parallelism), "-b"};
 
@@ -84,7 +84,7 @@ public class BlockIndexReadingTest extends EFSetupTest
 
 		Generator.main(args);
 		
-		efIndex = Index.createIndex(args[1], args[3]);
+		efIndex = IndexOnDisk.createIndex(args[1], args[3]);
 	}
 	
 	@Test(expected = Test.None.class /* no exception expected */)

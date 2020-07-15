@@ -25,7 +25,7 @@ public class EFDocumentIndexTest extends EFSetupTest
 	public void createIndex() throws Exception
 	{
 		super.doShakespeareIndexing();
-		originalIndex = Index.createIndex();
+		originalIndex = IndexOnDisk.createIndex();
 		
 		String args[] = {"-path", originalIndex.getPath(), "-prefix", originalIndex.getPrefix() + ".ef", "-index", originalIndex.getPath() + File.separator + originalIndex.getPrefix() + ".properties", "-p", Integer.toString(1)};
 
@@ -33,7 +33,7 @@ public class EFDocumentIndexTest extends EFSetupTest
 
 		Generator.main(args);
 		
-		efIndex = Index.createIndex(args[1], args[3]);
+		efIndex = IndexOnDisk.createIndex(args[1], args[3]);
 	}
 
 	@Test

@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.terrier.structures.BitIndexPointer;
 import org.terrier.structures.FSOMapFileLexiconOutputStream;
 import org.terrier.structures.Index;
+import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.LexiconOutputStream;
 import org.terrier.structures.collections.FSOrderedMapFile;
@@ -71,7 +72,7 @@ public class BlockCompressor extends Compressor
         this.dst_index_path = dst_index_path;
         this.dst_index_prefix = dst_index_prefix;
         
-        if (Index.existsIndex(dst_index_path, dst_index_prefix)) {
+        if (IndexOnDisk.existsIndex(dst_index_path, dst_index_prefix)) {
             LOGGER.error("Cannot compress index while an index already exists at " + dst_index_path + ", " + dst_index_prefix);
             this.src_index = null;
             this.num_docs = 0;

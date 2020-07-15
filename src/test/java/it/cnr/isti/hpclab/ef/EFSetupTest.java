@@ -40,6 +40,7 @@ import org.junit.rules.TemporaryFolder;
 import org.terrier.applications.BatchIndexing;
 import org.terrier.applications.TRECIndexingSinglePass;
 import org.terrier.structures.Index;
+import org.terrier.structures.IndexOnDisk;
 import org.terrier.utility.ApplicationSetup;
 import org.terrier.utility.Files;
 
@@ -198,9 +199,9 @@ public class EFSetupTest
 		assertEquals(prefix, ApplicationSetup.TERRIER_INDEX_PREFIX);
 		
 		//check that indexing actually created an index
-		assertTrue("Index does not exist at ["+ApplicationSetup.TERRIER_INDEX_PATH+","+ApplicationSetup.TERRIER_INDEX_PREFIX+"]", Index.existsIndex(ApplicationSetup.TERRIER_INDEX_PATH, ApplicationSetup.TERRIER_INDEX_PREFIX));
-		Index i = Index.createIndex();
-		assertNotNull(Index.getLastIndexLoadError(), i);
+		assertTrue("Index does not exist at ["+ApplicationSetup.TERRIER_INDEX_PATH+","+ApplicationSetup.TERRIER_INDEX_PREFIX+"]", IndexOnDisk.existsIndex(ApplicationSetup.TERRIER_INDEX_PATH, ApplicationSetup.TERRIER_INDEX_PREFIX));
+		Index i = IndexOnDisk.createIndex();
+		assertNotNull(IndexOnDisk.getLastIndexLoadError(), i);
 		assertTrue("Index does not have an inverted structure", i.hasIndexStructure("inverted"));
 		assertTrue("Index does not have an lexicon structure", i.hasIndexStructure("lexicon"));
 		assertTrue("Index does not have an document structure", i.hasIndexStructure("document"));

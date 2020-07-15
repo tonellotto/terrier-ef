@@ -50,7 +50,7 @@ public class EFDirectIndexTest extends EFSetupTest
 	{
 		System.setProperty("inverted2direct.processtokens", "1000");
 		super.doShakespeareIndexing();
-		originalIndex = Index.createIndex();
+		originalIndex = IndexOnDisk.createIndex();
 		
 		String[] args = {"-path", originalIndex.getPath(), "-prefix", originalIndex.getPrefix() + ".ef", "-index", originalIndex.getPath() + File.separator + originalIndex.getPrefix() + ".properties", "-p", Integer.toString(1)};
 
@@ -58,7 +58,7 @@ public class EFDirectIndexTest extends EFSetupTest
 
 		Generator.main(args);
 		
-		efIndex = Index.createIndex(args[1], args[3]);
+		efIndex = IndexOnDisk.createIndex(args[1], args[3]);
 		
 		String[] args1 = {"-index",  originalIndex.getPath() + File.separator + originalIndex.getPrefix() + ".properties"};
 		Invert2Direct.main(args1);
@@ -70,8 +70,8 @@ public class EFDirectIndexTest extends EFSetupTest
 		efIndex.close();
 		
 		// to load the new properties
-		originalIndex = Index.createIndex();
-		efIndex = Index.createIndex(args[1], args[3]);
+		originalIndex = IndexOnDisk.createIndex();
+		efIndex = IndexOnDisk.createIndex(args[1], args[3]);
 	}
 	
 	@After

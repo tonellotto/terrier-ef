@@ -187,16 +187,16 @@ public class Generator
             // Eventually, we rename the last merge
             IndexUtil.renameIndex(args.path, last_partition.prefix(), dst_index_path, dst_index_prefix);
             
-            IndexOnDisk src_index = Index.createIndex(src_index_path, src_index_prefix);
-            if (Index.getLastIndexLoadError() != null) {
-                throw new IllegalArgumentException("Error loading index: " + Index.getLastIndexLoadError());
+            IndexOnDisk src_index = IndexOnDisk.createIndex(src_index_path, src_index_prefix);
+            if (IndexOnDisk.getLastIndexLoadError() != null) {
+                throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
             }
             
-            IndexOnDisk dst_index = Index.createNewIndex(dst_index_path, dst_index_prefix);
+            IndexOnDisk dst_index = IndexOnDisk.createNewIndex(dst_index_path, dst_index_prefix);
             dst_index.close();
-            dst_index = Index.createIndex(dst_index_path, dst_index_prefix);
-            if (Index.getLastIndexLoadError() != null) {
-                throw new IllegalArgumentException("Error loading index: " + Index.getLastIndexLoadError());
+            dst_index = IndexOnDisk.createIndex(dst_index_path, dst_index_prefix);
+            if (IndexOnDisk.getLastIndexLoadError() != null) {
+                throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
             }
             
             EFDocumentIndex.write((org.terrier.structures.DocumentIndex) src_index.getDocumentIndex(), dst_index_path + File.separator + dst_index_prefix + ".sizes");
@@ -325,9 +325,9 @@ public class Generator
     public Generator(final String src_index_path, final String src_index_prefix, final String dst_index_path, final String dst_index_prefix) throws Exception 
     {    
         // Load input index
-        IndexOnDisk src_index = Index.createIndex(src_index_path, src_index_prefix);
-        if (Index.getLastIndexLoadError() != null) {
-            throw new IllegalArgumentException("Error loading index: " + Index.getLastIndexLoadError());
+        IndexOnDisk src_index = IndexOnDisk.createIndex(src_index_path, src_index_prefix);
+        if (IndexOnDisk.getLastIndexLoadError() != null) {
+            throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
         }
         this.num_terms = src_index.getCollectionStatistics().getNumberOfUniqueTerms();
         src_index.close();

@@ -115,10 +115,10 @@ public class EFDocumentIndex implements DocumentIndex
 	
 	public static void main(String[] args) throws IOException
 	{
-		Index.setIndexLoadingProfileAsRetrieval(false);
-		Index idx = Index.createIndex();
+		IndexOnDisk.setIndexLoadingProfileAsRetrieval(false);
+		IndexOnDisk idx = IndexOnDisk.createIndex();
 		if (idx == null) {
-			LOGGER.error("No such index : "+ Index.getLastIndexLoadError());				
+			LOGGER.error("No such index : "+ IndexOnDisk.getLastIndexLoadError());				
 		} else {
 			DocumentIndex di = new EFDocumentIndex((IndexOnDisk) idx);
 			for (int i = 0; i < di.getNumberOfDocuments(); i++) {

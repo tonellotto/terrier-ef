@@ -102,7 +102,7 @@ public class Invert2Direct
 		final String src_index_path = FilenameUtils.getFullPath(args.index);
 		final String src_index_prefix = FilenameUtils.getBaseName(args.index);
 
-		IndexOnDisk index = Index.createIndex(src_index_path, src_index_prefix);
+		IndexOnDisk index = IndexOnDisk.createIndex(src_index_path, src_index_prefix);
 		
 		if (!index.hasIndexStructure("inverted")) {
 			LOGGER.error("This index has no inverted structure, aborting direct index build");

@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.terrier.structures.DocumentIndex;
 import org.terrier.structures.DocumentIndexEntry;
-import org.terrier.structures.Index;
 import org.terrier.structures.IndexOnDisk;
 
 public class EFDocumentIndexTest extends EFSetupTest

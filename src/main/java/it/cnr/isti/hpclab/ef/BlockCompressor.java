@@ -176,8 +176,9 @@ public class BlockCompressor extends Compressor
         
             lee = lex_iter.hasNext() ? lex_iter.next() : null;
             super.written_terms++;
-        } 
-                
+            Generator.pb_map.step();
+        }
+
         docidsAccumulator.close();
         docids.close();
         freqsAccumulator.close();

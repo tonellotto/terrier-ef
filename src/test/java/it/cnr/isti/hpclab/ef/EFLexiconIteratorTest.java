@@ -11,7 +11,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.terrier.structures.FSOMapFileLexicon.MapFileLexiconIterator;
-import org.terrier.structures.Index;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.LexiconEntry;
 

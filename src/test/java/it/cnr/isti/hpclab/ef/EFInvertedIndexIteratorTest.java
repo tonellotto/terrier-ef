@@ -10,7 +10,6 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.terrier.structures.Index;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.bit.BitPostingIndexInputStream;
 import org.terrier.structures.postings.IterablePosting;

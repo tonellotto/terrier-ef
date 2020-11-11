@@ -59,13 +59,13 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
     {
         Index.setIndexLoadingProfileAsRetrieval(false);
         String out_prefix = this.dst_index_prefix + "_merge_" + t1.id();
-        
+
         try {
             // Merge docids (low level)
             long docid_offset = merge(t1.prefix() + EliasFano.DOCID_EXTENSION, 
                                       t2.prefix() + EliasFano.DOCID_EXTENSION, 
                                       out_prefix  + EliasFano.DOCID_EXTENSION);
-        
+
             // Merge frequencies (low level)
             long freq_offset = merge(t1.prefix() + EliasFano.FREQ_EXTENSION,
                                      t2.prefix() + EliasFano.FREQ_EXTENSION, 
@@ -79,22 +79,19 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
 
             // Merge lexicons (inplace t1 merge with t2 while recomputing offsets)
             FSOMapFileAppendLexiconOutputStream los1 = new FSOMapFileAppendLexiconOutputStream(this.dst_index_path + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
-                                                                                                       new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
-                                                                                                       (!with_pos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory());
-            // final int num_terms_1 = (int) (Files.size(Paths.get(dst_index_path + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION)) / los1.getEntrySize());
-            
+                                                                                               new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
+                                                                                               (!with_pos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory());
+
             Iterator<Entry<String, LexiconEntry>> lex_iter = null; 
             Entry<String, LexiconEntry> lee = null;
             FSOMapFileLexicon lex = null;
-            
-//            Files.delete(Paths.get(dst_index_path, t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
-            
-            lex = new FSOMapFileLexicon("lexicon", dst_index_path, t2.prefix(), 
-                    new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
-                    (!with_pos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory(),
-                    "aligned", "default", "file");
+
+            lex = new FSOMapFileLexicon("lexicon", dst_index_path, t2.prefix(),
+                                        new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
+                                        (!with_pos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory(),
+                                        "aligned", "default", "file");
             lex_iter = lex.iterator();
-            
+
             while (lex_iter.hasNext()) {
                 lee = lex_iter.next();
                 if (with_pos) {
@@ -112,10 +109,10 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
                     los1.writeNextEntry(lee.getKey(), le);
                 }
             }
-            
+
             lex.close();
             los1.close();
-            
+
             Files.move(Paths.get(this.dst_index_path, t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION),
                        Paths.get(this.dst_index_path, out_prefix  + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
             Files.delete(Paths.get(dst_index_path, t2.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
@@ -127,8 +124,8 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
         t1.prefix(out_prefix);
         t1.id(t2.id());
         return t1;
-    }    
-    
+    }
+
     private long merge(final String prefix_in1, final String prefix_in2, final String out_prefix) throws IOException 
     {
         Path in_file_1 = Paths.get(this.dst_index_path + File.separator + prefix_in1);
@@ -139,11 +136,11 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
         try (FileChannel out = FileChannel.open(in_file_1, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
             try (FileChannel in = FileChannel.open(in_file_2, StandardOpenOption.READ)) {
                 long l = in.size();
-                for (long p = 0; p < l; )
+                for (long p = 0; p < l;)
                     p += in.transferTo(p, l - p, out);
             }
         }
-        
+
         Files.move(in_file_1, out_file);
         Files.delete(in_file_2);
         return offset;

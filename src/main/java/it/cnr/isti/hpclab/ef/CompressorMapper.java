@@ -22,14 +22,13 @@ package it.cnr.isti.hpclab.ef;
 import java.io.IOException;
 import java.util.function.Function;
 
-import org.terrier.structures.Index;
-
+import org.terrier.structures.IndexOnDisk;
 
 class CompressorMapper implements Function<TermPartition,TermPartition>
 {
     private final String src_index_path, src_index_prefix, dst_index_path, dst_index_prefix;
     private final boolean with_pos;
-    
+
     public CompressorMapper(final String src_index_path, final String src_index_prefix, final String dst_index_path, final String dst_index_prefix, final boolean with_pos) 
     {
         this.src_index_path = src_index_path;
@@ -45,14 +44,13 @@ class CompressorMapper implements Function<TermPartition,TermPartition>
         String this_prefix = dst_index_prefix + "_partition_" + terms.id();
         terms.prefix(this_prefix);
         Compressor bc = (!with_pos) 
-            ? new BasicCompressor(Index.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix)
-            : new BlockCompressor(Index.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix);
+            ? new BasicCompressor(IndexOnDisk.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix)
+            : new BlockCompressor(IndexOnDisk.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix);
         try {
             bc.compress(terms);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return terms;
-    }    
+    }
 }

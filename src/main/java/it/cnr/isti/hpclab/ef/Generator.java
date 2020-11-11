@@ -21,12 +21,17 @@ package it.cnr.isti.hpclab.ef;
 
 import it.cnr.isti.hpclab.ef.structures.EFDocumentIndex;
 
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+import me.tongfei.progressbar.ProgressBarStyle;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terrier.Version;
 import org.terrier.applications.CLITool.CLIParsedCLITool;
-import org.terrier.structures.Index;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.IndexUtil;
 import org.terrier.structures.indexing.LexiconBuilder;
@@ -51,6 +55,7 @@ import org.terrier.utility.ApplicationSetup;
 public class Generator 
 {
     protected static Logger LOGGER = LoggerFactory.getLogger(Generator.class);
+    protected static ProgressBar pb_map;
     
     private final int num_terms;
     
@@ -73,11 +78,11 @@ public class Generator
             
             args.index = ApplicationSetup.TERRIER_INDEX_PATH + "/" + ApplicationSetup.TERRIER_INDEX_PREFIX + ".properties";
             
-            //TR-523 workaround
+            // TR-523 workaround
             if (line.hasOption("I"))
                 args.index = line.getOptionValue("I");
             args.path = line.getArgs()[0];
-            args.prefix = line.getArgs()[1];            
+            args.prefix = line.getArgs()[1];
             return process(args);
         }
         
@@ -95,13 +100,12 @@ public class Generator
          public Set<String> commandaliases() {
              return new HashSet<String>(Arrays.asList("ef-generator"));
          }
-          
-           
+
          @Override
          public String helpsummary() {
              return "copies an index to make it use elias-fano compression (old index is preserved)";
          }
-        
+
     }
     
     public static final class Args 
@@ -143,6 +147,7 @@ public class Generator
         process(args);
     }
     
+    @SuppressWarnings("deprecation")
     public static int process(Args args) 
     {
         IndexOnDisk.setIndexLoadingProfileAsRetrieval(false);
@@ -170,9 +175,17 @@ public class Generator
             CompressorMapper mapper = new CompressorMapper(src_index_path, src_index_prefix, dst_index_path, dst_index_prefix, args.with_pos);
             CompressorReducer merger = new CompressorReducer(dst_index_path, dst_index_prefix, args.with_pos);
 
-            System.out.println("Parallel bitfile compression starting...");
             // First we perform reassignment in parallel
+            System.out.println("Parallel bitfile compression starting...");
+            pb_map = new ProgressBarBuilder()
+                    .setInitialMax(generator.num_terms)
+                    .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BLOCK)
+                    .setTaskName("EliasFano compression")
+                    .setUpdateIntervalMillis(1000)
+                    .showSpeed(new DecimalFormat("#.###"))
+                    .build();
             TermPartition[] tmp_partitions = Arrays.stream(partitions).parallel().map(mapper).sorted().toArray(TermPartition[]::new);
+            pb_map.stop();
             
             long compresstime = System.currentTimeMillis();
             System.out.println("Parallel bitfile compression completed after " + (compresstime - starttime)/1000 + " seconds");
@@ -180,7 +193,7 @@ public class Generator
             System.out.println("Sequential merging starting...");
             // Then we perform merging sequentially in a PRECISE order (if the order is wrong, everything is wrong)
             TermPartition last_partition = Arrays.stream(tmp_partitions).reduce(merger).get();
-            
+
             long mergetime = System.currentTimeMillis();
             System.out.println("Sequential merging completed after " + (mergetime - compresstime)/1000 + " seconds");
             
@@ -259,13 +272,13 @@ public class Generator
                 "index.meta.parameter_values",
                 "index.meta.reverse-key-names",
                 "index.meta.value-lengths",
-                "termpipelines"} ) 
+                "termpipelines"} )
         {
             dst_index.setIndexProperty(property, src_index.getIndexProperty(property, null));
         }
 
         dst_index.setIndexProperty("index.terrier.version", Version.VERSION);
-        
+
         dst_index.setIndexProperty("num.Documents", Integer.toString(src_index.getCollectionStatistics().getNumberOfDocuments()));
         dst_index.setIndexProperty("num.Terms",     Integer.toString(src_index.getCollectionStatistics().getNumberOfUniqueTerms()));
         dst_index.setIndexProperty("num.Pointers",  Long.toString(src_index.getCollectionStatistics().getNumberOfPointers()));
@@ -318,8 +331,6 @@ public class Generator
             dst_index.setIndexProperty(EliasFano.HAS_POSITIONS, "true");
         }
         dst_index.flush();
-        
-        
     }
     
     public Generator(final String src_index_path, final String src_index_prefix, final String dst_index_path, final String dst_index_prefix) throws Exception 

@@ -25,6 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 // import org.junit.Test;
 import org.terrier.structures.Index;
+import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.Lexicon;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.postings.IterablePosting;
@@ -36,7 +37,7 @@ public class IndexCreationDebug extends EFSetupTest
 	@Before public void createIndex() throws Exception
 	{
 		super.doShakespeareIndexing();
-		index = Index.createIndex();
+		index = IndexOnDisk.createIndex();
 		
 	}
 	

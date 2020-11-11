@@ -36,8 +36,6 @@ import org.terrier.structures.BitFilePosition;
 import org.terrier.structures.BitIndexPointer;
 import org.terrier.structures.DocumentIndex;
 import org.terrier.structures.DocumentIndexEntry;
-import org.terrier.structures.Index;
-//import org.terrier.structures.FSADocumentIndex;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.Pointer;
 
@@ -120,7 +118,7 @@ public class EFDocumentIndex implements DocumentIndex
 		if (idx == null) {
 			LOGGER.error("No such index : "+ IndexOnDisk.getLastIndexLoadError());				
 		} else {
-			DocumentIndex di = new EFDocumentIndex((IndexOnDisk) idx);
+			DocumentIndex di = new EFDocumentIndex(idx);
 			for (int i = 0; i < di.getNumberOfDocuments(); i++) {
 				System.out.println(di.getDocumentLength(i));
 			}

@@ -39,6 +39,7 @@ import java.io.IOException;
  * according to an internally hardcoded structure (pointers, lowers, uppers).
  * It indexes zeroes (to store docid 0), i.e., {@link #add(long)} does accept zeroes, and indexes zeroes, i.e., skip pointers are used.
  */
+@Deprecated
 public class DocidEncoder implements Closeable 
 {
 	/** The minimum size in bytes of a {@link LongWordCache}. */

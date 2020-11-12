@@ -47,6 +47,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terrier.Version;
 import org.terrier.applications.CLITool.CLIParsedCLITool;
+import org.terrier.querying.IndexRef;
+import org.terrier.structures.IndexFactory;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.IndexUtil;
 import org.terrier.structures.indexing.LexiconBuilder;
@@ -152,12 +154,14 @@ public class Generator
     {
         IndexOnDisk.setIndexLoadingProfileAsRetrieval(false);
         
+        // final String src_index_path = FilenameUtils.getFullPath(args.index);
+        // final String src_index_prefix = FilenameUtils.getBaseName(args.index);
         
-        final String src_index_path = FilenameUtils.getFullPath(args.index);
-        final String src_index_prefix = FilenameUtils.getBaseName(args.index);
+        IndexRef ref_src = IndexRef.of(args.index);
+        IndexRef ref_dst = IndexRef.of(args.path + File.separator + args.prefix + ".properties");
         
-        final String dst_index_path = args.path;
-        final String dst_index_prefix = args.prefix;
+        // final String dst_index_path = args.path;
+        // final String dst_index_prefix = args.prefix;
         
         final int num_threads = ( (args.parallelism != null && Integer.parseInt(args.parallelism) > 1) 
                                         ? Math.min(ForkJoinPool.commonPool().getParallelism(), Integer.parseInt(args.parallelism)) 
@@ -169,11 +173,11 @@ public class Generator
         long starttime = System.currentTimeMillis();
         
         try {
-            Generator generator = new Generator(src_index_path, src_index_prefix, dst_index_path, dst_index_prefix);
+            Generator generator = new Generator(ref_src, ref_dst);
             
             TermPartition[] partitions = generator.partition(num_threads);
-            CompressorMapper mapper = new CompressorMapper(src_index_path, src_index_prefix, dst_index_path, dst_index_prefix, args.with_pos);
-            CompressorReducer merger = new CompressorReducer(dst_index_path, dst_index_prefix, args.with_pos);
+            CompressorMapper mapper = new CompressorMapper(ref_src, ref_dst, args.with_pos);
+            CompressorReducer merger = new CompressorReducer(ref_dst, args.with_pos);
 
             // First we perform reassignment in parallel
             System.out.println("Parallel bitfile compression starting...");
@@ -198,21 +202,22 @@ public class Generator
             System.out.println("Sequential merging completed after " + (mergetime - compresstime)/1000 + " seconds");
             
             // Eventually, we rename the last merge
-            IndexUtil.renameIndex(args.path, last_partition.prefix(), dst_index_path, dst_index_prefix);
+            IndexUtil.renameIndex(args.path, last_partition.prefix(), args.path, args.prefix);
             
-            IndexOnDisk src_index = IndexOnDisk.createIndex(src_index_path, src_index_prefix);
+            IndexOnDisk src_index = (IndexOnDisk) IndexFactory.of(ref_src);
+            
             if (IndexOnDisk.getLastIndexLoadError() != null) {
                 throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
             }
             
-            IndexOnDisk dst_index = IndexOnDisk.createNewIndex(dst_index_path, dst_index_prefix);
+            IndexOnDisk dst_index = IndexOnDisk.createNewIndex(args.path, args.prefix);
             dst_index.close();
-            dst_index = IndexOnDisk.createIndex(dst_index_path, dst_index_prefix);
+            dst_index = IndexOnDisk.createIndex(args.path, args.prefix);
             if (IndexOnDisk.getLastIndexLoadError() != null) {
                 throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
             }
             
-            EFDocumentIndex.write((org.terrier.structures.DocumentIndex) src_index.getDocumentIndex(), dst_index_path + File.separator + dst_index_prefix + ".sizes");
+            EFDocumentIndex.write((org.terrier.structures.DocumentIndex) src_index.getDocumentIndex(), args.path + File.separator + args.prefix + ".sizes");
             // IndexUtil.copyStructure(src_index, dst_index, "document", "document");
             
             if (args.soft_link) {
@@ -333,10 +338,11 @@ public class Generator
         dst_index.flush();
     }
     
-    public Generator(final String src_index_path, final String src_index_prefix, final String dst_index_path, final String dst_index_prefix) throws Exception 
+    public Generator(final IndexRef src_ref, final IndexRef dst_ref) throws Exception 
     {    
         // Load input index
-        IndexOnDisk src_index = IndexOnDisk.createIndex(src_index_path, src_index_prefix);
+    	IndexOnDisk src_index = (IndexOnDisk) IndexFactory.of(src_ref);
+    	
         if (IndexOnDisk.getLastIndexLoadError() != null) {
             throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
         }
@@ -344,12 +350,14 @@ public class Generator
         src_index.close();
         LOGGER.info("Input index contains " + this.num_terms + " terms");
         
-        // check dst index does not exist 
+        // check dst index does not exist
+        final String dst_index_path = FilenameUtils.getFullPath(dst_ref.toString());
+        
         if (!Files.exists(Paths.get(dst_index_path))) {
             LOGGER.info("Index directory " + dst_index_path + " does not exist. It is being created.");
             Files.createDirectories(Paths.get(dst_index_path));
-        } else if (Files.exists(Paths.get(dst_index_path + File.separator + dst_index_prefix + ".properties"))) {
-            throw new IllegalArgumentException("Index directory " + dst_index_path + " already contains an index with prefix " + dst_index_prefix);
+        } else if (Files.exists(Paths.get(dst_ref.toString()))) {
+            throw new IllegalArgumentException("Index directory " + dst_index_path + " already contains an index with the given prefix");
         }        
     }
 

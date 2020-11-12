@@ -30,8 +30,9 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.function.BinaryOperator;
 
+import org.apache.commons.io.FilenameUtils;
+import org.terrier.querying.IndexRef;
 import org.terrier.structures.FSOMapFileLexicon;
-import org.terrier.structures.Index;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.collections.FSOrderedMapFile;
 import org.terrier.structures.seralization.FixedSizeTextFactory;
@@ -43,23 +44,21 @@ import it.cnr.isti.hpclab.ef.structures.FSOMapFileAppendLexiconOutputStream;
 
 public class CompressorReducer implements BinaryOperator<TermPartition> 
 {
-    private final String dst_index_path;
-    private final String dst_index_prefix;
+    private final IndexRef dst_ref;
     private final boolean with_pos;
     
-    public CompressorReducer(final String dst_index_path, final String dst_index_prefix, final boolean with_pos)
+    public CompressorReducer(final IndexRef dst_ref, final boolean with_pos)
     {
-        this.dst_index_path = dst_index_path;
-        this.dst_index_prefix = dst_index_prefix;
+        this.dst_ref = dst_ref;
         this.with_pos = with_pos;
     }
 
     @Override
     public TermPartition apply(TermPartition t1, TermPartition t2) 
     {
-        Index.setIndexLoadingProfileAsRetrieval(false);
-        String out_prefix = this.dst_index_prefix + "_merge_" + t1.id();
-
+        final String out_prefix = "_merge_" + t1.id();
+        final String dst_index_path = FilenameUtils.getFullPath(dst_ref.toString());
+        
         try {
             // Merge docids (low level)
             long docid_offset = merge(t1.prefix() + EliasFano.DOCID_EXTENSION, 
@@ -78,7 +77,7 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
                 : 0;
 
             // Merge lexicons (inplace t1 merge with t2 while recomputing offsets)
-            FSOMapFileAppendLexiconOutputStream los1 = new FSOMapFileAppendLexiconOutputStream(this.dst_index_path + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
+            FSOMapFileAppendLexiconOutputStream los1 = new FSOMapFileAppendLexiconOutputStream(dst_index_path + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
                                                                                                new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
                                                                                                (!with_pos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory());
 
@@ -113,8 +112,8 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
             lex.close();
             los1.close();
 
-            Files.move(Paths.get(this.dst_index_path, t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION),
-                       Paths.get(this.dst_index_path, out_prefix  + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
+            Files.move(Paths.get(dst_index_path, t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION),
+                       Paths.get(dst_index_path, out_prefix  + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
             Files.delete(Paths.get(dst_index_path, t2.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
         } catch (IOException e) {
             e.printStackTrace();
@@ -128,9 +127,11 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
 
     private long merge(final String prefix_in1, final String prefix_in2, final String out_prefix) throws IOException 
     {
-        Path in_file_1 = Paths.get(this.dst_index_path + File.separator + prefix_in1);
-        Path in_file_2 = Paths.get(this.dst_index_path + File.separator + prefix_in2);
-        Path out_file  = Paths.get(this.dst_index_path + File.separator + out_prefix);
+    	final String dst_index_path = FilenameUtils.getFullPath(dst_ref.toString());
+    	
+        Path in_file_1 = Paths.get(dst_index_path + File.separator + prefix_in1);
+        Path in_file_2 = Paths.get(dst_index_path + File.separator + prefix_in2);
+        Path out_file  = Paths.get(dst_index_path + File.separator + out_prefix);
 
         final long offset = Files.size(in_file_1);
         try (FileChannel out = FileChannel.open(in_file_1, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {

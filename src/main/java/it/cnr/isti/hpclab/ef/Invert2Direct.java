@@ -24,8 +24,6 @@ import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 
-import org.apache.commons.io.FilenameUtils;
-
 import org.apache.log4j.Logger;
 
 import org.kohsuke.args4j.CmdLineParser;
@@ -38,7 +36,9 @@ import org.terrier.structures.PostingIndexInputStream;
 import org.terrier.structures.postings.IterablePosting;
 import org.terrier.utility.ApplicationSetup;
 import org.terrier.utility.UnitUtils;
+import org.terrier.querying.IndexRef;
 import org.terrier.structures.DocumentIndexEntry;
+import org.terrier.structures.IndexFactory;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -98,10 +98,11 @@ public class Invert2Direct
     {
         IndexOnDisk.setIndexLoadingProfileAsRetrieval(false);
                 
-        final String src_index_path = FilenameUtils.getFullPath(args.index);
-        final String src_index_prefix = FilenameUtils.getBaseName(args.index);
+        // final String src_index_path = FilenameUtils.getFullPath(args.index);
+        // final String src_index_prefix = FilenameUtils.getBaseName(args.index);
 
-        IndexOnDisk index = IndexOnDisk.createIndex(src_index_path, src_index_prefix);
+        IndexOnDisk index = (IndexOnDisk) IndexFactory.of(IndexRef.of(args.index));
+        // IndexOnDisk index = IndexOnDisk.createIndex(src_index_path, src_index_prefix);
         
         if (!index.hasIndexStructure("inverted")) {
             LOGGER.error("This index has no inverted structure, aborting direct index build");

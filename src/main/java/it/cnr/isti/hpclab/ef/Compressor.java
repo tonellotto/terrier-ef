@@ -11,13 +11,6 @@ public abstract class Compressor
     
     abstract void compress(final TermPartition terms) throws IOException;
     
-    /*
-    default boolean stop(final Entry<String, LexiconEntry> lee, final int end)
-    {
-        return (lee == null || lee.getValue().getTermId() >= end);
-    }
-    */
-    
     final boolean stop(final Entry<String, LexiconEntry> lee, final int len)
     {
         return (lee == null || written_terms >= len);

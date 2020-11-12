@@ -22,30 +22,34 @@ package it.cnr.isti.hpclab.ef;
 import java.io.IOException;
 import java.util.function.Function;
 
+import org.terrier.querying.IndexRef;
+import org.terrier.structures.IndexFactory;
 import org.terrier.structures.IndexOnDisk;
 
 class CompressorMapper implements Function<TermPartition,TermPartition>
 {
-    private final String src_index_path, src_index_prefix, dst_index_path, dst_index_prefix;
+	private final IndexRef src_ref, dst_ref;
     private final boolean with_pos;
 
-    public CompressorMapper(final String src_index_path, final String src_index_prefix, final String dst_index_path, final String dst_index_prefix, final boolean with_pos) 
+    public CompressorMapper(final IndexRef src_ref, final IndexRef dst_ref, final boolean with_pos) 
     {
-        this.src_index_path = src_index_path;
-        this.src_index_prefix = src_index_prefix;
-        this.dst_index_path = dst_index_path;
-        this.dst_index_prefix = dst_index_prefix;
+    	this.src_ref = src_ref;
+    	this.dst_ref = dst_ref;
+
         this.with_pos = with_pos;
     }
 
     @Override
     public TermPartition apply(TermPartition terms) 
     {
-        String this_prefix = dst_index_prefix + "_partition_" + terms.id();
-        terms.prefix(this_prefix);
+        terms.prefix("_partition_" + terms.id());
+        
+        IndexOnDisk index = (IndexOnDisk) IndexFactory.of(src_ref);
+        
         Compressor bc = (!with_pos) 
-            ? new BasicCompressor(IndexOnDisk.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix)
-            : new BlockCompressor(IndexOnDisk.createIndex(src_index_path, src_index_prefix), dst_index_path, dst_index_prefix);
+            ? new BasicCompressor(index, dst_ref)
+            : new BlockCompressor(index, dst_ref);
+            
         try {
             bc.compress(terms);
         } catch (IOException e) {

@@ -37,7 +37,6 @@ import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.Pointer;
 import org.terrier.structures.PostingIndex;
 import org.terrier.structures.PostingIndexInputStream;
-import org.terrier.structures.Skipable;
 import org.terrier.structures.postings.IterablePosting;
 
 /**
@@ -125,7 +124,7 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer> {
         return "true".equals(index.getIndexProperty(EliasFano.HAS_POSITIONS, "false"));
     }
     
-    public static class InputIterator implements PostingIndexInputStream, Skipable {
+    public static class InputIterator implements PostingIndexInputStream {
         private final MapFileLexiconIterator lexIter;
         private final EFInvertedIndex invIndex;
         private LexiconEntry currentPointer;
@@ -195,14 +194,6 @@ public class EFInvertedIndex implements PostingIndex<BitIndexPointer> {
         @Override
         public void print() {
             throw new UnsupportedOperationException("Should not be invoked");
-        }
-
-        @Override
-        public void skip(final int numEntries) throws IOException  {
-            int n = numEntries;
-            while (n-- > 0 && lexIter.hasNext()) {
-                lexIter.next();
-            }
         }
     }
 }

@@ -26,17 +26,20 @@ import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terrier.querying.IndexRef;
 import org.terrier.structures.BitIndexPointer;
 import org.terrier.structures.FSOMapFileLexiconOutputStream;
 import org.terrier.structures.Index;
-import org.terrier.structures.IndexOnDisk;
+
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.LexiconOutputStream;
 import org.terrier.structures.collections.FSOrderedMapFile;
 import org.terrier.structures.postings.IterablePosting;
 import org.terrier.structures.seralization.FixedSizeTextFactory;
+import org.terrier.utility.Files;
 
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
 import it.cnr.isti.hpclab.ef.util.IndexUtil;
@@ -55,24 +58,23 @@ public class BasicCompressor extends Compressor
 
     protected int LOG2QUANTUM;
     
-    protected final String dst_index_path;
-    protected final String dst_index_prefix;
+    // protected final String dst_index_path;
+    protected final IndexRef dst_ref;
     
     protected final Index src_index;
     protected final int num_docs;
-
-    public BasicCompressor(final Index src_index, final String dst_index_path, final String dst_index_prefix)
+  
+    public BasicCompressor(final Index src_index, final IndexRef dst_ref)
     {
-        this(src_index, dst_index_path, dst_index_prefix, Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8")));
+        this(src_index, dst_ref, Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8")));
     }
     
-    public BasicCompressor(final Index src_index, final String dst_index_path, final String dst_index_prefix, final int log2quantum)
+    public BasicCompressor(final Index src_index, final IndexRef dst_ref, final int log2quantum)
     {
-        this.dst_index_path = dst_index_path;
-        this.dst_index_prefix = dst_index_prefix;
+        this.dst_ref = dst_ref;
         
-        if (IndexOnDisk.existsIndex(dst_index_path, dst_index_prefix)) {
-            LOGGER.error("Cannot compress index while an index already exists at " + dst_index_path + ", " + dst_index_prefix);
+        if (Files.exists(dst_ref.toString())) {
+            LOGGER.error("Cannot compress index while an index already exists at " + dst_ref);
             this.src_index = null;
             this.num_docs = 0;
             return;
@@ -87,9 +89,7 @@ public class BasicCompressor extends Compressor
     @Override
     public void compress(final TermPartition terms) throws IOException
     {
-        // final int begin_term_pos = terms.begin();
-        // final int end_term_pos = terms.end();
-        
+       
         if (terms.begin() >= terms.end() || terms.begin() < 0 || terms.end() > src_index.getCollectionStatistics().getNumberOfUniqueTerms()) {
             LOGGER.error("Something wrong with term positions, begin = " + terms.begin() + ", end = " + terms.end());
             return;
@@ -102,6 +102,7 @@ public class BasicCompressor extends Compressor
             lee = lex_iter.next();
 
         // writers
+        final String dst_index_path = FilenameUtils.getFullPath(dst_ref.toString());
         LexiconOutputStream<String> los    = new FSOMapFileLexiconOutputStream(         dst_index_path + File.separator + terms.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
         LongWordBitWriter           docids = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.DOCID_EXTENSION).getChannel(), ByteOrder.nativeOrder());
         LongWordBitWriter           freqs  = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.FREQ_EXTENSION).getChannel(), ByteOrder.nativeOrder());

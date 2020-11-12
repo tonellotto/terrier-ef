@@ -57,9 +57,9 @@ import org.terrier.utility.ApplicationSetup;
 public class Generator 
 {
     protected static Logger LOGGER = LoggerFactory.getLogger(Generator.class);
-    protected static ProgressBar pb_map;
+    protected static ProgressBar pbMap;
     
-    private final int num_terms;
+    private final int numTerms;
     
     public static class Command extends CLIParsedCLITool
     {
@@ -76,7 +76,7 @@ public class Generator
             Args args = new Args();
             if (line.hasOption("p"))
                 args.parallelism = line.getOptionValue("p");
-            args.with_pos = line.hasOption("b");
+            args.withPos = line.hasOption("b");
             
             args.index = ApplicationSetup.TERRIER_INDEX_PATH + "/" + ApplicationSetup.TERRIER_INDEX_PREFIX + ".properties";
             
@@ -129,10 +129,10 @@ public class Generator
         public String parallelism;
         
         @Option(name = "-b", required = false, usage = "Compress positions with Elias-Fano")
-        public boolean with_pos = false;
+        public boolean withPos = false;
         
         @Option(name = "-s", required = false, usage = "Create soft links to meta index files")
-        public boolean soft_link = true;
+        public boolean softLink = true;
     }
     
     public static void main(String[] argv)
@@ -163,11 +163,11 @@ public class Generator
         // final String dst_index_path = args.path;
         // final String dst_index_prefix = args.prefix;
         
-        final int num_threads = ( (args.parallelism != null && Integer.parseInt(args.parallelism) > 1) 
+        final int numThreads = ( (args.parallelism != null && Integer.parseInt(args.parallelism) > 1) 
                                         ? Math.min(ForkJoinPool.commonPool().getParallelism(), Integer.parseInt(args.parallelism)) 
                                         : 1) ;
                 
-        LOGGER.info("Started " + Generator.class.getSimpleName() + " with parallelism " + num_threads + " (out of " + ForkJoinPool.commonPool().getParallelism() + " max parallelism available)");
+        LOGGER.info("Started " + Generator.class.getSimpleName() + " with parallelism " + numThreads + " (out of " + ForkJoinPool.commonPool().getParallelism() + " max parallelism available)");
         LOGGER.warn("Multi-threaded Elias-Fano compression is experimental - caution advised due to threads competing for available memory! YMMV.");
 
         long starttime = System.currentTimeMillis();
@@ -175,28 +175,28 @@ public class Generator
         try {
             Generator generator = new Generator(refSrc, refDst);
             
-            TermPartition[] partitions = generator.partition(num_threads);
-            CompressorMapper mapper = new CompressorMapper(refSrc, refDst, args.with_pos);
-            CompressorReducer merger = new CompressorReducer(refDst, args.with_pos);
+            TermPartition[] partitions = generator.partition(numThreads);
+            CompressorMapper mapper = new CompressorMapper(refSrc, refDst, args.withPos);
+            CompressorReducer merger = new CompressorReducer(refDst, args.withPos);
 
             // First we perform reassignment in parallel
             System.out.println("Parallel bitfile compression starting...");
-            pb_map = new ProgressBarBuilder()
-                    .setInitialMax(generator.num_terms)
+            pbMap = new ProgressBarBuilder()
+                    .setInitialMax(generator.numTerms)
                     .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BLOCK)
                     .setTaskName("EliasFano compression")
                     .setUpdateIntervalMillis(1000)
                     .showSpeed(new DecimalFormat("#.###"))
                     .build();
-            TermPartition[] tmp_partitions = Arrays.stream(partitions).parallel().map(mapper).sorted().toArray(TermPartition[]::new);
-            pb_map.stop();
+            TermPartition[] tmpPartitions = Arrays.stream(partitions).parallel().map(mapper).sorted().toArray(TermPartition[]::new);
+            pbMap.stop();
             
             long compresstime = System.currentTimeMillis();
             System.out.println("Parallel bitfile compression completed after " + (compresstime - starttime)/1000 + " seconds");
 
             System.out.println("Sequential merging starting...");
             // Then we perform merging sequentially in a PRECISE order (if the order is wrong, everything is wrong)
-            TermPartition last_partition = Arrays.stream(tmp_partitions).reduce(merger).get();
+            TermPartition last_partition = Arrays.stream(tmpPartitions).reduce(merger).get();
 
             long mergetime = System.currentTimeMillis();
             System.out.println("Sequential merging completed after " + (mergetime - compresstime)/1000 + " seconds");
@@ -204,54 +204,54 @@ public class Generator
             // Eventually, we rename the last merge
             IndexUtil.renameIndex(args.path, last_partition.prefix(), args.path, args.prefix);
             
-            IndexOnDisk src_index = (IndexOnDisk) IndexFactory.of(refSrc);
+            IndexOnDisk srcIndex = (IndexOnDisk) IndexFactory.of(refSrc);
             
             if (IndexOnDisk.getLastIndexLoadError() != null) {
                 throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
             }
             
-            IndexOnDisk dst_index = IndexOnDisk.createNewIndex(args.path, args.prefix);
-            dst_index.close();
-            dst_index = IndexOnDisk.createIndex(args.path, args.prefix);
+            IndexOnDisk dstIndex = IndexOnDisk.createNewIndex(args.path, args.prefix);
+            dstIndex.close();
+            dstIndex = IndexOnDisk.createIndex(args.path, args.prefix);
             if (IndexOnDisk.getLastIndexLoadError() != null) {
                 throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
             }
             
-            EFDocumentIndex.write((org.terrier.structures.DocumentIndex) src_index.getDocumentIndex(), args.path + File.separator + args.prefix + ".sizes");
+            EFDocumentIndex.write((org.terrier.structures.DocumentIndex) srcIndex.getDocumentIndex(), args.path + File.separator + args.prefix + ".sizes");
             // IndexUtil.copyStructure(src_index, dst_index, "document", "document");
             
-            if (args.soft_link) {
-                for (String file : org.terrier.utility.Files.list(((IndexOnDisk) src_index).getPath())) {
-                    if (file.startsWith(((IndexOnDisk)src_index).getPrefix() + "." + "meta" + ".")) {
+            if (args.softLink) {
+                for (String file : org.terrier.utility.Files.list(((IndexOnDisk) srcIndex).getPath())) {
+                    if (file.startsWith(((IndexOnDisk)srcIndex).getPrefix() + "." + "meta" + ".")) {
                         Path dst = Paths.get(
-                                ((IndexOnDisk)dst_index).getPath() + "/" + file.replaceFirst(
-                                        ((IndexOnDisk) src_index).getPrefix() + "\\.meta", 
-                                        ((IndexOnDisk) dst_index).getPrefix() + ".meta"
+                                ((IndexOnDisk)dstIndex).getPath() + "/" + file.replaceFirst(
+                                        ((IndexOnDisk) srcIndex).getPrefix() + "\\.meta", 
+                                        ((IndexOnDisk) dstIndex).getPrefix() + ".meta"
                                     )
                                 );
                         Path src = Paths.get(
-                                ((IndexOnDisk)src_index).getPath() + "/" + file
+                                ((IndexOnDisk)srcIndex).getPath() + "/" + file
                             );
                         Files.createSymbolicLink(dst, src);
                     }
                 }
             } else {
-                IndexUtil.copyStructure(src_index, dst_index, "meta", "meta");
+                IndexUtil.copyStructure(srcIndex, dstIndex, "meta", "meta");
             }
 
             long copytime = System.currentTimeMillis();
             System.out.println("Copying other index structures completed after " + (copytime - mergetime)/1000 + " seconds");
             
-            writeProperties(src_index, dst_index, args.with_pos);
-            LexiconBuilder.optimise(dst_index, "lexicon");
+            writeProperties(srcIndex, dstIndex, args.withPos);
+            LexiconBuilder.optimise(dstIndex, "lexicon");
 
             long opttime = System.currentTimeMillis();
             System.out.println("Lexicon optimization completed after " + (opttime - copytime)/1000 + " seconds");
 
-            dst_index.close();
-            src_index.close();
+            dstIndex.close();
+            srcIndex.close();
             
-            System.out.println("Parallel Elias-Fano compression completed after " + (opttime - starttime)/1000 + " seconds, using "  + num_threads + " threads");
+            System.out.println("Parallel Elias-Fano compression completed after " + (opttime - starttime)/1000 + " seconds, using "  + numThreads + " threads");
             System.out.println("Final index is at " + args.path + " with prefix " + args.prefix);
             return 0;
         } catch (Exception e) {
@@ -260,7 +260,7 @@ public class Generator
         }
     }
     
-    private static void writeProperties(IndexOnDisk src_index, IndexOnDisk dst_index, boolean with_pos) throws IOException 
+    private static void writeProperties(IndexOnDisk srcIndex, IndexOnDisk dstIndex, boolean withPos) throws IOException 
     {    
         for (String property : new String[] {
                 "index.meta-inputstream.class",
@@ -279,90 +279,90 @@ public class Generator
                 "index.meta.value-lengths",
                 "termpipelines"} )
         {
-            dst_index.setIndexProperty(property, src_index.getIndexProperty(property, null));
+            dstIndex.setIndexProperty(property, srcIndex.getIndexProperty(property, null));
         }
 
-        dst_index.setIndexProperty("index.terrier.version", Version.VERSION);
+        dstIndex.setIndexProperty("index.terrier.version", Version.VERSION);
 
-        dst_index.setIndexProperty("num.Documents", Integer.toString(src_index.getCollectionStatistics().getNumberOfDocuments()));
-        dst_index.setIndexProperty("num.Terms",     Integer.toString(src_index.getCollectionStatistics().getNumberOfUniqueTerms()));
-        dst_index.setIndexProperty("num.Pointers",  Long.toString(src_index.getCollectionStatistics().getNumberOfPointers()));
-        dst_index.setIndexProperty("num.Tokens",    Long.toString(src_index.getCollectionStatistics().getNumberOfTokens()));
+        dstIndex.setIndexProperty("num.Documents", Integer.toString(srcIndex.getCollectionStatistics().getNumberOfDocuments()));
+        dstIndex.setIndexProperty("num.Terms",     Integer.toString(srcIndex.getCollectionStatistics().getNumberOfUniqueTerms()));
+        dstIndex.setIndexProperty("num.Pointers",  Long.toString(srcIndex.getCollectionStatistics().getNumberOfPointers()));
+        dstIndex.setIndexProperty("num.Tokens",    Long.toString(srcIndex.getCollectionStatistics().getNumberOfTokens()));
         
-        dst_index.setIndexProperty(EliasFano.LOG2QUANTUM, Integer.toString( Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8"))));
-        dst_index.setIndexProperty(EliasFano.BYTEORDER,   ByteOrder.nativeOrder().toString());
+        dstIndex.setIndexProperty(EliasFano.LOG2QUANTUM, Integer.toString( Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8"))));
+        dstIndex.setIndexProperty(EliasFano.BYTEORDER,   ByteOrder.nativeOrder().toString());
         
-        dst_index.setIndexProperty("max.term.length",Integer.toString(ApplicationSetup.MAX_TERM_LENGTH));
+        dstIndex.setIndexProperty("max.term.length",Integer.toString(ApplicationSetup.MAX_TERM_LENGTH));
         
-        dst_index.setIndexProperty("index.lexicon.termids", "aligned");
-        dst_index.setIndexProperty("index.lexicon.bsearchshortcut", "default");
+        dstIndex.setIndexProperty("index.lexicon.termids", "aligned");
+        dstIndex.setIndexProperty("index.lexicon.bsearchshortcut", "default");
 
-        dst_index.setIndexProperty("index.lexicon.class",             "org.terrier.structures.FSOMapFileLexicon");
-        dst_index.setIndexProperty("index.lexicon.parameter_types",  "java.lang.String,org.terrier.structures.IndexOnDisk");
-        dst_index.setIndexProperty("index.lexicon.parameter_values", "structureName,index");
+        dstIndex.setIndexProperty("index.lexicon.class",             "org.terrier.structures.FSOMapFileLexicon");
+        dstIndex.setIndexProperty("index.lexicon.parameter_types",  "java.lang.String,org.terrier.structures.IndexOnDisk");
+        dstIndex.setIndexProperty("index.lexicon.parameter_values", "structureName,index");
 
-        dst_index.setIndexProperty("index.lexicon-inputstream.class",             "org.terrier.structures.FSOMapFileLexicon$MapFileLexiconIterator");
-        dst_index.setIndexProperty("index.lexicon-inputstream.parameter_types",  "java.lang.String,org.terrier.structures.IndexOnDisk");
-        dst_index.setIndexProperty("index.lexicon-inputstream.parameter_values", "structureName,index");
+        dstIndex.setIndexProperty("index.lexicon-inputstream.class",             "org.terrier.structures.FSOMapFileLexicon$MapFileLexiconIterator");
+        dstIndex.setIndexProperty("index.lexicon-inputstream.parameter_types",  "java.lang.String,org.terrier.structures.IndexOnDisk");
+        dstIndex.setIndexProperty("index.lexicon-inputstream.parameter_values", "structureName,index");
                 
-        dst_index.setIndexProperty("index.lexicon-keyfactory.class",            "org.terrier.structures.seralization.FixedSizeTextFactory");
-        dst_index.setIndexProperty("index.lexicon-keyfactory.parameter_types",  "java.lang.String");
-        dst_index.setIndexProperty("index.lexicon-keyfactory.parameter_values", "${max.term.length}");
+        dstIndex.setIndexProperty("index.lexicon-keyfactory.class",            "org.terrier.structures.seralization.FixedSizeTextFactory");
+        dstIndex.setIndexProperty("index.lexicon-keyfactory.parameter_types",  "java.lang.String");
+        dstIndex.setIndexProperty("index.lexicon-keyfactory.parameter_values", "${max.term.length}");
         
-        if (!with_pos)
-            dst_index.setIndexProperty("index.lexicon-valuefactory.class",            "it.cnr.isti.hpclab.ef.structures.EFLexiconEntry$Factory");
+        if (!withPos)
+            dstIndex.setIndexProperty("index.lexicon-valuefactory.class",            "it.cnr.isti.hpclab.ef.structures.EFLexiconEntry$Factory");
         else
-            dst_index.setIndexProperty("index.lexicon-valuefactory.class",            "it.cnr.isti.hpclab.ef.structures.EFBlockLexiconEntry$Factory");
-        dst_index.setIndexProperty("index.lexicon-valuefactory.parameter_values", "");
-        dst_index.setIndexProperty("index.lexicon-valuefactory.parameter_types",  "");
+            dstIndex.setIndexProperty("index.lexicon-valuefactory.class",            "it.cnr.isti.hpclab.ef.structures.EFBlockLexiconEntry$Factory");
+        dstIndex.setIndexProperty("index.lexicon-valuefactory.parameter_values", "");
+        dstIndex.setIndexProperty("index.lexicon-valuefactory.parameter_types",  "");
 
-        dst_index.setIndexProperty("index.document.class",            "it.cnr.isti.hpclab.ef.structures.EFDocumentIndex");
-        dst_index.setIndexProperty("index.document.parameter_types",  "org.terrier.structures.IndexOnDisk");
-        dst_index.setIndexProperty("index.document.parameter_values", "index");
+        dstIndex.setIndexProperty("index.document.class",            "it.cnr.isti.hpclab.ef.structures.EFDocumentIndex");
+        dstIndex.setIndexProperty("index.document.parameter_types",  "org.terrier.structures.IndexOnDisk");
+        dstIndex.setIndexProperty("index.document.parameter_values", "index");
 
-        dst_index.setIndexProperty("index.document-inputstream.class",            "it.cnr.isti.hpclab.ef.structures.EFDocumentIndex$InputIterator");
-        dst_index.setIndexProperty("index.document-inputstream.parameter_types",  "org.terrier.structures.IndexOnDisk");
-        dst_index.setIndexProperty("index.document-inputstream.parameter_values", "index");
+        dstIndex.setIndexProperty("index.document-inputstream.class",            "it.cnr.isti.hpclab.ef.structures.EFDocumentIndex$InputIterator");
+        dstIndex.setIndexProperty("index.document-inputstream.parameter_types",  "org.terrier.structures.IndexOnDisk");
+        dstIndex.setIndexProperty("index.document-inputstream.parameter_values", "index");
         
-        dst_index.setIndexProperty("index.inverted.class",               "it.cnr.isti.hpclab.ef.structures.EFInvertedIndex");
-        dst_index.setIndexProperty("index.inverted.parameter_types",  "org.terrier.structures.IndexOnDisk,org.terrier.structures.DocumentIndex");
-        dst_index.setIndexProperty("index.inverted.parameter_values", "index,document");
+        dstIndex.setIndexProperty("index.inverted.class",               "it.cnr.isti.hpclab.ef.structures.EFInvertedIndex");
+        dstIndex.setIndexProperty("index.inverted.parameter_types",  "org.terrier.structures.IndexOnDisk,org.terrier.structures.DocumentIndex");
+        dstIndex.setIndexProperty("index.inverted.parameter_values", "index,document");
         
-        dst_index.setIndexProperty("index.inverted-inputstream.class",               "it.cnr.isti.hpclab.ef.structures.EFInvertedIndex$InputIterator");
-        dst_index.setIndexProperty("index.inverted-inputstream.parameter_types",  "org.terrier.structures.IndexOnDisk");
-        dst_index.setIndexProperty("index.inverted-inputstream.parameter_values", "index");
+        dstIndex.setIndexProperty("index.inverted-inputstream.class",               "it.cnr.isti.hpclab.ef.structures.EFInvertedIndex$InputIterator");
+        dstIndex.setIndexProperty("index.inverted-inputstream.parameter_types",  "org.terrier.structures.IndexOnDisk");
+        dstIndex.setIndexProperty("index.inverted-inputstream.parameter_values", "index");
         
-        if (with_pos) {
-            dst_index.setIndexProperty(EliasFano.HAS_POSITIONS, "true");
+        if (withPos) {
+            dstIndex.setIndexProperty(EliasFano.HAS_POSITIONS, "true");
         }
-        dst_index.flush();
+        dstIndex.flush();
     }
     
-    public Generator(final IndexRef src_ref, final IndexRef dst_ref) throws Exception 
+    public Generator(final IndexRef srcRef, final IndexRef dstRef) throws Exception 
     {    
         // Load input index
-    	IndexOnDisk src_index = (IndexOnDisk) IndexFactory.of(src_ref);
+    	IndexOnDisk srcIndex = (IndexOnDisk) IndexFactory.of(srcRef);
     	
         if (IndexOnDisk.getLastIndexLoadError() != null) {
             throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
         }
-        this.num_terms = src_index.getCollectionStatistics().getNumberOfUniqueTerms();
-        src_index.close();
-        LOGGER.info("Input index contains " + this.num_terms + " terms");
+        this.numTerms = srcIndex.getCollectionStatistics().getNumberOfUniqueTerms();
+        srcIndex.close();
+        LOGGER.info("Input index contains " + this.numTerms + " terms");
         
         // check dst index does not exist
-        final String dst_index_path = FilenameUtils.getFullPath(dst_ref.toString());
+        final String dstIndexPath = FilenameUtils.getFullPath(dstRef.toString());
         
-        if (!Files.exists(Paths.get(dst_index_path))) {
-            LOGGER.info("Index directory " + dst_index_path + " does not exist. It is being created.");
-            Files.createDirectories(Paths.get(dst_index_path));
-        } else if (Files.exists(Paths.get(dst_ref.toString()))) {
-            throw new IllegalArgumentException("Index directory " + dst_index_path + " already contains an index with the given prefix");
+        if (!Files.exists(Paths.get(dstIndexPath))) {
+            LOGGER.info("Index directory " + dstIndexPath + " does not exist. It is being created.");
+            Files.createDirectories(Paths.get(dstIndexPath));
+        } else if (Files.exists(Paths.get(dstRef.toString()))) {
+            throw new IllegalArgumentException("Index directory " + dstIndexPath + " already contains an index with the given prefix");
         }        
     }
 
-    public TermPartition[] partition(final int num_threads)
+    public TermPartition[] partition(final int numThreads)
     {
-        return TermPartition.split(num_terms, num_threads);
+        return TermPartition.split(numTerms, numThreads);
     }
 }

@@ -66,10 +66,10 @@ public class BasicCompressor extends Compressor
     protected final int numDocs;
   
     /**
-     * Constructor
+     * Constructor.
      * 
-     * @param srcIndex
-     * @param dstRef
+     * @param srcIndex source index
+     * @param dstRef destination index reference
      */
     public BasicCompressor(final Index srcIndex, final IndexRef dstRef)
     {
@@ -77,11 +77,11 @@ public class BasicCompressor extends Compressor
     }
     
     /**
-     * Constructor
+     * Constructor.
      * 
-     * @param srcIndex
-     * @param dstRef
-     * @param log2quantum
+     * @param srcIndex source index
+     * @param dstRef destination index reference
+     * @param log2quantum log2 of quantum
      */
     public BasicCompressor(final Index srcIndex, final IndexRef dstRef, final int log2quantum)
     {
@@ -110,21 +110,21 @@ public class BasicCompressor extends Compressor
         }
 
         // opening src index lexicon iterator and moving to the begin termid
-        Iterator<Entry<String, LexiconEntry>> lex_iter = srcIndex.getLexicon().iterator();
+        Iterator<Entry<String, LexiconEntry>> lexIter = srcIndex.getLexicon().iterator();
         Entry<String, LexiconEntry> lee = null;
         for (int pos = -1; pos < terms.begin(); pos++)
-            lee = lex_iter.next();
+            lee = lexIter.next();
 
         // writers
-        final String dst_index_path = FilenameUtils.getFullPath(dstRef.toString());
-        LexiconOutputStream<String> los    = new FSOMapFileLexiconOutputStream(         dst_index_path + File.separator + terms.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
-        LongWordBitWriter           docids = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.DOCID_EXTENSION).getChannel(), ByteOrder.nativeOrder());
-        LongWordBitWriter           freqs  = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.FREQ_EXTENSION).getChannel(), ByteOrder.nativeOrder());
+        final String dstIndexPath = FilenameUtils.getFullPath(dstRef.toString());
+        LexiconOutputStream<String> los    = new FSOMapFileLexiconOutputStream(         dstIndexPath + File.separator + terms.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
+        LongWordBitWriter           docids = new LongWordBitWriter(new FileOutputStream(dstIndexPath + File.separator + terms.prefix() + EliasFano.DOCID_EXTENSION).getChannel(), ByteOrder.nativeOrder());
+        LongWordBitWriter           freqs  = new LongWordBitWriter(new FileOutputStream(dstIndexPath + File.separator + terms.prefix() + EliasFano.FREQ_EXTENSION).getChannel(), ByteOrder.nativeOrder());
         
         // The sequence encoder to generate posting lists (docids)
-        SequenceEncoder docidsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
+        SequenceEncoder docidsAccumulator = new SequenceEncoder(DEFAULT_CACHE_SIZE, LOG2QUANTUM);
         // The sequence encoder to generate posting lists (freqs)
-        SequenceEncoder freqsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
+        SequenceEncoder freqsAccumulator = new SequenceEncoder(DEFAULT_CACHE_SIZE, LOG2QUANTUM);
                 
         long docidsOffset = 0;
         long freqsOffset = 0;
@@ -156,9 +156,9 @@ public class BasicCompressor extends Compressor
             // local_termid += 1;
             p.close();
             
-            lee = lex_iter.hasNext() ? lex_iter.next() : null;
-            super.written_terms++;
-            Generator.pb_map.step();
+            lee = lexIter.hasNext() ? lexIter.next() : null;
+            super.writtenTerms++;
+            Generator.pbMap.step();
         } 
                 
         docidsAccumulator.close();

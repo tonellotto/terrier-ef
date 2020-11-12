@@ -66,10 +66,10 @@ public class BlockCompressor extends Compressor
     protected final int numDocs;
 
     /**
-     * Constructor
+     * Constructor.
      * 
-     * @param src_index
-     * @param dstRef
+     * @param srcIndex source index
+     * @param dstRef destination index reference
      */
     public BlockCompressor(final Index src_index, final IndexRef dstRef)
     {
@@ -77,11 +77,11 @@ public class BlockCompressor extends Compressor
     }
     
     /**
-     * Constructor
+     * Constructor.
      * 
-     * @param srcIndex
-     * @param dstRef
-     * @param log2quantum
+     * @param srcIndex source index
+     * @param dstRef destination index reference
+     * @param log2quantum log2 of quantum
      */
     public BlockCompressor(final Index srcIndex, final IndexRef dstRef, final int log2quantum)
     {
@@ -109,10 +109,10 @@ public class BlockCompressor extends Compressor
         }
 
         // opening src index lexicon iterator and moving to the begin termid
-        Iterator<Entry<String, LexiconEntry>> lex_iter = srcIndex.getLexicon().iterator();
+        Iterator<Entry<String, LexiconEntry>> lexIter = srcIndex.getLexicon().iterator();
         Entry<String, LexiconEntry> lee = null;
         for (int pos = -1; pos < terms.begin(); pos++)
-            lee = lex_iter.next();
+            lee = lexIter.next();
 
         // writers
         final String dst_index_path = FilenameUtils.getFullPath(dstRef.toString());
@@ -122,11 +122,11 @@ public class BlockCompressor extends Compressor
         LongWordBitWriter           pos    = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.POS_EXTENSION).getChannel(), ByteOrder.nativeOrder());
         
         // The sequence encoder to generate posting lists (docids)
-        SequenceEncoder docidsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
+        SequenceEncoder docidsAccumulator = new SequenceEncoder(DEFAULT_CACHE_SIZE, LOG2QUANTUM);
         // The sequence encoder to generate posting lists (freqs)
-        SequenceEncoder freqsAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
+        SequenceEncoder freqsAccumulator = new SequenceEncoder(DEFAULT_CACHE_SIZE, LOG2QUANTUM);
         // The sequence encoder to generate posting lists (positions)
-        SequenceEncoder posAccumulator = new SequenceEncoder( DEFAULT_CACHE_SIZE, LOG2QUANTUM );
+        SequenceEncoder posAccumulator = new SequenceEncoder(DEFAULT_CACHE_SIZE, LOG2QUANTUM);
                 
         long docidsOffset = 0;
         long freqsOffset = 0;
@@ -187,9 +187,9 @@ public class BlockCompressor extends Compressor
 
             // local_termid += 1;
         
-            lee = lex_iter.hasNext() ? lex_iter.next() : null;
-            super.written_terms++;
-            Generator.pb_map.step();
+            lee = lexIter.hasNext() ? lexIter.next() : null;
+            super.writtenTerms++;
+            Generator.pbMap.step();
         }
 
         docidsAccumulator.close();

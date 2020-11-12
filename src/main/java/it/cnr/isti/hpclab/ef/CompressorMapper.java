@@ -29,8 +29,8 @@ import org.terrier.structures.IndexOnDisk;
 
 class CompressorMapper implements Function<TermPartition,TermPartition>
 {
-	private final IndexRef srcRef;
-	private final IndexRef dstRef;
+    private final IndexRef srcRef;
+    private final IndexRef dstRef;
     private final boolean withPos;
 
     public CompressorMapper(final IndexRef srcRef, final IndexRef dstRef, final boolean withPos) 

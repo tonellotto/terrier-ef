@@ -58,55 +58,55 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
     @Override
     public TermPartition apply(TermPartition t1, TermPartition t2) 
     {
-        final String out_prefix = "_merge_" + t1.id();
-        final String dst_index_path = FilenameUtils.getFullPath(dstRef.toString());
+        final String outPrefix = "_merge_" + t1.id();
+        final String dstIndexPath = FilenameUtils.getFullPath(dstRef.toString());
         
         try {
             // Merge docids (low level)
-            long docid_offset = merge(t1.prefix() + EliasFano.DOCID_EXTENSION, 
+            long docidOffset = merge(t1.prefix() + EliasFano.DOCID_EXTENSION, 
                                       t2.prefix() + EliasFano.DOCID_EXTENSION, 
-                                      out_prefix  + EliasFano.DOCID_EXTENSION);
+                                      outPrefix  + EliasFano.DOCID_EXTENSION);
 
             // Merge frequencies (low level)
-            long freq_offset = merge(t1.prefix() + EliasFano.FREQ_EXTENSION,
+            long freqOffset = merge(t1.prefix() + EliasFano.FREQ_EXTENSION,
                                      t2.prefix() + EliasFano.FREQ_EXTENSION, 
-                                     out_prefix  + EliasFano.FREQ_EXTENSION);
+                                     outPrefix  + EliasFano.FREQ_EXTENSION);
 
-            long pos_offset = (withPos) 
+            long posOffset = (withPos) 
                 ? merge(t1.prefix() + EliasFano.POS_EXTENSION,
                         t2.prefix() + EliasFano.POS_EXTENSION, 
-                        out_prefix  + EliasFano.POS_EXTENSION)
+                        outPrefix  + EliasFano.POS_EXTENSION)
                 : 0;
 
             // Merge lexicons (inplace t1 merge with t2 while recomputing offsets)
             FSOMapFileAppendLexiconOutputStream los1 = 
-            		new FSOMapFileAppendLexiconOutputStream(dst_index_path + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
+            		new FSOMapFileAppendLexiconOutputStream(dstIndexPath + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
                                                             new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
                                                             (!withPos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory());
 
-            Iterator<Entry<String, LexiconEntry>> lex_iter = null; 
+            Iterator<Entry<String, LexiconEntry>> lexIter = null; 
             Entry<String, LexiconEntry> lee = null;
             FSOMapFileLexicon lex = null;
 
-            lex = new FSOMapFileLexicon("lexicon", dst_index_path, t2.prefix(),
+            lex = new FSOMapFileLexicon("lexicon", dstIndexPath, t2.prefix(),
                                         new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
                                         (!withPos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory(),
                                         "aligned", "default", "file");
-            lex_iter = lex.iterator();
+            lexIter = lex.iterator();
 
-            while (lex_iter.hasNext()) {
-                lee = lex_iter.next();
+            while (lexIter.hasNext()) {
+                lee = lexIter.next();
                 if (withPos) {
                     EFBlockLexiconEntry le = (EFBlockLexiconEntry) lee.getValue();
-                    le.docidOffset += Byte.SIZE * docid_offset;
-                    le.freqOffset  += Byte.SIZE * freq_offset;
-                    le.posOffset   += Byte.SIZE * pos_offset;
+                    le.docidOffset += Byte.SIZE * docidOffset;
+                    le.freqOffset  += Byte.SIZE * freqOffset;
+                    le.posOffset   += Byte.SIZE * posOffset;
                     // le.termId += num_terms_1;
                     los1.writeNextEntry(lee.getKey(), le);
                 } else {
                     EFLexiconEntry le = (EFLexiconEntry) lee.getValue();
-                    le.docidOffset += Byte.SIZE * docid_offset;
-                    le.freqOffset  += Byte.SIZE * freq_offset;
+                    le.docidOffset += Byte.SIZE * docidOffset;
+                    le.freqOffset  += Byte.SIZE * freqOffset;
                     // le.termId += num_terms_1;
                     los1.writeNextEntry(lee.getKey(), le);
                 }
@@ -115,26 +115,26 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
             lex.close();
             los1.close();
 
-            Files.move(Paths.get(dst_index_path, t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION),
-                       Paths.get(dst_index_path, out_prefix  + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
-            Files.delete(Paths.get(dst_index_path, t2.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
+            Files.move(Paths.get(dstIndexPath, t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION),
+                       Paths.get(dstIndexPath, outPrefix  + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
+            Files.delete(Paths.get(dstIndexPath, t2.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Set correct prefix for next merging and return it
-        t1.prefix(out_prefix);
+        t1.prefix(outPrefix);
         t1.id(t2.id());
         return t1;
     }
 
     private long merge(final String prefixIn1, final String prefixIn2, final String outPrefix) throws IOException 
     {
-        final String dst_index_path = FilenameUtils.getFullPath(dstRef.toString());
+        final String dstIndexPath = FilenameUtils.getFullPath(dstRef.toString());
     	
-        Path inFile1 = Paths.get(dst_index_path + File.separator + prefixIn1);
-        Path inFile2 = Paths.get(dst_index_path + File.separator + prefixIn2);
-        Path outFile  = Paths.get(dst_index_path + File.separator + outPrefix);
+        Path inFile1 = Paths.get(dstIndexPath + File.separator + prefixIn1);
+        Path inFile2 = Paths.get(dstIndexPath + File.separator + prefixIn2);
+        Path outFile  = Paths.get(dstIndexPath + File.separator + outPrefix);
 
         final long offset = Files.size(inFile1);
         try (FileChannel out = FileChannel.open(inFile1, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {

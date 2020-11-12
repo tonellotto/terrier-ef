@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terrier.querying.IndexRef;
@@ -59,28 +60,41 @@ public class BasicCompressor extends Compressor
     protected int LOG2QUANTUM;
     
     // protected final String dst_index_path;
-    protected final IndexRef dst_ref;
+    protected final IndexRef dstRef;
     
-    protected final Index src_index;
-    protected final int num_docs;
+    protected final Index srcIndex;
+    protected final int numDocs;
   
-    public BasicCompressor(final Index src_index, final IndexRef dst_ref)
+    /**
+     * Constructor
+     * 
+     * @param srcIndex
+     * @param dstRef
+     */
+    public BasicCompressor(final Index srcIndex, final IndexRef dstRef)
     {
-        this(src_index, dst_ref, Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8")));
+        this(srcIndex, dstRef, Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8")));
     }
     
-    public BasicCompressor(final Index src_index, final IndexRef dst_ref, final int log2quantum)
+    /**
+     * Constructor
+     * 
+     * @param srcIndex
+     * @param dstRef
+     * @param log2quantum
+     */
+    public BasicCompressor(final Index srcIndex, final IndexRef dstRef, final int log2quantum)
     {
-        this.dst_ref = dst_ref;
+        this.dstRef = dstRef;
         
-        if (Files.exists(dst_ref.toString())) {
-            LOGGER.error("Cannot compress index while an index already exists at " + dst_ref);
-            this.src_index = null;
-            this.num_docs = 0;
+        if (Files.exists(dstRef.toString())) {
+            LOGGER.error("Cannot compress index while an index already exists at " + dstRef);
+            this.srcIndex = null;
+            this.numDocs = 0;
             return;
         }        
-        this.src_index = src_index;        
-        this.num_docs = src_index.getCollectionStatistics().getNumberOfDocuments();
+        this.srcIndex = srcIndex;        
+        this.numDocs = srcIndex.getCollectionStatistics().getNumberOfDocuments();
         
         this.LOG2QUANTUM = log2quantum;
     }
@@ -90,19 +104,19 @@ public class BasicCompressor extends Compressor
     public void compress(final TermPartition terms) throws IOException
     {
        
-        if (terms.begin() >= terms.end() || terms.begin() < 0 || terms.end() > src_index.getCollectionStatistics().getNumberOfUniqueTerms()) {
+        if (terms.begin() >= terms.end() || terms.begin() < 0 || terms.end() > srcIndex.getCollectionStatistics().getNumberOfUniqueTerms()) {
             LOGGER.error("Something wrong with term positions, begin = " + terms.begin() + ", end = " + terms.end());
             return;
         }
 
         // opening src index lexicon iterator and moving to the begin termid
-        Iterator<Entry<String, LexiconEntry>> lex_iter = src_index.getLexicon().iterator();
+        Iterator<Entry<String, LexiconEntry>> lex_iter = srcIndex.getLexicon().iterator();
         Entry<String, LexiconEntry> lee = null;
         for (int pos = -1; pos < terms.begin(); pos++)
             lee = lex_iter.next();
 
         // writers
-        final String dst_index_path = FilenameUtils.getFullPath(dst_ref.toString());
+        final String dst_index_path = FilenameUtils.getFullPath(dstRef.toString());
         LexiconOutputStream<String> los    = new FSOMapFileLexiconOutputStream(         dst_index_path + File.separator + terms.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
         LongWordBitWriter           docids = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.DOCID_EXTENSION).getChannel(), ByteOrder.nativeOrder());
         LongWordBitWriter           freqs  = new LongWordBitWriter(new FileOutputStream(dst_index_path + File.separator + terms.prefix() + EliasFano.FREQ_EXTENSION).getChannel(), ByteOrder.nativeOrder());
@@ -122,12 +136,12 @@ public class BasicCompressor extends Compressor
         
         while (!stop(lee, terms.end() - terms.begin())) {
             le = lee.getValue();
-            p = src_index.getInvertedIndex().getPostings((BitIndexPointer)lee.getValue());
+            p = srcIndex.getInvertedIndex().getPostings((BitIndexPointer)lee.getValue());
             
             // los.writeNextEntry(lee.getKey(), new EFLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset));
             los.writeNextEntry(lee.getKey(), new EFLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset));
 
-            docidsAccumulator.init( le.getDocumentFrequency(), num_docs, false, true, LOG2QUANTUM );
+            docidsAccumulator.init( le.getDocumentFrequency(), numDocs, false, true, LOG2QUANTUM );
             freqsAccumulator.init(  le.getDocumentFrequency(), le.getFrequency(), true, false, LOG2QUANTUM );
             
             long lastDocid = 0;

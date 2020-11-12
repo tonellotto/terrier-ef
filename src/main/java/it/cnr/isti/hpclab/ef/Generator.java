@@ -157,8 +157,8 @@ public class Generator
         // final String src_index_path = FilenameUtils.getFullPath(args.index);
         // final String src_index_prefix = FilenameUtils.getBaseName(args.index);
         
-        IndexRef ref_src = IndexRef.of(args.index);
-        IndexRef ref_dst = IndexRef.of(args.path + File.separator + args.prefix + ".properties");
+        IndexRef refSrc = IndexRef.of(args.index);
+        IndexRef refDst = IndexRef.of(args.path + File.separator + args.prefix + ".properties");
         
         // final String dst_index_path = args.path;
         // final String dst_index_prefix = args.prefix;
@@ -173,11 +173,11 @@ public class Generator
         long starttime = System.currentTimeMillis();
         
         try {
-            Generator generator = new Generator(ref_src, ref_dst);
+            Generator generator = new Generator(refSrc, refDst);
             
             TermPartition[] partitions = generator.partition(num_threads);
-            CompressorMapper mapper = new CompressorMapper(ref_src, ref_dst, args.with_pos);
-            CompressorReducer merger = new CompressorReducer(ref_dst, args.with_pos);
+            CompressorMapper mapper = new CompressorMapper(refSrc, refDst, args.with_pos);
+            CompressorReducer merger = new CompressorReducer(refDst, args.with_pos);
 
             // First we perform reassignment in parallel
             System.out.println("Parallel bitfile compression starting...");
@@ -204,7 +204,7 @@ public class Generator
             // Eventually, we rename the last merge
             IndexUtil.renameIndex(args.path, last_partition.prefix(), args.path, args.prefix);
             
-            IndexOnDisk src_index = (IndexOnDisk) IndexFactory.of(ref_src);
+            IndexOnDisk src_index = (IndexOnDisk) IndexFactory.of(refSrc);
             
             if (IndexOnDisk.getLastIndexLoadError() != null) {
                 throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());

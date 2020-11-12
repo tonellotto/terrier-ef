@@ -23,20 +23,22 @@ import java.io.IOException;
 import java.util.function.Function;
 
 import org.terrier.querying.IndexRef;
+
 import org.terrier.structures.IndexFactory;
 import org.terrier.structures.IndexOnDisk;
 
 class CompressorMapper implements Function<TermPartition,TermPartition>
 {
-	private final IndexRef src_ref, dst_ref;
-    private final boolean with_pos;
+	private final IndexRef srcRef;
+	private final IndexRef dstRef;
+    private final boolean withPos;
 
-    public CompressorMapper(final IndexRef src_ref, final IndexRef dst_ref, final boolean with_pos) 
+    public CompressorMapper(final IndexRef srcRef, final IndexRef dstRef, final boolean withPos) 
     {
-    	this.src_ref = src_ref;
-    	this.dst_ref = dst_ref;
+        this.srcRef = srcRef;
+        this.dstRef = dstRef;
 
-        this.with_pos = with_pos;
+        this.withPos = withPos;
     }
 
     @Override
@@ -44,11 +46,11 @@ class CompressorMapper implements Function<TermPartition,TermPartition>
     {
         terms.prefix("_partition_" + terms.id());
         
-        IndexOnDisk index = (IndexOnDisk) IndexFactory.of(src_ref);
+        IndexOnDisk index = (IndexOnDisk) IndexFactory.of(srcRef);
         
-        Compressor bc = (!with_pos) 
-            ? new BasicCompressor(index, dst_ref)
-            : new BlockCompressor(index, dst_ref);
+        Compressor bc = (!withPos) 
+            ? new BasicCompressor(index, dstRef)
+            : new BlockCompressor(index, dstRef);
             
         try {
             bc.compress(terms);

@@ -30,21 +30,24 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.ParserProperties;
 
+import org.terrier.querying.IndexRef;
+import org.terrier.structures.DocumentIndexEntry;
+import org.terrier.structures.IndexFactory;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.PostingIndexInputStream;
 import org.terrier.structures.postings.IterablePosting;
 import org.terrier.utility.ApplicationSetup;
 import org.terrier.utility.UnitUtils;
-import org.terrier.querying.IndexRef;
-import org.terrier.structures.DocumentIndexEntry;
-import org.terrier.structures.IndexFactory;
+
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
+
 import it.cnr.isti.hpclab.ef.structures.EFDirectIndex;
 
 public class Invert2Direct 

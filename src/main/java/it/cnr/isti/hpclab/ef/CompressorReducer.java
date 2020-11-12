@@ -80,7 +80,7 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
 
             // Merge lexicons (inplace t1 merge with t2 while recomputing offsets)
             FSOMapFileAppendLexiconOutputStream los1 = 
-            		new FSOMapFileAppendLexiconOutputStream(dstIndexPath + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
+                    new FSOMapFileAppendLexiconOutputStream(dstIndexPath + File.separator + t1.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
                                                             new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH),
                                                             (!withPos) ? new EFLexiconEntry.Factory() : new EFBlockLexiconEntry.Factory());
 
@@ -131,7 +131,7 @@ public class CompressorReducer implements BinaryOperator<TermPartition>
     private long merge(final String prefixIn1, final String prefixIn2, final String outPrefix) throws IOException 
     {
         final String dstIndexPath = FilenameUtils.getFullPath(dstRef.toString());
-    	
+
         Path inFile1 = Paths.get(dstIndexPath + File.separator + prefixIn1);
         Path inFile2 = Paths.get(dstIndexPath + File.separator + prefixIn2);
         Path outFile  = Paths.get(dstIndexPath + File.separator + outPrefix);

@@ -117,9 +117,18 @@ public class BasicCompressor extends Compressor
 
         // writers
         final String dstIndexPath = FilenameUtils.getFullPath(dstRef.toString());
-        LexiconOutputStream<String> los    = new FSOMapFileLexiconOutputStream(         dstIndexPath + File.separator + terms.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION, new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
-        LongWordBitWriter           docids = new LongWordBitWriter(new FileOutputStream(dstIndexPath + File.separator + terms.prefix() + EliasFano.DOCID_EXTENSION).getChannel(), ByteOrder.nativeOrder());
-        LongWordBitWriter           freqs  = new LongWordBitWriter(new FileOutputStream(dstIndexPath + File.separator + terms.prefix() + EliasFano.FREQ_EXTENSION).getChannel(), ByteOrder.nativeOrder());
+        LexiconOutputStream<String> los = new FSOMapFileLexiconOutputStream(
+                dstIndexPath + File.separator + terms.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
+                new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
+        
+        LongWordBitWriter docids = new LongWordBitWriter(
+                new FileOutputStream(
+                        dstIndexPath + File.separator + terms.prefix() + EliasFano.DOCID_EXTENSION).getChannel(), 
+                ByteOrder.nativeOrder());
+        LongWordBitWriter freqs  = new LongWordBitWriter(
+                new FileOutputStream(
+                        dstIndexPath + File.separator + terms.prefix() + EliasFano.FREQ_EXTENSION).getChannel(),
+                ByteOrder.nativeOrder());
         
         // The sequence encoder to generate posting lists (docids)
         SequenceEncoder docidsAccumulator = new SequenceEncoder(DEFAULT_CACHE_SIZE, LOG2QUANTUM);
@@ -141,8 +150,8 @@ public class BasicCompressor extends Compressor
             // los.writeNextEntry(lee.getKey(), new EFLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset));
             los.writeNextEntry(lee.getKey(), new EFLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset));
 
-            docidsAccumulator.init( le.getDocumentFrequency(), numDocs, false, true, LOG2QUANTUM );
-            freqsAccumulator.init(  le.getDocumentFrequency(), le.getFrequency(), true, false, LOG2QUANTUM );
+            docidsAccumulator.init(le.getDocumentFrequency(), numDocs, false, true, LOG2QUANTUM);
+            freqsAccumulator.init(le.getDocumentFrequency(), le.getFrequency(), true, false, LOG2QUANTUM);
             
             long lastDocid = 0;
             while (p.next() != IterablePosting.END_OF_LIST) {

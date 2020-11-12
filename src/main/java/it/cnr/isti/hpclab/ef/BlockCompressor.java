@@ -71,9 +71,9 @@ public class BlockCompressor extends Compressor
      * @param srcIndex source index
      * @param dstRef destination index reference
      */
-    public BlockCompressor(final Index src_index, final IndexRef dstRef)
+    public BlockCompressor(final Index srcIndex, final IndexRef dstRef)
     {
-        this(src_index, dstRef, Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8")));
+        this(srcIndex, dstRef, Integer.parseInt(System.getProperty(EliasFano.LOG2QUANTUM, "8")));
     }
     
     /**

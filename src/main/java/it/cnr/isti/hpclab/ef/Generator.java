@@ -163,9 +163,9 @@ public class Generator
         // final String dst_index_path = args.path;
         // final String dst_index_prefix = args.prefix;
         
-        final int numThreads = ( (args.parallelism != null && Integer.parseInt(args.parallelism) > 1) 
+        final int numThreads = (args.parallelism != null && Integer.parseInt(args.parallelism) > 1) 
                                         ? Math.min(ForkJoinPool.commonPool().getParallelism(), Integer.parseInt(args.parallelism)) 
-                                        : 1) ;
+                                        : 1;
                 
         LOGGER.info("Started " + Generator.class.getSimpleName() + " with parallelism " + numThreads + " (out of " + ForkJoinPool.commonPool().getParallelism() + " max parallelism available)");
         LOGGER.warn("Multi-threaded Elias-Fano compression is experimental - caution advised due to threads competing for available memory! YMMV.");
@@ -177,7 +177,6 @@ public class Generator
             
             TermPartition[] partitions = generator.partition(numThreads);
             CompressorMapper mapper = new CompressorMapper(refSrc, refDst, args.withPos);
-            CompressorReducer merger = new CompressorReducer(refDst, args.withPos);
 
             // First we perform reassignment in parallel
             System.out.println("Parallel bitfile compression starting...");
@@ -195,6 +194,7 @@ public class Generator
             System.out.println("Parallel bitfile compression completed after " + (compresstime - starttime)/1000 + " seconds");
 
             System.out.println("Sequential merging starting...");
+            CompressorReducer merger = new CompressorReducer(refDst, args.withPos);
             // Then we perform merging sequentially in a PRECISE order (if the order is wrong, everything is wrong)
             TermPartition last_partition = Arrays.stream(tmpPartitions).reduce(merger).get();
 
@@ -203,13 +203,7 @@ public class Generator
             
             // Eventually, we rename the last merge
             IndexUtil.renameIndex(args.path, last_partition.prefix(), args.path, args.prefix);
-            
-            IndexOnDisk srcIndex = (IndexOnDisk) IndexFactory.of(refSrc);
-            
-            if (IndexOnDisk.getLastIndexLoadError() != null) {
-                throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
-            }
-            
+                        
             IndexOnDisk dstIndex = IndexOnDisk.createNewIndex(args.path, args.prefix);
             dstIndex.close();
             dstIndex = IndexOnDisk.createIndex(args.path, args.prefix);
@@ -217,7 +211,9 @@ public class Generator
                 throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
             }
             
-            EFDocumentIndex.write((org.terrier.structures.DocumentIndex) srcIndex.getDocumentIndex(), args.path + File.separator + args.prefix + ".sizes");
+            IndexOnDisk srcIndex = (IndexOnDisk) IndexFactory.of(refSrc);
+            EFDocumentIndex.write((org.terrier.structures.DocumentIndex) srcIndex.getDocumentIndex(), 
+                                  args.path + File.separator + args.prefix + ".sizes");
             // IndexUtil.copyStructure(src_index, dst_index, "document", "document");
             
             if (args.softLink) {
@@ -341,8 +337,8 @@ public class Generator
     public Generator(final IndexRef srcRef, final IndexRef dstRef) throws Exception 
     {    
         // Load input index
-    	IndexOnDisk srcIndex = (IndexOnDisk) IndexFactory.of(srcRef);
-    	
+        IndexOnDisk srcIndex = (IndexOnDisk) IndexFactory.of(srcRef);
+
         if (IndexOnDisk.getLastIndexLoadError() != null) {
             throw new IllegalArgumentException("Error loading index: " + IndexOnDisk.getLastIndexLoadError());
         }

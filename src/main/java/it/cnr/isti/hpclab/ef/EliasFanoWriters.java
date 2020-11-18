@@ -23,8 +23,8 @@ public class EliasFanoWriters
 	@Getter protected LongWordBitWriter docidsWriter = null;
 	@Getter protected LongWordBitWriter freqsWriter = null;
 	
-	protected long docidBitOffset;
-	protected long freqBitOffset;
+	@Getter protected long docidBitOffset;
+	@Getter protected long freqBitOffset;
 
 	@SuppressWarnings("resource")
 	public EliasFanoWriters(final String dstIndexPath) throws IOException

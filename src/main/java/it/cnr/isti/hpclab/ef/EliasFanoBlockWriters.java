@@ -12,7 +12,7 @@ public class EliasFanoBlockWriters extends EliasFanoWriters
 {
 	@Getter protected LongWordBitWriter posWriter = null;
 	
-	protected long posBitOffset;
+	@Getter protected long posBitOffset;
 
 	@SuppressWarnings("resource")
 	public EliasFanoBlockWriters(final String dstIndexPath) throws IOException

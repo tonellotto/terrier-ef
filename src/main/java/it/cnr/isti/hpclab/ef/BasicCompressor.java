@@ -20,9 +20,7 @@
 package it.cnr.isti.hpclab.ef;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -32,27 +30,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terrier.querying.IndexRef;
 import org.terrier.structures.BitIndexPointer;
-import org.terrier.structures.FSOMapFileLexiconOutputStream;
 import org.terrier.structures.Index;
 
 import org.terrier.structures.LexiconEntry;
-import org.terrier.structures.LexiconOutputStream;
-import org.terrier.structures.collections.FSOrderedMapFile;
 import org.terrier.structures.postings.IterablePosting;
-import org.terrier.structures.seralization.FixedSizeTextFactory;
 import org.terrier.utility.Files;
 
 import it.cnr.isti.hpclab.ef.structures.EFLexiconEntry;
-import it.cnr.isti.hpclab.ef.util.IndexUtil;
-import it.cnr.isti.hpclab.ef.util.LongWordBitWriter;
-import it.cnr.isti.hpclab.ef.util.SequenceEncoder;
+import it.cnr.isti.hpclab.ef.util.SynchronizedProgressBar;
 
 /**
  * This is a Elias-Fano compressor focusing on lexicon and posting lists only. It compresses only a range of input termids.
  * All lexicon entries have offsets aligned to this portion of the whole index only, and the docis/freqs files are closed at the end, so such files are byte-aligned.
  * This must be taken into account when merging.
  */
-public class BasicCompressor extends Compressor
+public class BasicCompressor implements Compressor
 {
     protected static final Logger LOGGER = LoggerFactory.getLogger(BasicCompressor.class);
     protected static final int DEFAULT_CACHE_SIZE = 64 * 1024 * 1024;
@@ -99,81 +91,37 @@ public class BasicCompressor extends Compressor
         this.LOG2QUANTUM = log2quantum;
     }
     
-    @SuppressWarnings("resource")
     @Override
     public void compress(final TermPartition terms) throws IOException
     {
-       
-        if (terms.begin() >= terms.end() || terms.begin() < 0 || terms.end() > srcIndex.getCollectionStatistics().getNumberOfUniqueTerms()) {
-            LOGGER.error("Something wrong with term positions, begin = " + terms.begin() + ", end = " + terms.end());
-            return;
-        }
+		// opening src index lexicon iterator and moving to the begin termid
+		Iterator<Entry<String, LexiconEntry>> lexIter = srcIndex.getLexicon().iterator();
+		Entry<String, LexiconEntry> lee = advanceLexiconIteratorTo(terms.begin(), lexIter);
 
-        // opening src index lexicon iterator and moving to the begin termid
-        Iterator<Entry<String, LexiconEntry>> lexIter = srcIndex.getLexicon().iterator();
-        Entry<String, LexiconEntry> lee = null;
-        for (int pos = -1; pos < terms.begin(); pos++)
-            lee = lexIter.next();
-
-        // writers
-        final String dstIndexPath = FilenameUtils.getFullPath(dstRef.toString());
-        LexiconOutputStream<String> los = new FSOMapFileLexiconOutputStream(
-                dstIndexPath + File.separator + terms.prefix() + ".lexicon" + FSOrderedMapFile.USUAL_EXTENSION,
-                new FixedSizeTextFactory(IndexUtil.DEFAULT_MAX_TERM_LENGTH));
-        
-        LongWordBitWriter docids = new LongWordBitWriter(
-                new FileOutputStream(
-                        dstIndexPath + File.separator + terms.prefix() + EliasFano.DOCID_EXTENSION).getChannel(), 
-                ByteOrder.nativeOrder());
-        LongWordBitWriter freqs  = new LongWordBitWriter(
-                new FileOutputStream(
-                        dstIndexPath + File.separator + terms.prefix() + EliasFano.FREQ_EXTENSION).getChannel(),
-                ByteOrder.nativeOrder());
-        
-        // The sequence encoder to generate posting lists (docids)
-        SequenceEncoder docidsAccumulator = new SequenceEncoder(DEFAULT_CACHE_SIZE, LOG2QUANTUM);
-        // The sequence encoder to generate posting lists (freqs)
-        SequenceEncoder freqsAccumulator = new SequenceEncoder(DEFAULT_CACHE_SIZE, LOG2QUANTUM);
-                
-        long docidsOffset = 0;
-        long freqsOffset = 0;
+		// writers
+		final String dstIndexPath = FilenameUtils.getFullPath(dstRef.toString()) + File.separator + terms.prefix();
+		EliasFanoWriters efWriters = new EliasFanoWriters(dstIndexPath);
+		EliasFanoEncoders efEncoders = new EliasFanoEncoders(LOG2QUANTUM);
         
         LexiconEntry le = null;
-        IterablePosting p = null;
-        
-        // int local_termid = 0;
-        
-        while (!stop(lee, terms.end() - terms.begin())) {
+        IterablePosting p = null;        
+        while (!stop(lee, terms.end())) {
             le = lee.getValue();
+			efWriters.writeLexiconEntry(lee.getKey(), new EFLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), efWriters.docidBitOffset, efWriters.freqBitOffset));
+			
+			efEncoders.init(le.getDocumentFrequency(), numDocs, le.getFrequency());
+			
             p = srcIndex.getInvertedIndex().getPostings((BitIndexPointer)lee.getValue());
-            
-            // los.writeNextEntry(lee.getKey(), new EFLexiconEntry(local_termid, le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset));
-            los.writeNextEntry(lee.getKey(), new EFLexiconEntry(le.getTermId(), le.getDocumentFrequency(), le.getFrequency(), le.getMaxFrequencyInDocuments(), docidsOffset, freqsOffset));
-
-            docidsAccumulator.init(le.getDocumentFrequency(), numDocs, false, true, LOG2QUANTUM);
-            freqsAccumulator.init(le.getDocumentFrequency(), le.getFrequency(), true, false, LOG2QUANTUM);
-            
-            long lastDocid = 0;
-            while (p.next() != IterablePosting.END_OF_LIST) {
-                docidsAccumulator.add( p.getId() - lastDocid );
-                lastDocid = p.getId();
-                freqsAccumulator.add(p.getFrequency());
-            }
-                        
-            docidsOffset += docidsAccumulator.dump(docids);
-            freqsOffset  += freqsAccumulator.dump(freqs);
-            // local_termid += 1;
+			efEncoders.add(p);
             p.close();
+
+			efEncoders.dump(efWriters);            
             
             lee = lexIter.hasNext() ? lexIter.next() : null;
-            super.writtenTerms++;
-            Generator.pbMap.step();
+            SynchronizedProgressBar.getInstance().step();
         } 
                 
-        docidsAccumulator.close();
-        docids.close();
-        freqsAccumulator.close();
-        freqs.close();
-        los.close();
-    }
+		efEncoders.close();
+		efWriters.close();
+    }    
 }

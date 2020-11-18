@@ -20,10 +20,7 @@
 package it.cnr.isti.hpclab.ef;
 
 import it.cnr.isti.hpclab.ef.structures.EFDocumentIndex;
-
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
-import me.tongfei.progressbar.ProgressBarStyle;
+import it.cnr.isti.hpclab.ef.util.SynchronizedProgressBar;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +28,6 @@ import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,7 +53,8 @@ import org.terrier.utility.ApplicationSetup;
 public class Generator 
 {
     protected static Logger LOGGER = LoggerFactory.getLogger(Generator.class);
-    protected static ProgressBar pbMap;
+    //protected static ProgressBar pbMap;
+    protected static SynchronizedProgressBar spb;
     
     private final int numTerms;
     
@@ -149,7 +146,6 @@ public class Generator
         process(args);
     }
     
-    @SuppressWarnings("deprecation")
     public static int process(Args args) 
     {
         IndexOnDisk.setIndexLoadingProfileAsRetrieval(false);
@@ -180,15 +176,9 @@ public class Generator
 
             // First we perform reassignment in parallel
             System.out.println("Parallel bitfile compression starting...");
-            pbMap = new ProgressBarBuilder()
-                    .setInitialMax(generator.numTerms)
-                    .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BLOCK)
-                    .setTaskName("EliasFano compression")
-                    .setUpdateIntervalMillis(1000)
-                    .showSpeed(new DecimalFormat("#.###"))
-                    .build();
+            spb = SynchronizedProgressBar.create("EF compression", generator.numTerms);
             TermPartition[] tmpPartitions = Arrays.stream(partitions).parallel().map(mapper).sorted().toArray(TermPartition[]::new);
-            pbMap.stop();
+            spb.stop();
             
             long compresstime = System.currentTimeMillis();
             System.out.println("Parallel bitfile compression completed after " + (compresstime - starttime)/1000 + " seconds");
